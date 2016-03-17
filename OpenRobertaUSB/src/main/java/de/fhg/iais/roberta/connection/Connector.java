@@ -39,6 +39,13 @@ public interface Connector {
     static final String CMD_CONFIGURATION = "configuration";
 
     /**
+     * Search for a specific robot type for auto detection
+     * 
+     * @return true if a robot is connected, false otherwise
+     */
+    public boolean findRobot();
+
+    /**
      * Tell the connector to collect necessary data from the robot and initialise a registration to Open Roberta.
      */
     public void connect();
