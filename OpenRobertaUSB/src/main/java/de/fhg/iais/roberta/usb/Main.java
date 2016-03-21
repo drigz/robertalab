@@ -102,11 +102,17 @@ public class Main {
                     t.start();
                     break;
                 } else if ( ev3usbcon.findRobot() ) {
-                    log.info("EV3 found!");
+                    log.info("EV found!");
                     controller.setConnector(ev3usbcon);
                     t = new Thread(ev3usbcon);
                     t.start();
                     break;
+                }
+            } else {
+                try {
+                    Thread.sleep(200);
+                } catch ( InterruptedException e ) {
+                    // ok
                 }
             }
         }

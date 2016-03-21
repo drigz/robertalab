@@ -20,6 +20,18 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
+        <dependency>
+            <groupId>lego.nxt</groupId>
+            <artifactId>pccomm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.bluecove</groupId>
+            <artifactId>bluecove</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.bluecove</groupId>
+            <artifactId>bluecove-gpl</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

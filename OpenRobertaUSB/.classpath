@@ -22,7 +22,7 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/32jdk1.7.0_51">
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7">
 		<attributes>
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
@@ -32,8 +32,5 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/installations/Githome/OpenRoberta/OpenRobertaUSB/lib/pccomm.jar"/>
-	<classpathentry kind="lib" path="C:/installations/Githome/OpenRoberta/OpenRobertaUSB/lib/bluecove.jar"/>
-	<classpathentry kind="lib" path="C:/installations/Githome/OpenRoberta/OpenRobertaUSB/lib/bluecove-gpl.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

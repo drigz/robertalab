@@ -11,7 +11,6 @@ import org.json.JSONObject;
 
 import de.fhg.iais.roberta.util.ORAtokenGenerator;
 import lejos.pc.comm.NXTCommException;
-import lejos.pc.comm.NXTCommFactory;
 import lejos.pc.comm.NXTInfo;
 
 public class NXTUSBBTConnector extends Observable implements Runnable, Connector {
@@ -28,11 +27,7 @@ public class NXTUSBBTConnector extends Observable implements Runnable, Connector
     private JSONObject brickData = null;
     private State state = State.DISCOVER; // First state when program starts
     private String token = "";
-    private boolean connected = false;
     private boolean userDisconnect = false;
-
-    private String currentNXT = null;
-    private int currentProtocol = 0;
 
     public NXTUSBBTConnector(ResourceBundle serverProps) {
         if ( serverProps != null ) {
@@ -40,21 +35,25 @@ public class NXTUSBBTConnector extends Observable implements Runnable, Connector
             this.serverPort = serverProps.getString("serverPort");
         }
         this.serverAddress = this.serverIp + ":" + this.serverPort;
-        log.config("Server address " + this.serverAddress);
     }
 
     @Override
     public boolean findRobot() {
         try {
             NXTInfo[] nxts = NXTCommunicator.discover();
-            this.nxtcomm = new NXTCommunicator(nxts[0], NXTCommFactory.USB);
-            this.nxtcomm.connect();
-            boolean b = this.nxtcomm.isProgramRunning();
-            log.info("findRobot program is running: " + b);
-            this.nxtcomm.disconnect();
-            return !b;
+            if ( nxts.length > 0 ) {
+                this.nxtcomm = new NXTCommunicator(nxts[0], nxts[0].protocol);
+                this.nxtcomm.connect();
+                boolean isRunningProgram = this.nxtcomm.isProgramRunning();
+                log.info("program is running: " + isRunningProgram);
+                this.nxtcomm.disconnect();
+                return !isRunningProgram;
+            } else {
+                log.info("No NXT device connected yet");
+                return false;
+            }
         } catch ( NullPointerException | IOException | NXTCommException e ) {
-            log.info("findRobot " + e.getMessage());
+            log.info(e.getMessage());
             return false;
         }
     }
@@ -67,32 +66,39 @@ public class NXTUSBBTConnector extends Observable implements Runnable, Connector
     public void run() {
         log.config("Starting NXT Connector Thread.");
         setupServerCommunicator();
+        log.config("Server address " + this.serverAddress);
         while ( true ) {
             switch ( this.state ) {
                 case DISCOVER:
                     NXTInfo[] nxts = NXTCommunicator.discover();
-                    if ( (nxts.length > 0) && !this.connected ) {
+                    if ( (nxts.length > 0) ) {
                         try {
-                            // TODO let user choose which one to connect
-                            this.nxtcomm = new NXTCommunicator(nxts[0], NXTCommFactory.USB);
+                            // TODO let user choose which one to connect?
+                            this.nxtcomm = new NXTCommunicator(nxts[0], nxts[0].protocol);
                             this.nxtcomm.connect();
-                            this.currentNXT = nxts[0].name;
-                            this.currentProtocol = nxts[0].protocol;
                             if ( !this.nxtcomm.isProgramRunning() ) {
                                 this.state = State.WAIT_FOR_CONNECT;
                                 notifyConnectionStateChanged(this.state);
                                 break;
                             } else {
-                                this.nxtcomm.disconnect();
+                                log.info("NXT is running a program");
                             }
                         } catch ( NXTCommException | IOException e ) {
                             log.info("DISCOVER " + e.getMessage());
                         } finally {
+                            this.nxtcomm.disconnect();
                             try {
                                 Thread.sleep(1000);
-                            } catch ( InterruptedException ee ) {
+                            } catch ( InterruptedException e ) {
                                 // ok
                             }
+                        }
+                    } else {
+                        log.info("No NXT device connected");
+                        try {
+                            Thread.sleep(1000);
+                        } catch ( InterruptedException e ) {
+                            // ok
                         }
                     }
                     break;
@@ -102,15 +108,17 @@ public class NXTUSBBTConnector extends Observable implements Runnable, Connector
                     try {
                         this.nxtcomm.connect();
                         if ( !this.nxtcomm.isProgramRunning() ) {
+                            log.info("Program execution finished - enter WAIT_FOR_CMD state again");
                             this.state = State.WAIT_FOR_CMD;
                             notifyConnectionStateChanged(this.state);
                             break;
                         } else {
-                            this.nxtcomm.disconnect();
+                            log.info("Program is running - Cable is plugged in (WAIT_EXECUTION)");
                         }
                     } catch ( NXTCommException | IOException e ) {
-                        log.info("WAIT_EXECUTION " + e.getMessage());
+                        log.info("Program is running - cable is not plugged in (WAIT_EXECUTION)");
                     } finally {
+                        this.nxtcomm.disconnect();
                         try {
                             Thread.sleep(1000);
                         } catch ( InterruptedException ee ) {
@@ -119,22 +127,23 @@ public class NXTUSBBTConnector extends Observable implements Runnable, Connector
                     }
                     break;
                 case WAIT_FOR_CONNECT:
+                    // GUI initiates changing state to CONNECT
                     try {
-                        if ( !this.nxtcomm.isProgramRunning() ) {
-                            this.state = State.WAIT_FOR_CONNECT;
-                            notifyConnectionStateChanged(this.state);
-                            try {
-                                Thread.sleep(1000);
-                            } catch ( InterruptedException e ) {
-                                // ok
-                            }
-                        } else {
-                            reset(null);
+                        this.nxtcomm.connect();
+                        if ( this.nxtcomm.isProgramRunning() ) {
+                            reset(null, false);
                             break;
                         }
-                    } catch ( RuntimeException | IOException e ) {
+                    } catch ( IOException | NXTCommException e ) {
                         log.info("WAIT_FOR_CONNECT " + e.getMessage());
-                        reset(null);
+                        reset(null, false);
+                    } finally {
+                        this.nxtcomm.disconnect();
+                        try {
+                            Thread.sleep(1000);
+                        } catch ( InterruptedException e ) {
+                            // ok
+                        }
                     }
                     break;
                 case CONNECT:
@@ -142,12 +151,13 @@ public class NXTUSBBTConnector extends Observable implements Runnable, Connector
                     this.state = State.WAIT_FOR_SERVER;
                     notifyConnectionStateChanged(this.state);
                     try {
+                        this.nxtcomm.connect();
                         this.brickData = this.nxtcomm.getDeviceInfo();
                         this.brickData.put(KEY_TOKEN, this.token);
                         this.brickData.put(KEY_CMD, CMD_REGISTER);
-                    } catch ( IOException e ) {
+                    } catch ( IOException | NXTCommException e ) {
                         log.info("CONNECT " + e.getMessage());
-                        reset(State.ERROR_BRICK);
+                        reset(State.ERROR_BRICK, false);
                         break;
                     }
                     try {
@@ -155,14 +165,17 @@ public class NXTUSBBTConnector extends Observable implements Runnable, Connector
                         String command = serverResponse.getString("cmd");
                         switch ( command ) {
                             case CMD_REPEAT:
-                                if ( !this.connected ) {
+                                try {
+                                    log.info("registration successful");
                                     this.nxtcomm.playAscending();
-                                    this.connected = true;
+                                } catch ( IOException e ) {
+                                    log.info("registration - playing sound sequence failed");
                                 }
                                 this.state = State.WAIT_FOR_CMD;
                                 notifyConnectionStateChanged(this.state);
                                 break;
                             case CMD_ABORT:
+                                log.info("registration timeout");
                                 notifyConnectionStateChanged(State.TOKEN_TIMEOUT);
                                 this.state = State.DISCOVER;
                                 notifyConnectionStateChanged(this.state);
@@ -172,20 +185,21 @@ public class NXTUSBBTConnector extends Observable implements Runnable, Connector
                         }
                     } catch ( IOException | RuntimeException e ) {
                         log.info("CONNECT " + e.getMessage());
-                        reset(State.ERROR_HTTP);
+                        reset(State.ERROR_HTTP, false);
+                    } finally {
+                        this.nxtcomm.disconnect();
                     }
                     break;
                 case WAIT_FOR_CMD:
-                    if ( !this.nxtcomm.isStillConnected(this.currentNXT, this.currentProtocol) ) {
-                        throw new RuntimeException("NXT connection lost");
-                    }
                     try {
-                        this.brickData = this.nxtcomm.getDeviceInfo(); // TODO check connection
+                        this.nxtcomm.connect();
+                        this.brickData = this.nxtcomm.getDeviceInfo();
                         this.brickData.put(KEY_TOKEN, this.token);
                         this.brickData.put(KEY_CMD, CMD_PUSH);
-                    } catch ( IOException e ) {
+                        this.nxtcomm.disconnect();
+                    } catch ( IOException | NXTCommException e ) {
                         log.info("WAIT_FOR_CMD " + e.getMessage());
-                        reset(State.ERROR_BRICK);
+                        reset(State.ERROR_BRICK, true);
                         break;
                     }
                     try {
@@ -195,14 +209,18 @@ public class NXTUSBBTConnector extends Observable implements Runnable, Connector
                             case CMD_DOWNLOAD:
                                 log.info("Download user program");
                                 try {
+                                    // TODO since we do not have nxt files on our server, download a lejos ev3 file but do nothing with it.
+                                    // Load another file instead, (TestNBCprogram.rxe) from top level directory of the project.
                                     byte[] binaryfile = this.servcomm.downloadProgram(this.brickData);
                                     String filename = this.servcomm.getFilename();
                                     File file = new File("TestNBCprogram.rxe");
+                                    this.nxtcomm.connect();
                                     this.nxtcomm.uploadAndRunFile(Files.readAllBytes(file.toPath()), file.getName());
                                     this.nxtcomm.disconnect();
                                     this.state = State.WAIT_EXECUTION;
-                                } catch ( IOException | InterruptedException e ) {
+                                } catch ( IOException | InterruptedException | NXTCommException e ) {
                                     log.info("Download and run failed: " + e.getMessage());
+                                    log.info("Do not give up yet - make the next push request");
                                     this.state = State.WAIT_FOR_CMD;
                                 }
                                 break;
@@ -216,7 +234,10 @@ public class NXTUSBBTConnector extends Observable implements Runnable, Connector
                         }
                     } catch ( RuntimeException | IOException e ) {
                         log.info("WAIT_FOR_CMD " + e.getMessage());
-                        reset(State.ERROR_HTTP);
+                        reset(State.ERROR_HTTP, true);
+                    } finally {
+                        log.info("Push request finished");
+                        this.nxtcomm.disconnect();
                     }
                     break;
                 default:
@@ -225,15 +246,24 @@ public class NXTUSBBTConnector extends Observable implements Runnable, Connector
         }
     }
 
-    private void reset(State additionalerrormessage) {
-        if ( this.connected ) {
-            this.nxtcomm.playDescending();
+    /**
+     * Reset whole program to DISCOVER state. Also closes nxtcomm!
+     *
+     * @param additionalerrormessage message for popup
+     */
+    private void reset(State additionalerrormessage, boolean playDisconnectSound) {
+        if ( playDisconnectSound ) {
+            try {
+                this.nxtcomm.connect();
+                this.nxtcomm.playDescending();
+            } catch ( IOException | NXTCommException e ) {
+                log.info("reset - Play descending failed");
+            }
         }
         if ( (!this.userDisconnect) && (additionalerrormessage != null) ) {
             notifyConnectionStateChanged(additionalerrormessage);
         }
         this.nxtcomm.disconnect();
-        this.connected = false;
         this.userDisconnect = false;
         this.state = State.DISCOVER;
         notifyConnectionStateChanged(this.state);
@@ -247,7 +277,7 @@ public class NXTUSBBTConnector extends Observable implements Runnable, Connector
     @Override
     public void disconnect() {
         this.userDisconnect = true;
-        this.servcomm.abort();
+        this.servcomm.abort(); // will throw exception, reset will be called in catch statement
     }
 
     @Override
@@ -279,7 +309,7 @@ public class NXTUSBBTConnector extends Observable implements Runnable, Connector
 
     @Override
     public void update() {
-        this.state = State.UPDATE;
+        // no firmware update intended for NXT
     }
 
     @Override

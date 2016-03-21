@@ -56,9 +56,7 @@ public class NXTCommunicator {
     }
 
     public static NXTInfo[] discover() {
-        int protocol = 0;
-        protocol = NXTCommFactory.USB | NXTCommFactory.BLUETOOTH;
-        NXTInfo[] nxts = new NXTConnector().search(null, null, protocol);
+        NXTInfo[] nxts = new NXTConnector().search(NXTCommFactory.ALL_PROTOCOLS);
         return nxts;
     }
 
@@ -85,35 +83,27 @@ public class NXTCommunicator {
         return deviceInfo;
     }
 
-    public void playAscending() {
+    public void playAscending() throws IOException {
         int C2 = 523;
-        try {
-            for ( int i = 4; i < 8; i++ ) {
-                this.nxtCommand.playTone(C2 * i / 4, 100);
-                try {
-                    Thread.sleep(100);
-                } catch ( InterruptedException e ) {
-                    // ok
-                }
+        for ( int i = 4; i < 8; i++ ) {
+            this.nxtCommand.playTone(C2 * i / 4, 100);
+            try {
+                Thread.sleep(100);
+            } catch ( InterruptedException e ) {
+                // ok
             }
-        } catch ( IOException e ) {
-            // ok
         }
     }
 
-    public void playDescending() {
+    public void playDescending() throws IOException {
         int C2 = 523;
-        try {
-            for ( int i = 7; i > 3; i-- ) {
-                this.nxtCommand.playTone(C2 * i / 4, 100);
-                try {
-                    Thread.sleep(100);
-                } catch ( InterruptedException e ) {
-                    // ok
-                }
+        for ( int i = 7; i > 3; i-- ) {
+            this.nxtCommand.playTone(C2 * i / 4, 100);
+            try {
+                Thread.sleep(100);
+            } catch ( InterruptedException e ) {
+                // ok
             }
-        } catch ( IOException e ) {
-            // ok
         }
     }
 
@@ -151,25 +141,9 @@ public class NXTCommunicator {
         }
     }
 
-    /**
-     * TODO TEST @ TUESDAY
-     *
-     * @param currentNXT
-     * @param currentProtocol
-     * @return
-     */
-    public boolean isStillConnected(String currentNXT, int currentProtocol) {
-        NXTInfo[] nxts = discover();
-        for ( int i = 0; i < nxts.length; i++ ) {
-            if ( nxts[i].name.equals("Unknown") && nxts[i].protocol == currentProtocol ) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public void disconnect() {
         try {
+            this.nxtCommand.close();
             this.nxtCommand.disconnect();
         } catch ( IOException | NullPointerException e ) {
             // ok

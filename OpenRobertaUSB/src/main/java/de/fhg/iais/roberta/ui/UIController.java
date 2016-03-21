@@ -128,6 +128,11 @@ public class UIController<ObservableObject> implements Observer {
             if ( n == 0 ) {
                 if ( this.connector != null ) {
                     this.connector.close();
+                    try {
+                        Thread.sleep(500); // give NXTUSBBTConnector time to play disconnect melody? :-)
+                    } catch ( InterruptedException e ) {
+                        // ok
+                    }
                 }
                 Main.stopFileLogger();
                 System.exit(0);
