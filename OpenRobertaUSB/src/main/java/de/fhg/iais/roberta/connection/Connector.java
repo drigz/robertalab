@@ -39,8 +39,9 @@ public interface Connector {
     static final String CMD_CONFIGURATION = "configuration";
 
     /**
-     * Search for a specific robot type for auto detection
-     * 
+     * Search for a specific robot type for auto detection at the beginning of the program. The robot is considered to not run a user program at this time to be
+     * available.
+     *
      * @return true if a robot is connected, false otherwise
      */
     public boolean findRobot();
