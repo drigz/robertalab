@@ -120,7 +120,7 @@ import de.fhg.iais.roberta.visitor.AstVisitor;
  * append a human-readable JAVA code representation of a phrase to a StringBuilder. <b>This representation is correct JAVA code.</b> <br>
  */
 public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
-    public static final String INDENT = "    ";
+    public static final String INDENT = "  ";
 
     private final Ev3Configuration brickConfiguration;
     private final String programName;
@@ -167,24 +167,12 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     private static void generateCodeFromPhrases(ArrayList<ArrayList<Phrase<Void>>> phrasesSet, boolean withWrapping, Ast2Ev3JavaVisitor astVisitor) {
         boolean mainBlock = false;
-        boolean debugging = false;
         for ( ArrayList<Phrase<Void>> phrases : phrasesSet ) {
             for ( Phrase<Void> phrase : phrases ) {
                 mainBlock = handleMainBlocks(astVisitor, mainBlock, phrase);
-                if ( mainBlock && phrase.getKind() == BlockType.MAIN_TASK ) {
-                    debugging = ((MainTask<Void>) phrase).getDebug().equals("TRUE");
-                }
                 phrase.visit(astVisitor);
             }
-            if ( mainBlock ) {
-                astVisitor.sb.append("\n");
-                // for testing
-                if ( debugging ) {
-                    astVisitor.sb.append(INDENT).append(INDENT).append("hal.closeResources();");
-                }
-                astVisitor.sb.append("\n").append(INDENT).append("}");
-                mainBlock = false;
-            }
+
         }
         generateSuffix(withWrapping, astVisitor);
     }
@@ -219,7 +207,9 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             case T:
                 return "";
             case ARRAY:
-                return "List";
+                //return "List";
+                // there is no just "list", only certain types of the arrays
+                return "[]";
             case ARRAY_NUMBER:
                 return "ArrayList<Float>";
             case ARRAY_STRING:
@@ -235,7 +225,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             case NUMBER_INT:
                 return "int";
             case STRING:
-                return "String";
+                return "string";
             case COLOR:
                 return "Pickcolor";
             case VOID:
@@ -269,12 +259,13 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return this.sb;
     }
 
+    //nxc can't cast "(float)"
     @Override
     public Void visitNumConst(NumConst<Void> numConst) {
         if ( isInteger(numConst.getValue()) ) {
             this.sb.append(numConst.getValue());
         } else {
-            this.sb.append("((float) ");
+            this.sb.append("(");
             this.sb.append(numConst.getValue());
             this.sb.append(")");
         }
@@ -291,23 +282,24 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     public Void visitMathConst(MathConst<Void> mathConst) {
         switch ( mathConst.getMathConst() ) {
             case PI:
-                this.sb.append("BlocklyMethods.PI");
+                this.sb.append("PI");
                 break;
             case E:
-                this.sb.append("BlocklyMethods.E");
+                this.sb.append("2.71828");
                 break;
             case GOLDEN_RATIO:
-                this.sb.append("BlocklyMethods.GOLDEN_RATIO");
+                this.sb.append("((1.0 + sqrt(5.0)) / 2.0)");
                 break;
             case SQRT2:
-                this.sb.append("BlocklyMethods.sqrt(2)");
+                this.sb.append("sqrt(2)");
                 break;
             case SQRT1_2:
-                this.sb.append("BlocklyMethods.sqrt(1.0/2.0)");
+                this.sb.append("sqrt(1.0/2.0)");
                 break;
-            case INFINITY:
-                this.sb.append("Float.POSITIVE_INFINITY");
-                break;
+            //can't represent infinity?
+            //case INFINITY:
+            //    this.sb.append("Float.POSITIVE_INFINITY");
+            //    break;
             default:
                 break;
         }
@@ -587,7 +579,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitClearDisplayAction(ClearDisplayAction<Void> clearDisplayAction) {
-        this.sb.append("hal.clearDisplay();");
+        this.sb.append("ClearDisplay();");
         return null;
     }
 
@@ -877,13 +869,13 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     @Override
     public Void visitMainTask(MainTask<Void> mainTask) {
         mainTask.getVariables().visit(this);
-        this.sb.append("\n\n").append(INDENT).append("public void run() throws Exception {\n");
+        //this.sb.append("\n\n").append(INDENT).append("public void run() throws Exception {\n");
         incrIndentation();
         // this is needed for testing
-        if ( mainTask.getDebug().equals("TRUE") ) {
-            this.sb.append(INDENT).append(INDENT).append("hal.startLogging();");
-            //this.sb.append(INDENT).append(INDENT).append(INDENT).append("\nhal.startScreenLoggingThread();");
-        }
+        //if ( mainTask.getDebug().equals("TRUE") ) {
+        //    this.sb.append(INDENT).append(INDENT).append("hal.startLogging();");
+        //this.sb.append(INDENT).append(INDENT).append(INDENT).append("\nhal.startScreenLoggingThread();");
+        //}
         return null;
     }
 
@@ -1166,7 +1158,6 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitMathSingleFunct(MathSingleFunct<Void> mathSingleFunct) {
-        this.sb.append("BlocklyMethods.");
         switch ( mathSingleFunct.getFunctName() ) {
             case ROOT:
                 this.sb.append("sqrt(");
@@ -1204,8 +1195,9 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             case ACOS:
                 this.sb.append("acos(");
                 break;
+            //check if it is correct. Round to nearest int. There is no function like "round" in NXC.
             case ROUND:
-                this.sb.append("round(");
+                this.sb.append("floor(0.5 + ");
                 break;
             case ROUNDUP:
                 this.sb.append("ceil(");
@@ -1500,26 +1492,28 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         this.sb.append(INDENT).append("}\n");
     }
 
+    /*
     private void generateImports() {
         this.sb.append("package generated.main;\n\n");
         this.sb.append("import de.fhg.iais.roberta.runtime.*;\n");
         this.sb.append("import de.fhg.iais.roberta.runtime.ev3.*;\n\n");
-
+    
         this.sb.append("import de.fhg.iais.roberta.shared.*;\n");
         this.sb.append("import de.fhg.iais.roberta.shared.action.ev3.*;\n");
         this.sb.append("import de.fhg.iais.roberta.shared.sensor.ev3.*;\n\n");
-
+    
         this.sb.append("import de.fhg.iais.roberta.components.*;\n");
         this.sb.append("import de.fhg.iais.roberta.components.ev3.*;\n\n");
-
+    
         this.sb.append("import java.util.LinkedHashSet;\n");
         this.sb.append("import java.util.Set;\n");
         this.sb.append("import java.util.List;\n");
         this.sb.append("import java.util.ArrayList;\n");
         this.sb.append("import java.util.Arrays;\n\n");
-
+    
         this.sb.append("import lejos.remote.nxt.NXTConnection;\n\n");
     }
+    */
 
     /**
      * @return Java code used in the code generation to regenerates the same brick configuration
