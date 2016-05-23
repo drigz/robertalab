@@ -118,6 +118,8 @@ public class Ast2Ev3JavaScriptVisitor implements AstVisitor<Void> {
         return astVisitor.sb.toString();
     }
 
+    //TODO: check getKind
+
     @Override
     public Void visitNumConst(NumConst<Void> numConst) {
         this.sb.append("createConstant(CONST." + numConst.getKind() + ", " + numConst.getValue() + ")");

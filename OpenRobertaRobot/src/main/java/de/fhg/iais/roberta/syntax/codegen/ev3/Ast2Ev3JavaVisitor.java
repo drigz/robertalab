@@ -1,7 +1,7 @@
 package de.fhg.iais.roberta.syntax.codegen.ev3;
 
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -120,7 +120,7 @@ import de.fhg.iais.roberta.visitor.AstVisitor;
  * append a human-readable JAVA code representation of a phrase to a StringBuilder. <b>This representation is correct JAVA code.</b> <br>
  */
 public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
-    public static final String INDENT = "    ";
+    public static final String INDENT = "  ";
 
     private final Ev3Configuration brickConfiguration;
     private final String programName;
@@ -167,24 +167,12 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     private static void generateCodeFromPhrases(ArrayList<ArrayList<Phrase<Void>>> phrasesSet, boolean withWrapping, Ast2Ev3JavaVisitor astVisitor) {
         boolean mainBlock = false;
-        boolean debugging = false;
         for ( ArrayList<Phrase<Void>> phrases : phrasesSet ) {
             for ( Phrase<Void> phrase : phrases ) {
                 mainBlock = handleMainBlocks(astVisitor, mainBlock, phrase);
-                if ( mainBlock && phrase.getKind() == BlockType.MAIN_TASK ) {
-                    debugging = ((MainTask<Void>) phrase).getDebug().equals("TRUE");
-                }
                 phrase.visit(astVisitor);
             }
-            if ( mainBlock ) {
-                astVisitor.sb.append("\n");
-                // for testing
-                if ( debugging ) {
-                    astVisitor.sb.append(INDENT).append(INDENT).append("hal.closeResources();");
-                }
-                astVisitor.sb.append("\n").append(INDENT).append("}");
-                mainBlock = false;
-            }
+
         }
         generateSuffix(withWrapping, astVisitor);
     }
@@ -219,15 +207,19 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             case T:
                 return "";
             case ARRAY:
-                return "List";
+                //return "List";
+                // there is no just "list", only certain types of the arrays
+                return "[]";
             case ARRAY_NUMBER:
-                return "ArrayList<Float>";
+                return "float";
             case ARRAY_STRING:
-                return "ArrayList<String>";
+                return "string";
+
+            //TODO
             case ARRAY_COLOUR:
                 return "ArrayList<Pickcolor>";
             case ARRAY_BOOLEAN:
-                return "ArrayList<Boolean>";
+                return "boolean";
             case BOOLEAN:
                 return "boolean";
             case NUMBER:
@@ -235,16 +227,19 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             case NUMBER_INT:
                 return "int";
             case STRING:
-                return "String";
+                return "string";
+            //TODO
             case COLOR:
                 return "Pickcolor";
             case VOID:
                 return "void";
+            //TODO
             case CONNECTION:
                 return "NXTConnection";
-
         }
-        throw new IllegalArgumentException("unhandled type");
+        //throw new IllegalArgumentException("unhandled type");
+        //TODO: check what else it is possible to do to avoid exception
+        return "int";
     }
 
     private static String getEnumCode(@SuppressWarnings("rawtypes") Enum value) {
@@ -269,12 +264,13 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return this.sb;
     }
 
+    //nxc can't cast "(float)"
     @Override
     public Void visitNumConst(NumConst<Void> numConst) {
         if ( isInteger(numConst.getValue()) ) {
             this.sb.append(numConst.getValue());
         } else {
-            this.sb.append("((float) ");
+            this.sb.append("(");
             this.sb.append(numConst.getValue());
             this.sb.append(")");
         }
@@ -291,23 +287,24 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     public Void visitMathConst(MathConst<Void> mathConst) {
         switch ( mathConst.getMathConst() ) {
             case PI:
-                this.sb.append("BlocklyMethods.PI");
+                this.sb.append("PI");
                 break;
             case E:
-                this.sb.append("BlocklyMethods.E");
+                this.sb.append("2.71828");
                 break;
             case GOLDEN_RATIO:
-                this.sb.append("BlocklyMethods.GOLDEN_RATIO");
+                this.sb.append("((1.0 + sqrt(5.0)) / 2.0)");
                 break;
             case SQRT2:
-                this.sb.append("BlocklyMethods.sqrt(2)");
+                this.sb.append("sqrt(2)");
                 break;
             case SQRT1_2:
-                this.sb.append("BlocklyMethods.sqrt(1.0/2.0)");
+                this.sb.append("sqrt(1.0/2.0)");
                 break;
-            case INFINITY:
-                this.sb.append("Float.POSITIVE_INFINITY");
-                break;
+            //can't represent infinity?
+            //case INFINITY:
+            //    this.sb.append("Float.POSITIVE_INFINITY");
+            //    break;
             default:
                 break;
         }
@@ -587,7 +584,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitClearDisplayAction(ClearDisplayAction<Void> clearDisplayAction) {
-        this.sb.append("hal.clearDisplay();");
+        this.sb.append("ClearDisplay();");
         return null;
     }
 
@@ -877,13 +874,13 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     @Override
     public Void visitMainTask(MainTask<Void> mainTask) {
         mainTask.getVariables().visit(this);
-        this.sb.append("\n\n").append(INDENT).append("public void run() throws Exception {\n");
+        //this.sb.append("\n\n").append(INDENT).append("public void run() throws Exception {\n");
         incrIndentation();
         // this is needed for testing
-        if ( mainTask.getDebug().equals("TRUE") ) {
-            this.sb.append(INDENT).append(INDENT).append("hal.startLogging();");
-            //this.sb.append(INDENT).append(INDENT).append(INDENT).append("\nhal.startScreenLoggingThread();");
-        }
+        //if ( mainTask.getDebug().equals("TRUE") ) {
+        //    this.sb.append(INDENT).append(INDENT).append("hal.startLogging();");
+        //this.sb.append(INDENT).append(INDENT).append(INDENT).append("\nhal.startScreenLoggingThread();");
+        //}
         return null;
     }
 
@@ -1166,7 +1163,6 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitMathSingleFunct(MathSingleFunct<Void> mathSingleFunct) {
-        this.sb.append("BlocklyMethods.");
         switch ( mathSingleFunct.getFunctName() ) {
             case ROOT:
                 this.sb.append("sqrt(");
@@ -1204,8 +1200,9 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             case ACOS:
                 this.sb.append("acos(");
                 break;
+            //check if it is correct. Round to nearest int. There is no function like "round" in NXC.
             case ROUND:
-                this.sb.append("round(");
+                this.sb.append("floor(0.5 + ");
                 break;
             case ROUNDUP:
                 this.sb.append("ceil(");
@@ -1482,48 +1479,85 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         if ( !withWrapping ) {
             return;
         }
-        generateImports();
 
-        this.sb.append("public class " + this.programName + " {\n");
-        this.sb.append(INDENT).append("private static final boolean TRUE = true;\n");
-        this.sb.append(INDENT).append("private static Ev3Configuration brickConfiguration;").append("\n\n");
-        this.sb.append(INDENT).append(generateRegenerateUsedSensors()).append("\n\n");
+        //for using colors. For SetSensorColorFull(S1) mode
+        //this.sb.append("#define INPUT_BLACKCOLOR 1" + "\n");
+        //this.sb.append("#define INPUT_BLUECOLOR 2" + "\n");
+        //this.sb.append("#define INPUT_GREENCOLOR 3" + "\n");
+        //this.sb.append("#define INPUT_YELLOWCOLOR 4" + "\n");
+        //this.sb.append("#define INPUT_REDCOLOR 5" + "\n");
+        //this.sb.append("#define INPUT_WHITECOLOR 6" + "\n");
 
-        this.sb.append(INDENT).append("private Hal hal = new Hal(brickConfiguration, usedSensors);\n\n");
-        this.sb.append(INDENT).append("public static void main(String[] args) {\n");
-        this.sb.append(INDENT).append(INDENT).append("try {\n");
-        this.sb.append(INDENT).append(INDENT).append(INDENT).append(generateRegenerateConfiguration()).append("\n");
-        this.sb.append(INDENT).append(INDENT).append(INDENT).append("new ").append(this.programName).append("().run();\n");
-        this.sb.append(INDENT).append(INDENT).append("} catch ( Exception e ) {\n");
-        this.sb.append(INDENT).append(INDENT).append(INDENT).append("Hal.displayExceptionWaitForKeyPress(e);\n");
-        this.sb.append(INDENT).append(INDENT).append("}\n");
-        this.sb.append(INDENT).append("}\n");
+        //this.sb.append("public class " + this.programName + " {\n");
+        //this.sb.append(INDENT).append("private static final boolean TRUE = true;\n");
+        //this.sb.append(INDENT).append("private static Ev3Configuration brickConfiguration;").append("\n\n");
+        //this.sb.append(INDENT).append(generateRegenerateUsedSensors()).append("\n\n");
+
+        //this.sb.append(INDENT).append("private Hal hal = new Hal(brickConfiguration, usedSensors);\n\n");
+
+        //define robot constants:
+
+        this.sb.append("#define WHEELDIAMETER " + this.brickConfiguration.getWheelDiameterCM() + "\n");
+        this.sb.append("#define TRACKWIDTH " + this.brickConfiguration.getTrackWidthCM() + "\n");
+        this.sb.append("task main {\n");
+        //this.sb.append(INDENT).append(INDENT).append("try {\n");
+        //this.sb.append(INDENT).append(INDENT).append(INDENT).append(generateRegenerateConfiguration()).append("\n");
+        //this.sb.append(INDENT).append(INDENT).append(INDENT).append("new ").append(this.programName).append("().run();\n");
+        //this.sb.append(INDENT).append(INDENT).append("} catch ( Exception e ) {\n");
+        //this.sb.append(INDENT).append(INDENT).append(INDENT).append("Hal.displayExceptionWaitForKeyPress(e);\n");
+        // this.sb.append(INDENT).append(INDENT).append("}\n");
+        //this.sb.append(INDENT).append("}\n");
+
+        //add sensors:
+        for ( Entry<SensorPort, EV3Sensor> entry : this.brickConfiguration.getSensors().entrySet() ) {
+            switch ( entry.getValue().getComponentTypeName() ) {
+                case "robBrick_colour":
+                    this.sb.append(INDENT).append("SetSensorLight(IN_" + entry.getKey() + ");" + "\n");
+                    break;
+                case "robBrick_touch":
+                    this.sb.append(INDENT).append("SetSensorTouch(IN_" + entry.getKey() + ");" + "\n");
+                    break;
+                case "robBrick_ultrasonic":
+                    this.sb.append(INDENT).append("SetSensorLowspeed(IN_" + entry.getKey() + ");" + "\n");
+                    break;
+                //to be created
+                case "robBrick_sound":
+                    this.sb.append(INDENT).append("SetSensorSound(IN_" + entry.getKey() + ");" + "\n");
+                    break;
+
+                default:
+                    break;
+            }
+        }
     }
 
+    /*
     private void generateImports() {
         this.sb.append("package generated.main;\n\n");
         this.sb.append("import de.fhg.iais.roberta.runtime.*;\n");
         this.sb.append("import de.fhg.iais.roberta.runtime.ev3.*;\n\n");
-
+    
         this.sb.append("import de.fhg.iais.roberta.shared.*;\n");
         this.sb.append("import de.fhg.iais.roberta.shared.action.ev3.*;\n");
         this.sb.append("import de.fhg.iais.roberta.shared.sensor.ev3.*;\n\n");
-
+    
         this.sb.append("import de.fhg.iais.roberta.components.*;\n");
         this.sb.append("import de.fhg.iais.roberta.components.ev3.*;\n\n");
-
+    
         this.sb.append("import java.util.LinkedHashSet;\n");
         this.sb.append("import java.util.Set;\n");
         this.sb.append("import java.util.List;\n");
         this.sb.append("import java.util.ArrayList;\n");
         this.sb.append("import java.util.Arrays;\n\n");
-
+    
         this.sb.append("import lejos.remote.nxt.NXTConnection;\n\n");
     }
+    */
 
     /**
      * @return Java code used in the code generation to regenerates the same brick configuration
      */
+    /*
     public String generateRegenerateConfiguration() {
         StringBuilder sb = new StringBuilder();
         sb.append(" brickConfiguration = new Ev3Configuration.Builder()\n");
@@ -1534,6 +1568,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         sb.append(INDENT).append(INDENT).append(INDENT).append("    .build();");
         return sb.toString();
     }
+
 
     private void appendSensors(StringBuilder sb) {
         for ( Map.Entry<SensorPort, EV3Sensor> entry : this.brickConfiguration.getSensors().entrySet() ) {
@@ -1548,6 +1583,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             appendOptional(sb, "    .addActor(", entry.getKey(), entry.getValue());
         }
     }
+    */
 
     private static void appendOptional(StringBuilder sb, String type, @SuppressWarnings("rawtypes") Enum port, HardwareComponent hardwareComponent) {
         if ( hardwareComponent != null ) {
