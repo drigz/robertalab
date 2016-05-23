@@ -17,50 +17,14 @@ import de.fhg.iais.roberta.testutil.Helper;
 
 public class AstToLejosJavaVisitorTest {
 
-    private static final String MAIN_CLASS = "" //
-        + "public class Test {\n"
-        + "private static final boolean TRUE = true;";
-
-    private static final String IMPORTS = "" //
-        + "package generated.main;\n\n"
-        + "import de.fhg.iais.roberta.runtime.*;\n"
-        + "import de.fhg.iais.roberta.runtime.ev3.*;\n\n"
-        + "import de.fhg.iais.roberta.shared.*;\n"
-        + "import de.fhg.iais.roberta.shared.action.ev3.*;\n"
-        + "import de.fhg.iais.roberta.shared.sensor.ev3.*;\n\n"
-        + "import de.fhg.iais.roberta.components.*;\n"
-        + "import de.fhg.iais.roberta.components.ev3.*;\n\n"
-        + "import java.util.LinkedHashSet;\n"
-        + "import java.util.Set;\n"
-        + "import java.util.List;\n"
-        + "import java.util.ArrayList;\n"
-        + "import java.util.Arrays;\n"
-        + "import lejos.remote.nxt.NXTConnection;\n\n";
-
-    private static final String BRICK_CONFIGURATION = "" //
-        + "    brickConfiguration = new Ev3Configuration.Builder()\n"
-        + "    .setWheelDiameter(5.6)\n"
-        + "    .setTrackWidth(17.0)\n"
-        + "    .addActor(ActorPort.A, new EV3Actor(EV3Actors.EV3_MEDIUM_MOTOR, true, DriveDirection.FOREWARD, MotorSide.LEFT))\n"
-        + "    .addActor(ActorPort.B, new EV3Actor(EV3Actors.EV3_LARGE_MOTOR, true, DriveDirection.FOREWARD, MotorSide.RIGHT))\n"
-        + "    .addSensor(SensorPort.S1, new EV3Sensor(EV3Sensors.EV3_TOUCH_SENSOR))\n"
-        + "    .addSensor(SensorPort.S2, new EV3Sensor(EV3Sensors.EV3_ULTRASONIC_SENSOR))\n"
-        + "    .build();\n\n";
-
-    private static final String BRICK_CONFIGURATION_DECL = "private static Ev3Configuration brickConfiguration;\n";
-
-    private static final String USED_SENSORS_DECL = "private Set<UsedSensor> usedSensors = new LinkedHashSet<UsedSensor>();\n";
-
     private static final String MAIN_METHOD = ""
-        + "    private Hal hal = new Hal(brickConfiguration, usedSensors);\n\n"
-        + "    public static void main(String[] args) {\n"
-        + "        try {\n"
-        + BRICK_CONFIGURATION
-        + "            new Test().run();\n"
-        + "        } catch ( Exception e ) {\n"
-        + "            Hal.displayExceptionWaitForKeyPress(e);\n"
-        + "        }\n"
-        + "    }\n\n";
+        + "#define WHEELDIAMETER 5.6\n"
+        + "#define TRACKWIDTH 18.1\n"
+        + "task main {\n"
+        + "    SetSensorTouch(IN_1);\n"
+        + "    SetSensorSound(IN_2);\n"
+        + "    SetSensorLight(IN_3);\n"
+        + "    SetSensorLowspeed(IN_4);\n";
     private static final String SUFFIX = "";
     private static Ev3Configuration brickConfiguration;
 
@@ -79,12 +43,7 @@ public class AstToLejosJavaVisitorTest {
     public void test() throws Exception {
 
         String a = "" //
-            + IMPORTS
-            + MAIN_CLASS
-            + BRICK_CONFIGURATION_DECL
-            + USED_SENSORS_DECL
             + MAIN_METHOD
-
             + "        hal.drawText(\"Hallo\", 0, 3);\n"
             + SUFFIX
 
@@ -97,10 +56,6 @@ public class AstToLejosJavaVisitorTest {
     public void test1() throws Exception {
 
         String a = "" //
-            + IMPORTS
-            + MAIN_CLASS
-            + BRICK_CONFIGURATION_DECL
-            + USED_SENSORS_DECL
             + MAIN_METHOD
 
             + "        for ( float k0 = 0; k0 < 10; k0+=1 ) {\n"
@@ -117,10 +72,6 @@ public class AstToLejosJavaVisitorTest {
     public void test2() throws Exception {
 
         String a = "" //
-            + IMPORTS
-            + MAIN_CLASS
-            + BRICK_CONFIGURATION_DECL
-            + "private Set<UsedSensor> usedSensors = new LinkedHashSet<UsedSensor>(Arrays.asList(new UsedSensor(SensorPort.S1, EV3Sensors.EV3_TOUCH_SENSOR, TouchSensorMode.TOUCH), new UsedSensor(SensorPort.S3, EV3Sensors.EV3_COLOR_SENSOR, ColorSensorMode.COLOUR)));\n"
             + MAIN_METHOD
 
             + "        if ( hal.isPressed(SensorPort.S1) ) {\n"
@@ -149,10 +100,7 @@ public class AstToLejosJavaVisitorTest {
     public void test3() throws Exception {
 
         String a = "" //
-            + IMPORTS
-            + MAIN_CLASS
-            + BRICK_CONFIGURATION_DECL
-            + "private Set<UsedSensor> usedSensors = new LinkedHashSet<UsedSensor>(Arrays.asList(new UsedSensor(SensorPort.S1, EV3Sensors.EV3_TOUCH_SENSOR, TouchSensorMode.TOUCH), new UsedSensor(SensorPort.S4, EV3Sensors.EV3_ULTRASONIC_SENSOR, UltrasonicSensorMode.DISTANCE)));\n"
+
             + MAIN_METHOD
 
             + "        if ( hal.isPressed(SensorPort.S1) ) {\n"
@@ -181,11 +129,6 @@ public class AstToLejosJavaVisitorTest {
     public void test4() throws Exception {
 
         String a = "" //
-            + IMPORTS
-            + MAIN_CLASS
-            + BRICK_CONFIGURATION_DECL
-            + "private Set<UsedSensor> usedSensors = new LinkedHashSet<UsedSensor>(Arrays.asList(new UsedSensor(SensorPort.S4, EV3Sensors.EV3_IR_SENSOR, InfraredSensorMode.DISTANCE), new UsedSensor(SensorPort.S4, EV3Sensors.EV3_ULTRASONIC_SENSOR, UltrasonicSensorMode.DISTANCE), new UsedSensor(SensorPort.S2, EV3Sensors.EV3_GYRO_SENSOR, GyroSensorMode.RESET)"
-            + ", new UsedSensor(SensorPort.S1, EV3Sensors.EV3_TOUCH_SENSOR, TouchSensorMode.TOUCH)));\n"
             + MAIN_METHOD
 
             + "        if ( 5 < hal.getRegulatedMotorSpeed(ActorPort.B) ) {\n\n\n"
@@ -216,10 +159,6 @@ public class AstToLejosJavaVisitorTest {
     public void test5() throws Exception {
 
         String a = "" //
-            + IMPORTS
-            + MAIN_CLASS
-            + BRICK_CONFIGURATION_DECL
-            + USED_SENSORS_DECL
             + MAIN_METHOD
 
             + "        hal.turnOnRegulatedMotor(ActorPort.B,0);"
@@ -238,10 +177,6 @@ public class AstToLejosJavaVisitorTest {
     public void test6() throws Exception {
 
         String a = "" //
-            + IMPORTS
-            + MAIN_CLASS
-            + BRICK_CONFIGURATION_DECL
-            + USED_SENSORS_DECL
             + MAIN_METHOD
 
             + "        hal.drawText(\"Hallo\", 0, 0);\n"
@@ -256,10 +191,6 @@ public class AstToLejosJavaVisitorTest {
     @Test
     public void test7() throws Exception {
         String a = "" //
-            + IMPORTS
-            + MAIN_CLASS
-            + BRICK_CONFIGURATION_DECL
-            + USED_SENSORS_DECL
             + MAIN_METHOD
 
             + "        hal.turnOnRegulatedMotor(ActorPort.B,30);\n"
@@ -275,10 +206,6 @@ public class AstToLejosJavaVisitorTest {
     public void test8() throws Exception {
 
         String a = "" //
-            + IMPORTS
-            + MAIN_CLASS
-            + BRICK_CONFIGURATION_DECL
-            + USED_SENSORS_DECL
             + MAIN_METHOD
             + "        float item = 10;\n"
             + "        string item2 = \"TTTT\";\n"
@@ -298,10 +225,6 @@ public class AstToLejosJavaVisitorTest {
     public void test19() throws Exception {
 
         String a = "" //
-            + IMPORTS
-            + MAIN_CLASS
-            + BRICK_CONFIGURATION_DECL
-            + USED_SENSORS_DECL
             + MAIN_METHOD
             + "        float variablenName = 0;\n"
 
@@ -318,17 +241,13 @@ public class AstToLejosJavaVisitorTest {
     public void test9() throws Exception {
 
         String a = "" //
-            + IMPORTS
-            + MAIN_CLASS
-            + BRICK_CONFIGURATION_DECL
-            + USED_SENSORS_DECL
             + MAIN_METHOD
             + "        floatitem=0;"
             + "        stringitem2=\"ss\";"
             + "        booleanitem3=true;"
-            + "        ArrayList<Float>item4=BlocklyMethods.createListWithNumber(1,2,3);"
-            + "        ArrayList<String>item5=BlocklyMethods.createListWithString(\"a\",\"b\");"
-            + "        ArrayList<Boolean>item6=BlocklyMethods.createListWithBoolean(true,false);"
+            + "        floatitem4=BlocklyMethods.createListWithNumber(1,2,3);"
+            + "        stringitem5=BlocklyMethods.createListWithString(\"a\",\"b\");"
+            + "        booleanitem6=BlocklyMethods.createListWithBoolean(true,false);"
             + "        ArrayList<Pickcolor>item7=BlocklyMethods.createListWithColour(Pickcolor.RED,Pickcolor.BLACK,Pickcolor.NONE);"
             + "        Pickcoloritem8=Pickcolor.NONE;"
 
@@ -343,10 +262,6 @@ public class AstToLejosJavaVisitorTest {
     public void test10() throws Exception {
 
         String a = "" //
-            + IMPORTS
-            + MAIN_CLASS
-            + BRICK_CONFIGURATION_DECL
-            + USED_SENSORS_DECL
             + MAIN_METHOD
 
             + "        hal.rotateRegulatedMotor(ActorPort.B,30,MotorMoveMode.ROTATIONS,1);"
@@ -364,10 +279,6 @@ public class AstToLejosJavaVisitorTest {
     public void test11() throws Exception {
 
         String a = "" //
-            + IMPORTS
-            + MAIN_CLASS
-            + BRICK_CONFIGURATION_DECL
-            + USED_SENSORS_DECL
             + MAIN_METHOD
 
             + "        test();"
@@ -384,10 +295,6 @@ public class AstToLejosJavaVisitorTest {
     public void test12() throws Exception {
 
         String a = "" //
-            + IMPORTS
-            + MAIN_CLASS
-            + BRICK_CONFIGURATION_DECL
-            + USED_SENSORS_DECL
             + MAIN_METHOD
 
             + "        test(true);"
@@ -405,10 +312,6 @@ public class AstToLejosJavaVisitorTest {
     public void test13() throws Exception {
 
         String a = "" //
-            + IMPORTS
-            + MAIN_CLASS
-            + BRICK_CONFIGURATION_DECL
-            + USED_SENSORS_DECL
             + MAIN_METHOD
             + "    float variablenName=0;\n"
             + "    boolean variablenName2=true;\n"
@@ -432,16 +335,12 @@ public class AstToLejosJavaVisitorTest {
     public void test14() throws Exception {
 
         String a = "" //
-            + IMPORTS
-            + MAIN_CLASS
-            + BRICK_CONFIGURATION_DECL
-            + USED_SENSORS_DECL
             + MAIN_METHOD
-            + "    ArrayList<String> variablenName=BlocklyMethods.createListWithString(\"a\", \"b\", \"c\");\n"
+            + "    string variablenName=BlocklyMethods.createListWithString(\"a\", \"b\", \"c\");\n"
 
             + "        hal.drawText(String.valueOf(test(0, variablenName)), 0, 0);"
 
-            + "    private float test(float x, ArrayList<String> x2) {\n"
+            + "    private float test(float x, string x2) {\n"
             + "        hal.drawText(String.valueOf(x2), x, 0);\n"
             + "        return x;\n"
             + "    }"
@@ -454,12 +353,8 @@ public class AstToLejosJavaVisitorTest {
     public void test15() throws Exception {
 
         String a = "" //
-            + IMPORTS
-            + MAIN_CLASS
-            + BRICK_CONFIGURATION_DECL
-            + USED_SENSORS_DECL
             + MAIN_METHOD
-            + "    ArrayList<String> variablenName=BlocklyMethods.createListWithString(\"a\", \"b\", \"c\");\n"
+            + "    string variablenName=BlocklyMethods.createListWithString(\"a\", \"b\", \"c\");\n"
 
             + "        hal.drawText(String.valueOf(test()), 0, 0);"
 
@@ -476,12 +371,8 @@ public class AstToLejosJavaVisitorTest {
     public void test16() throws Exception {
 
         String a = "" //
-            + IMPORTS
-            + MAIN_CLASS
-            + BRICK_CONFIGURATION_DECL
-            + USED_SENSORS_DECL
             + MAIN_METHOD
-            + "    ArrayList<String> variablenName=BlocklyMethods.createListWithString(\"a\", \"b\", \"c\");\n"
+            + "    string variablenName=BlocklyMethods.createListWithString(\"a\", \"b\", \"c\");\n"
 
             + "        hal.drawText(String.valueOf(test()), 0, 0);"
 
@@ -499,10 +390,6 @@ public class AstToLejosJavaVisitorTest {
     public void test17() throws Exception {
         // regression test for https://mp-devel.iais.fraunhofer.de/jira/browse/ORA-610
         String a = "" //
-            + IMPORTS
-            + MAIN_CLASS
-            + BRICK_CONFIGURATION_DECL
-            + USED_SENSORS_DECL
             + MAIN_METHOD
             + "    string message=\"exit\";\n"
 
@@ -518,10 +405,6 @@ public class AstToLejosJavaVisitorTest {
     @Test
     public void test18() throws Exception {
         String a = "" //
-            + IMPORTS
-            + MAIN_CLASS
-            + BRICK_CONFIGURATION_DECL
-            + USED_SENSORS_DECL
             + MAIN_METHOD
             + "    float item=0;\n"
             + "    string item2=\"cc\";\n"
@@ -534,10 +417,6 @@ public class AstToLejosJavaVisitorTest {
     @Test
     public void testStmtForEach() throws Exception {
         String a = "" //
-            + IMPORTS
-            + MAIN_CLASS
-            + BRICK_CONFIGURATION_DECL
-            + USED_SENSORS_DECL
             + MAIN_METHOD
             + "ArrayList<Pickcolor>variablenName=BlocklyMethods.createListWithColour(Pickcolor.NONE,Pickcolor.RED,Pickcolor.BLUE);\n"
 

@@ -1,7 +1,7 @@
 package de.fhg.iais.roberta.syntax.codegen.ev3;
 
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -211,13 +211,15 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                 // there is no just "list", only certain types of the arrays
                 return "[]";
             case ARRAY_NUMBER:
-                return "ArrayList<Float>";
+                return "float";
             case ARRAY_STRING:
-                return "ArrayList<String>";
+                return "string";
+
+            //TODO
             case ARRAY_COLOUR:
                 return "ArrayList<Pickcolor>";
             case ARRAY_BOOLEAN:
-                return "ArrayList<Boolean>";
+                return "boolean";
             case BOOLEAN:
                 return "boolean";
             case NUMBER:
@@ -226,15 +228,18 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                 return "int";
             case STRING:
                 return "string";
+            //TODO
             case COLOR:
                 return "Pickcolor";
             case VOID:
                 return "void";
+            //TODO
             case CONNECTION:
                 return "NXTConnection";
-
         }
-        throw new IllegalArgumentException("unhandled type");
+        //throw new IllegalArgumentException("unhandled type");
+        //TODO: check what else it is possible to do to avoid exception
+        return "int";
     }
 
     private static String getEnumCode(@SuppressWarnings("rawtypes") Enum value) {
@@ -1474,22 +1479,56 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         if ( !withWrapping ) {
             return;
         }
-        generateImports();
 
-        this.sb.append("public class " + this.programName + " {\n");
-        this.sb.append(INDENT).append("private static final boolean TRUE = true;\n");
-        this.sb.append(INDENT).append("private static Ev3Configuration brickConfiguration;").append("\n\n");
-        this.sb.append(INDENT).append(generateRegenerateUsedSensors()).append("\n\n");
+        //for using colors. For SetSensorColorFull(S1) mode
+        //this.sb.append("#define INPUT_BLACKCOLOR 1" + "\n");
+        //this.sb.append("#define INPUT_BLUECOLOR 2" + "\n");
+        //this.sb.append("#define INPUT_GREENCOLOR 3" + "\n");
+        //this.sb.append("#define INPUT_YELLOWCOLOR 4" + "\n");
+        //this.sb.append("#define INPUT_REDCOLOR 5" + "\n");
+        //this.sb.append("#define INPUT_WHITECOLOR 6" + "\n");
 
-        this.sb.append(INDENT).append("private Hal hal = new Hal(brickConfiguration, usedSensors);\n\n");
-        this.sb.append(INDENT).append("public static void main(String[] args) {\n");
-        this.sb.append(INDENT).append(INDENT).append("try {\n");
-        this.sb.append(INDENT).append(INDENT).append(INDENT).append(generateRegenerateConfiguration()).append("\n");
-        this.sb.append(INDENT).append(INDENT).append(INDENT).append("new ").append(this.programName).append("().run();\n");
-        this.sb.append(INDENT).append(INDENT).append("} catch ( Exception e ) {\n");
-        this.sb.append(INDENT).append(INDENT).append(INDENT).append("Hal.displayExceptionWaitForKeyPress(e);\n");
-        this.sb.append(INDENT).append(INDENT).append("}\n");
-        this.sb.append(INDENT).append("}\n");
+        //this.sb.append("public class " + this.programName + " {\n");
+        //this.sb.append(INDENT).append("private static final boolean TRUE = true;\n");
+        //this.sb.append(INDENT).append("private static Ev3Configuration brickConfiguration;").append("\n\n");
+        //this.sb.append(INDENT).append(generateRegenerateUsedSensors()).append("\n\n");
+
+        //this.sb.append(INDENT).append("private Hal hal = new Hal(brickConfiguration, usedSensors);\n\n");
+
+        //define robot constants:
+
+        this.sb.append("#define WHEELDIAMETER " + this.brickConfiguration.getWheelDiameterCM() + "\n");
+        this.sb.append("#define TRACKWIDTH " + this.brickConfiguration.getTrackWidthCM() + "\n");
+        this.sb.append("task main {\n");
+        //this.sb.append(INDENT).append(INDENT).append("try {\n");
+        //this.sb.append(INDENT).append(INDENT).append(INDENT).append(generateRegenerateConfiguration()).append("\n");
+        //this.sb.append(INDENT).append(INDENT).append(INDENT).append("new ").append(this.programName).append("().run();\n");
+        //this.sb.append(INDENT).append(INDENT).append("} catch ( Exception e ) {\n");
+        //this.sb.append(INDENT).append(INDENT).append(INDENT).append("Hal.displayExceptionWaitForKeyPress(e);\n");
+        // this.sb.append(INDENT).append(INDENT).append("}\n");
+        //this.sb.append(INDENT).append("}\n");
+
+        //add sensors:
+        for ( Entry<SensorPort, EV3Sensor> entry : this.brickConfiguration.getSensors().entrySet() ) {
+            switch ( entry.getValue().getComponentTypeName() ) {
+                case "robBrick_colour":
+                    this.sb.append(INDENT).append("SetSensorLight(IN_" + entry.getKey() + ");" + "\n");
+                    break;
+                case "robBrick_touch":
+                    this.sb.append(INDENT).append("SetSensorTouch(IN_" + entry.getKey() + ");" + "\n");
+                    break;
+                case "robBrick_ultrasonic":
+                    this.sb.append(INDENT).append("SetSensorLowspeed(IN_" + entry.getKey() + ");" + "\n");
+                    break;
+                //to be created
+                case "robBrick_sound":
+                    this.sb.append(INDENT).append("SetSensorSound(IN_" + entry.getKey() + ");" + "\n");
+                    break;
+
+                default:
+                    break;
+            }
+        }
     }
 
     /*
@@ -1518,6 +1557,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     /**
      * @return Java code used in the code generation to regenerates the same brick configuration
      */
+    /*
     public String generateRegenerateConfiguration() {
         StringBuilder sb = new StringBuilder();
         sb.append(" brickConfiguration = new Ev3Configuration.Builder()\n");
@@ -1528,6 +1568,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         sb.append(INDENT).append(INDENT).append(INDENT).append("    .build();");
         return sb.toString();
     }
+
 
     private void appendSensors(StringBuilder sb) {
         for ( Map.Entry<SensorPort, EV3Sensor> entry : this.brickConfiguration.getSensors().entrySet() ) {
@@ -1542,6 +1583,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             appendOptional(sb, "    .addActor(", entry.getKey(), entry.getValue());
         }
     }
+    */
 
     private static void appendOptional(StringBuilder sb, String type, @SuppressWarnings("rawtypes") Enum port, HardwareComponent hardwareComponent) {
         if ( hardwareComponent != null ) {
