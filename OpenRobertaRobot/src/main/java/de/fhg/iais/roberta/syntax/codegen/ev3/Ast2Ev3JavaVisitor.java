@@ -209,15 +209,11 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             case ARRAY:
                 //return "List";
                 // there is no just "list", only certain types of the arrays
-                return "[]";
+                return "int";
             case ARRAY_NUMBER:
                 return "float";
             case ARRAY_STRING:
                 return "string";
-
-            //TODO
-            case ARRAY_COLOUR:
-                return "ArrayList<Pickcolor>";
             case ARRAY_BOOLEAN:
                 return "boolean";
             case BOOLEAN:
@@ -228,18 +224,13 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                 return "int";
             case STRING:
                 return "string";
-            //TODO
-            case COLOR:
-                return "Pickcolor";
             case VOID:
                 return "void";
-            //TODO
+            //TODO: find appropriate Bluetooth object
             case CONNECTION:
                 return "NXTConnection";
         }
-        //throw new IllegalArgumentException("unhandled type");
-        //TODO: check what else it is possible to do to avoid exception
-        return "int";
+        throw new IllegalArgumentException("unhandled type");
     }
 
     private static String getEnumCode(@SuppressWarnings("rawtypes") Enum value) {
@@ -339,6 +330,9 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     public Void visitVarDeclaration(VarDeclaration<Void> var) {
         this.sb.append(getBlocklyTypeCode(var.getTypeVar())).append(" ");
         this.sb.append(var.getName());
+        if ( var.getTypeVar().isArray() ) {
+            this.sb.append("[]");
+        }
         if ( var.getValue().getKind() != BlockType.EMPTY_EXPR ) {
             this.sb.append(" = ");
             if ( var.getValue().getKind() == BlockType.EXPR_LIST ) {
@@ -992,9 +986,9 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitListCreate(ListCreate<Void> listCreate) {
-        this.sb.append("BlocklyMethods.createListWith" + listCreate.getTypeVar().getBlocklyName() + "(");
+        this.sb.append("{");
         listCreate.getValue().visit(this);
-        this.sb.append(")");
+        this.sb.append("}");
         return null;
     }
 
@@ -1510,19 +1504,20 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
         //add sensors:
         for ( Entry<SensorPort, EV3Sensor> entry : this.brickConfiguration.getSensors().entrySet() ) {
+            System.out.println(entry.getValue().getComponentTypeName());
             switch ( entry.getValue().getComponentTypeName() ) {
-                case "robBrick_colour":
-                    this.sb.append(INDENT).append("SetSensorLight(IN_" + entry.getKey() + ");" + "\n");
+                case "EV3_COLOR_SENSOR":
+                    this.sb.append(INDENT).append("SetSensorLight(" + entry.getKey() + ");" + "\n");
                     break;
-                case "robBrick_touch":
-                    this.sb.append(INDENT).append("SetSensorTouch(IN_" + entry.getKey() + ");" + "\n");
+                case "EV3_TOUCH_SENSOR":
+                    this.sb.append(INDENT).append("SetSensorTouch(" + entry.getKey() + ");" + "\n");
                     break;
-                case "robBrick_ultrasonic":
-                    this.sb.append(INDENT).append("SetSensorLowspeed(IN_" + entry.getKey() + ");" + "\n");
+                case "EV3_ULTRASONIC_SENSOR":
+                    this.sb.append(INDENT).append("SetSensorLowspeed(" + entry.getKey() + ");" + "\n");
                     break;
                 //to be created
                 case "robBrick_sound":
-                    this.sb.append(INDENT).append("SetSensorSound(IN_" + entry.getKey() + ");" + "\n");
+                    this.sb.append(INDENT).append("SetSensorSound(" + entry.getKey() + ");" + "\n");
                     break;
 
                 default:
