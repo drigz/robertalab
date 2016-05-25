@@ -12,7 +12,7 @@ public class ActionTest {
 
     @Test
     public void clearDisplay() throws Exception {
-        String a = "BlockAST [project=[[Location [x=-69, y=10], MainTask [], ClearDisplayAction []]]]";
+        final String a = "BlockAST [project=[[Location [x=-69, y=10], MainTask [], ClearDisplayAction []]]]";
 
         Assert.assertEquals(a, Helper.generateTransformerString("/ast/actions/action_ClearDisplay.xml"));
     }
@@ -29,7 +29,7 @@ public class ActionTest {
 
     @Test
     public void stop() throws Exception {
-        String a = "BlockAST [project=[[Location [x=1, y=135], StopAction []]]]";
+        final String a = "BlockAST [project=[[Location [x=1, y=135], StopAction []]]]";
 
         Assert.assertEquals(a, Helper.generateTransformerString("/ast/actions/action_Stop.xml"));
     }
@@ -51,19 +51,19 @@ public class ActionTest {
 
     @Test
     public void blockException() throws Exception {
-        BlockSet project = JaxbHelper.path2BlockSet("/ast/actions/action_Exception.xml");
-        Jaxb2BlocklyProgramTransformer<?> transformer = new Jaxb2BlocklyProgramTransformer<>();
+        final BlockSet project = JaxbHelper.path2BlockSet("/ast/actions/action_Exception.xml");
+        final Jaxb2BlocklyProgramTransformer<?> transformer = new Jaxb2BlocklyProgramTransformer<>();
         try {
             transformer.transform(project);
             Assert.fail();
-        } catch ( Exception e ) {
+        } catch ( final Exception e ) {
             Assert.assertEquals("Invalid Block: robActions_brickLight_on1", e.getMessage());
         }
     }
 
     @Test
     public void disabledComment() throws Exception {
-        Jaxb2BlocklyProgramTransformer<Void> t = Helper.generateTransformer("/ast/actions/action_DisabledComment.xml");
+        final Jaxb2BlocklyProgramTransformer<Void> t = Helper.generateTransformer("/ast/actions/action_DisabledComment.xml");
 
         Assert.assertEquals(true, t.getTree().get(0).get(2).getProperty().isDisabled());
         Assert.assertEquals("h#,,", t.getTree().get(0).get(1).getComment().getComment());

@@ -8,18 +8,14 @@ public class ExprTest {
 
     @Test
     public void test1() throws Exception {
-        String a = "\n8 + (-3 + 5)\n" + "88 - ( 8 + (-3 + 5) )\n" + "(88 - ( 8 + (-3 + 5) )) - ( 88 - ( 8 + (-3 + 5) ) )\n" + "2 * ( 2 - 2 )\n" + "2 - (2 * 2)";
+        final String a = "\n8 + -3 + 588 - ( 8 + -3 + 5)88 - ( 8 + -3 + 5)  - ( 88 - ( 8 + -3 + 5) )2 * ( 2 - 2 )\n" + "2 - 2 * 2";
 
         Helper.assertCodeIsOk(a, "/syntax/expr/expr1.xml");
     }
 
     @Test
     public void test2() throws Exception {
-        String a =
-            "\n2 * ( 2 - 2 )\n"
-                + "2 - (2 * 2)\n"
-                + "(88 - ( 8 + (-3 + 5) )) - (2 * 2)\n"
-                + "((88 - ( 8 + (-3 + 5) )) - (2 * 2)) / (( 88 - ( 8 + (-3 + 5) )) - (2 * 2) )";
+        final String a = "\n2 * ( 2 - 2 )\n" + "2 - 2 * 288 - ( 8 + -3 + 5) - 2 * 2(88 - ( 8 + -3 + 5) - 2 * 2) / (88 -( 8 + -3 + 5)-2 * 2) ";
 
         Helper.assertCodeIsOk(a, "/syntax/expr/expr2.xml");
     }

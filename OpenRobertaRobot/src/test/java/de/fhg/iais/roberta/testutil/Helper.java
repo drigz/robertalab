@@ -45,15 +45,15 @@ public class Helper {
      * @throws Exception
      */
     public static String generateStringWithoutWrapping(String pathToProgramXml) throws Exception {
-        Jaxb2BlocklyProgramTransformer<Void> transformer = generateTransformer(pathToProgramXml);
-        Ev3Configuration brickConfiguration =
+        final Jaxb2BlocklyProgramTransformer<Void> transformer = generateTransformer(pathToProgramXml);
+        final Ev3Configuration brickConfiguration =
             new Ev3Configuration.Builder()
-                .addActor(ActorPort.A, new EV3Actor(EV3Actors.EV3_LARGE_MOTOR, true, DriveDirection.FOREWARD, MotorSide.LEFT))
-                .addActor(ActorPort.B, new EV3Actor(EV3Actors.EV3_MEDIUM_MOTOR, true, DriveDirection.FOREWARD, MotorSide.RIGHT))
-                .addActor(ActorPort.C, new EV3Actor(EV3Actors.EV3_LARGE_MOTOR, false, DriveDirection.FOREWARD, MotorSide.LEFT))
-                .addActor(ActorPort.D, new EV3Actor(EV3Actors.EV3_MEDIUM_MOTOR, false, DriveDirection.FOREWARD, MotorSide.RIGHT))
+                .addActor(ActorPort.A, new EV3Actor(EV3Actors.EV3_LARGE_MOTOR, true, DriveDirection.FOREWARD, MotorSide.NONE))
+                .addActor(ActorPort.B, new EV3Actor(EV3Actors.EV3_MEDIUM_MOTOR, true, DriveDirection.FOREWARD, MotorSide.LEFT))
+                .addActor(ActorPort.C, new EV3Actor(EV3Actors.EV3_LARGE_MOTOR, false, DriveDirection.FOREWARD, MotorSide.RIGHT))
+                .addActor(ActorPort.D, new EV3Actor(EV3Actors.EV3_MEDIUM_MOTOR, false, DriveDirection.FOREWARD, MotorSide.NONE))
                 .build();
-        String javaCode = Ast2Ev3JavaVisitor.generate("Test", brickConfiguration, transformer.getTree(), false);
+        final String javaCode = Ast2Ev3JavaVisitor.generate("Test", brickConfiguration, transformer.getTree(), false);
         // System.out.println(javaCode); // only needed for EXTREME debugging
         // String textlyCode = AstToTextlyVisitor.generate("Test", transformer.getTree(), false);
         // System.out.println(textlyCode); // only needed for EXTREME debugging
@@ -68,8 +68,8 @@ public class Helper {
      * @throws Exception
      */
     public static String generateString(String pathToProgramXml, Ev3Configuration brickConfiguration) throws Exception {
-        Jaxb2BlocklyProgramTransformer<Void> transformer = generateTransformer(pathToProgramXml);
-        String code = Ast2Ev3JavaVisitor.generate("Test", brickConfiguration, transformer.getTree(), true);
+        final Jaxb2BlocklyProgramTransformer<Void> transformer = generateTransformer(pathToProgramXml);
+        final String code = Ast2Ev3JavaVisitor.generate("Test", brickConfiguration, transformer.getTree(), true);
         // System.out.println(code); // only needed for EXTREME debugging
         return code;
     }
@@ -82,8 +82,8 @@ public class Helper {
      * @throws Exception
      */
     public static String generatePython(String pathToProgramXml, Ev3Configuration brickConfiguration) throws Exception {
-        Jaxb2BlocklyProgramTransformer<Void> transformer = generateTransformer(pathToProgramXml);
-        String code = Ast2Ev3PythonVisitor.generate("Test", brickConfiguration, transformer.getTree(), true);
+        final Jaxb2BlocklyProgramTransformer<Void> transformer = generateTransformer(pathToProgramXml);
+        final String code = Ast2Ev3PythonVisitor.generate("Test", brickConfiguration, transformer.getTree(), true);
         // System.out.println(code); // only needed for EXTREME debugging
         return code;
     }
@@ -96,8 +96,8 @@ public class Helper {
      * @throws Exception
      */
     public static String generateJavaScript(String pathToProgramXml) throws Exception {
-        Jaxb2BlocklyProgramTransformer<Void> transformer = generateTransformer(pathToProgramXml);
-        String code = Ast2Ev3JavaScriptVisitor.generate(transformer.getTree());
+        final Jaxb2BlocklyProgramTransformer<Void> transformer = generateTransformer(pathToProgramXml);
+        final String code = Ast2Ev3JavaScriptVisitor.generate(transformer.getTree());
         // System.out.println(code); // only needed for EXTREME debugging
         return code;
     }
@@ -110,8 +110,8 @@ public class Helper {
      * @throws Exception
      */
     public static Ev3Configuration generateConfiguration(String blocklyXml) throws Exception {
-        BlockSet project = JaxbHelper.xml2BlockSet(blocklyXml);
-        Jaxb2Ev3ConfigurationTransformer transformer = new Jaxb2Ev3ConfigurationTransformer();
+        final BlockSet project = JaxbHelper.xml2BlockSet(blocklyXml);
+        final Jaxb2Ev3ConfigurationTransformer transformer = new Jaxb2Ev3ConfigurationTransformer();
         return transformer.transform(project);
     }
 
@@ -123,8 +123,8 @@ public class Helper {
      * @throws Exception
      */
     public static String generateString(String pathToProgramXml) throws Exception {
-        Jaxb2BlocklyProgramTransformer<Void> transformer = generateTransformer(pathToProgramXml);
-        String code = AstToTextlyVisitor.generate("Test", transformer.getTree(), true);
+        final Jaxb2BlocklyProgramTransformer<Void> transformer = generateTransformer(pathToProgramXml);
+        final String code = AstToTextlyVisitor.generate("Test", transformer.getTree(), true);
         // System.out.println(code); // only needed for EXTREME debugging
         return code;
     }
@@ -137,8 +137,8 @@ public class Helper {
      * @throws Exception
      */
     public static Jaxb2BlocklyProgramTransformer<Void> generateTransformer(String pathToProgramXml) throws Exception {
-        BlockSet project = JaxbHelper.path2BlockSet(pathToProgramXml);
-        Jaxb2BlocklyProgramTransformer<Void> transformer = new Jaxb2BlocklyProgramTransformer<>();
+        final BlockSet project = JaxbHelper.path2BlockSet(pathToProgramXml);
+        final Jaxb2BlocklyProgramTransformer<Void> transformer = new Jaxb2BlocklyProgramTransformer<>();
         transformer.transform(project);
         return transformer;
     }
@@ -151,8 +151,8 @@ public class Helper {
      * @throws Exception
      */
     public static Jaxb2BlocklyProgramTransformer<Void> generateProgramTransformer(String blocklyXml) throws Exception {
-        BlockSet project = JaxbHelper.xml2BlockSet(blocklyXml);
-        Jaxb2BlocklyProgramTransformer<Void> transformer = new Jaxb2BlocklyProgramTransformer<>();
+        final BlockSet project = JaxbHelper.xml2BlockSet(blocklyXml);
+        final Jaxb2BlocklyProgramTransformer<Void> transformer = new Jaxb2BlocklyProgramTransformer<>();
         transformer.transform(project);
         return transformer;
     }
@@ -176,10 +176,10 @@ public class Helper {
      * @throws Exception
      */
     public static <V> ArrayList<ArrayList<Phrase<V>>> generateASTs(String pathToProgramXml) throws Exception {
-        BlockSet project = JaxbHelper.path2BlockSet(pathToProgramXml);
-        Jaxb2BlocklyProgramTransformer<V> transformer = new Jaxb2BlocklyProgramTransformer<V>();
+        final BlockSet project = JaxbHelper.path2BlockSet(pathToProgramXml);
+        final Jaxb2BlocklyProgramTransformer<V> transformer = new Jaxb2BlocklyProgramTransformer<V>();
         transformer.transform(project);
-        ArrayList<ArrayList<Phrase<V>>> tree = transformer.getTree();
+        final ArrayList<ArrayList<Phrase<V>>> tree = transformer.getTree();
         return tree;
     }
 
@@ -191,7 +191,7 @@ public class Helper {
      * @throws Exception
      */
     public static <V> Phrase<V> generateAST(String pathToProgramXml) throws Exception {
-        ArrayList<ArrayList<Phrase<V>>> tree = generateASTs(pathToProgramXml);
+        final ArrayList<ArrayList<Phrase<V>>> tree = generateASTs(pathToProgramXml);
         return tree.get(0).get(1);
     }
 
@@ -211,30 +211,30 @@ public class Helper {
      * @throws Exception
      */
     public static void assertTransformationIsOk(String fileName) throws Exception {
-        Jaxb2BlocklyProgramTransformer<Void> transformer = generateTransformer(fileName);
-        JAXBContext jaxbContext = JAXBContext.newInstance(BlockSet.class);
-        Marshaller m = jaxbContext.createMarshaller();
+        final Jaxb2BlocklyProgramTransformer<Void> transformer = generateTransformer(fileName);
+        final JAXBContext jaxbContext = JAXBContext.newInstance(BlockSet.class);
+        final Marshaller m = jaxbContext.createMarshaller();
         m.setProperty(Marshaller.JAXB_FRAGMENT, true);
         m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 
-        BlockSet blockSet = astToJaxb(transformer.getTree());
+        final BlockSet blockSet = astToJaxb(transformer.getTree());
         //        m.marshal(blockSet, System.out); // only needed for EXTREME debugging
-        StringWriter writer = new StringWriter();
+        final StringWriter writer = new StringWriter();
         m.marshal(blockSet, writer);
-        String t = Resources.toString(Helper.class.getResource(fileName), Charsets.UTF_8);
+        final String t = Resources.toString(Helper.class.getResource(fileName), Charsets.UTF_8);
         XMLUnit.setIgnoreWhitespace(true);
-        Diff diff = XMLUnit.compareXML(writer.toString(), t);
+        final Diff diff = XMLUnit.compareXML(writer.toString(), t);
 
         //        System.out.println(diff.toString()); // only needed for EXTREME debugging
         Assert.assertTrue(diff.identical());
     }
 
     public static BlockSet astToJaxb(ArrayList<ArrayList<Phrase<Void>>> astProgram) {
-        BlockSet blockSet = new BlockSet();
+        final BlockSet blockSet = new BlockSet();
 
         Instance instance = null;
-        for ( ArrayList<Phrase<Void>> tree : astProgram ) {
-            for ( Phrase<Void> phrase : tree ) {
+        for ( final ArrayList<Phrase<Void>> tree : astProgram ) {
+            for ( final Phrase<Void> phrase : tree ) {
                 if ( phrase.getKind() == BlockType.LOCATION ) {
                     blockSet.getInstance().add(instance);
                     instance = new Instance();
@@ -257,7 +257,7 @@ public class Helper {
      */
     public static void assertXML(String arg1, String arg2) throws Exception {
         XMLUnit.setIgnoreWhitespace(true);
-        Diff diff = XMLUnit.compareXML(arg1, arg2);
+        final Diff diff = XMLUnit.compareXML(arg1, arg2);
         Assert.assertTrue(diff.identical());
     }
 
@@ -274,10 +274,10 @@ public class Helper {
     }
 
     public static String jaxbToXml(BlockSet blockSet) throws JAXBException {
-        JAXBContext jaxbContext = JAXBContext.newInstance(BlockSet.class);
-        Marshaller m = jaxbContext.createMarshaller();
+        final JAXBContext jaxbContext = JAXBContext.newInstance(BlockSet.class);
+        final Marshaller m = jaxbContext.createMarshaller();
         m.setProperty(Marshaller.JAXB_FRAGMENT, true);
-        StringWriter writer = new StringWriter();
+        final StringWriter writer = new StringWriter();
         m.marshal(blockSet, writer);
         return writer.toString();
     }

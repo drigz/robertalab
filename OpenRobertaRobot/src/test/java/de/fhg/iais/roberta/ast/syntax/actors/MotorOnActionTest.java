@@ -8,14 +8,14 @@ public class MotorOnActionTest {
 
     @Test
     public void motorOn() throws Exception {
-        String a = "hal.turnOnRegulatedMotor(ActorPort.B, 30);" + "hal.turnOnUnregulatedMotor(ActorPort.C, 50);";
+        String a = "RotateMotor(B, 30)" + "RotateMotor(C, 50)";
 
         Helper.assertCodeIsOk(a, "/ast/actions/action_MotorOn.xml");
     }
 
     @Test
     public void motorOnFor() throws Exception {
-        String a = "hal.rotateRegulatedMotor(ActorPort.B, 30, MotorMoveMode.ROTATIONS, 1);";
+        String a = "RotateMotor(B, 30, 360.0* 1))";
 
         Helper.assertCodeIsOk(a, "/ast/actions/action_MotorOnFor.xml");
     }

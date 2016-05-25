@@ -9,7 +9,7 @@ import de.fhg.iais.roberta.testutil.Helper;
 public class ClearDisplayActionTest {
     @Test
     public void clearDisplay() throws Exception {
-        String a = "publicvoidrun(){hal.clearDisplay();}";
+        String a = "publicvoidrun(){clearscreen();}";
 
         Helper.assertCodeIsOk(a, "/ast/actions/action_ClearDisplay.xml");
     }

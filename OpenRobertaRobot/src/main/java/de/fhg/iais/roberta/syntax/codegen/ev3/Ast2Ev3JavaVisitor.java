@@ -15,6 +15,7 @@ import de.fhg.iais.roberta.components.ev3.Ev3Configuration;
 import de.fhg.iais.roberta.components.ev3.UsedSensor;
 import de.fhg.iais.roberta.shared.IndexLocation;
 import de.fhg.iais.roberta.shared.action.ev3.ActorPort;
+import de.fhg.iais.roberta.shared.action.ev3.DriveDirection;
 import de.fhg.iais.roberta.shared.sensor.ev3.MotorTachoMode;
 import de.fhg.iais.roberta.shared.sensor.ev3.SensorPort;
 import de.fhg.iais.roberta.shared.sensor.ev3.UltrasonicSensorMode;
@@ -561,7 +562,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         incrIndentation();
         visitStmtList(waitStmt.getStatements());
         nlIndent();
-        this.sb.append("hal.waitFor(15);");
+        this.sb.append("wait(15);");
         decrIndentation();
         nlIndent();
         this.sb.append("}");
@@ -570,7 +571,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitWaitTimeStmt(WaitTimeStmt<Void> waitTimeStmt) {
-        this.sb.append("hal.waitFor(");
+        this.sb.append("wait(");
         waitTimeStmt.getTime().visit(this);
         this.sb.append(");");
         return null;
@@ -578,7 +579,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitClearDisplayAction(ClearDisplayAction<Void> clearDisplayAction) {
-        this.sb.append("ClearDisplay();");
+        this.sb.append("clearScreen();");
         return null;
     }
 
@@ -586,12 +587,12 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     public Void visitVolumeAction(VolumeAction<Void> volumeAction) {
         switch ( volumeAction.getMode() ) {
             case SET:
-                this.sb.append("hal.setVolume(");
+                this.sb.append("setVolume(");
                 volumeAction.getVolume().visit(this);
                 this.sb.append(");");
                 break;
             case GET:
-                this.sb.append("hal.getVolume()");
+                this.sb.append("getVolume()");
                 break;
             default:
                 throw new DbcException("Invalid volume action mode!");
@@ -622,13 +623,13 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitPlayFileAction(PlayFileAction<Void> playFileAction) {
-        this.sb.append("hal.playFile(" + playFileAction.getFileName() + ");");
+        this.sb.append("playFile(" + playFileAction.getFileName() + ");");
         return null;
     }
 
     @Override
     public Void visitShowPictureAction(ShowPictureAction<Void> showPictureAction) {
-        this.sb.append("hal.drawPicture(" + getEnumCode(showPictureAction.getPicture()) + ", ");
+        this.sb.append("drawPicture(" + getEnumCode(showPictureAction.getPicture()) + ", ");
         showPictureAction.getX().visit(this);
         this.sb.append(", ");
         showPictureAction.getY().visit(this);
@@ -638,9 +639,9 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitShowTextAction(ShowTextAction<Void> showTextAction) {
-        this.sb.append("hal.drawText(");
+        this.sb.append("TextOut(");
         if ( showTextAction.getMsg().getKind() != BlockType.STRING_CONST ) {
-            this.sb.append("String.valueOf(");
+            this.sb.append("String(");
             showTextAction.getMsg().visit(this);
             this.sb.append(")");
         } else {
@@ -656,7 +657,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitToneAction(ToneAction<Void> toneAction) {
-        this.sb.append("hal.playTone(");
+        this.sb.append("PlayTone(");
         toneAction.getFrequency().visit(this);
         this.sb.append(", ");
         toneAction.getDuration().visit(this);
@@ -666,29 +667,29 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitMotorOnAction(MotorOnAction<Void> motorOnAction) {
-        String methodName;
-        boolean isRegulated = this.brickConfiguration.isMotorRegulated(motorOnAction.getPort());
-        boolean duration = motorOnAction.getParam().getDuration() != null;
-        if ( duration ) {
-            methodName = isRegulated ? "hal.rotateRegulatedMotor(" : "hal.rotateUnregulatedMotor(";
-        } else {
-            methodName = isRegulated ? "hal.turnOnRegulatedMotor(" : "hal.turnOnUnregulatedMotor(";
+        {
+            final boolean isDuration = motorOnAction.getParam().getDuration() != null;
+            this.sb.append("RotateMotor(" + motorOnAction.getPort() + ", ");
+            motorOnAction.getParam().getSpeed().visit(this);
+            if ( isDuration ) {
+                this.sb.append(", ");
+                if ( motorOnAction.getParam().getDuration().getType() == de.fhg.iais.roberta.shared.action.ev3.MotorMoveMode.ROTATIONS ) {
+                    this.sb.append("360.0*");
+                }
+                // this.sb.append(motorOnAction.getParam().getDuration().getType().toString()
+                // + ", ");
+                motorOnAction.getParam().getDuration().getValue().visit(this);
+                this.sb.append(")");
+            }
+            this.sb.append(")");
+            return null;
         }
-        this.sb.append(methodName + getEnumCode(motorOnAction.getPort()) + ", ");
-        motorOnAction.getParam().getSpeed().visit(this);
-        if ( duration ) {
-            this.sb.append(", " + getEnumCode(motorOnAction.getDurationMode()));
-            this.sb.append(", ");
-            motorOnAction.getDurationValue().visit(this);
-        }
-        this.sb.append(");");
-        return null;
     }
 
     @Override
     public Void visitMotorSetPowerAction(MotorSetPowerAction<Void> motorSetPowerAction) {
         boolean isRegulated = this.brickConfiguration.isMotorRegulated(motorSetPowerAction.getPort());
-        String methodName = isRegulated ? "hal.setRegulatedMotorSpeed(" : "hal.setUnregulatedMotorSpeed(";
+        String methodName = isRegulated ? "MotorPower(" : "MotorPower(";
         this.sb.append(methodName + getEnumCode(motorSetPowerAction.getPort()) + ", ");
         motorSetPowerAction.getPower().visit(this);
         this.sb.append(");");
@@ -713,10 +714,16 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitDriveAction(DriveAction<Void> driveAction) {
-        boolean isDuration = driveAction.getParam().getDuration() != null;
-        String methodName = isDuration ? "hal.driveDistance(" : "hal.regulatedDrive(";
-        this.sb.append(methodName);
-        this.sb.append(getEnumCode(driveAction.getDirection()) + ", ");
+        String methodName = "OnFwd";
+        final boolean isDuration = driveAction.getParam().getDuration() != null;
+
+        if ( driveAction.getDirection() == DriveDirection.BACKWARD ) {
+            methodName = "OnRev";
+        }
+        this.sb.append(methodName + "(OUT_");
+        this.sb.append(this.brickConfiguration.getLeftMotorPort());
+        this.sb.append(this.brickConfiguration.getRightMotorPort());
+        this.sb.append(", ");
         driveAction.getParam().getSpeed().visit(this);
         if ( isDuration ) {
             this.sb.append(", ");
@@ -728,8 +735,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitTurnAction(TurnAction<Void> turnAction) {
-        boolean isDuration = turnAction.getParam().getDuration() != null;
-        String methodName = "hal.rotateDirection" + (isDuration ? "Angle" : "Regulated") + "(";
+        final boolean isDuration = turnAction.getParam().getDuration() != null;
+        final String methodName = "RotateMotor" + (isDuration ? "Angle" : "Regulated") + "(";
         this.sb.append(methodName);
         this.sb.append(getEnumCode(turnAction.getDirection()) + ", ");
         turnAction.getParam().getSpeed().visit(this);
@@ -764,23 +771,34 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitColorSensor(ColorSensor<Void> colorSensor) {
-        String colorSensorPort = getEnumCode(colorSensor.getPort());
+        final String Port = getEnumCode(colorSensor.getPort());
+
+        final String methodName = "SetSensor";
+        this.sb.append(methodName + "(IN_");
+        this.brickConfiguration.getSensors().entrySet();
         switch ( colorSensor.getMode() ) {
             case AMBIENTLIGHT:
-                this.sb.append("hal.getColorSensorAmbient(" + colorSensorPort + ")");
+                this.sb.append(Port + (",") + ("AMBIENT"));
+                this.sb.append(")" + (";"));
                 break;
             case COLOUR:
-                this.sb.append("hal.getColorSensorColour(" + colorSensorPort + ")");
+                this.sb.append(Port + (",") + ("COLOUR"));
+                this.sb.append(")" + (";"));
+
                 break;
             case RED:
-                this.sb.append("hal.getColorSensorRed(" + colorSensorPort + ")");
+                this.sb.append(Port + (",") + ("RED"));
+                this.sb.append(")" + (";"));
+
                 break;
             case RGB:
-                this.sb.append("hal.getColorSensorRgb(" + colorSensorPort + ")");
+                this.sb.append(Port + (",") + ("RGB"));
+                this.sb.append(")" + (";"));
                 break;
             default:
                 throw new DbcException("Invalide mode for Color Sensor!");
         }
+
         return null;
     }
 
@@ -800,16 +818,22 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitGyroSensor(GyroSensor<Void> gyroSensor) {
-        String gyroSensorPort = getEnumCode(gyroSensor.getPort());
+        final String Port = getEnumCode(gyroSensor.getPort());
+        final String methodName = "SetSensorGyro";
+        this.sb.append(methodName + "(IN_");
+
         switch ( gyroSensor.getMode() ) {
             case ANGLE:
-                this.sb.append("hal.getGyroSensorAngle(" + gyroSensorPort + ")");
+                this.sb.append(Port + (",") + ("ANGLE"));
+                this.sb.append(")" + (";"));
                 break;
             case RATE:
-                this.sb.append("hal.getGyroSensorRate(" + gyroSensorPort + ")");
+                this.sb.append(Port + (",") + ("RATE"));
+                this.sb.append(")" + (";"));
                 break;
             case RESET:
-                this.sb.append("hal.resetGyroSensor(" + gyroSensorPort + ");");
+                this.sb.append(Port + (",") + ("RESET"));
+                this.sb.append(")" + (";"));
                 break;
             default:
                 throw new DbcException("Invalid GyroSensorMode");
@@ -819,13 +843,18 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitInfraredSensor(InfraredSensor<Void> infraredSensor) {
-        String infraredSensorPort = getEnumCode(infraredSensor.getPort());
+        final String Port = getEnumCode(infraredSensor.getPort());
+        final String methodName = "SetSensorInfrared";
+        this.sb.append(methodName + "(IN_");
         switch ( infraredSensor.getMode() ) {
+
             case DISTANCE:
-                this.sb.append("hal.getInfraredSensorDistance(" + infraredSensorPort + ")");
+                this.sb.append(Port + (",") + ("DISTANCE"));
+                this.sb.append(")" + (";"));
                 break;
             case SEEK:
-                this.sb.append("hal.getInfraredSensorSeek(" + infraredSensorPort + ")");
+                this.sb.append(Port + (",") + ("SEEK"));
+                this.sb.append(")" + (";"));
                 break;
             default:
                 throw new DbcException("Invalid Infrared Sensor Mode!");
@@ -858,9 +887,9 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     public Void visitUltrasonicSensor(UltrasonicSensor<Void> ultrasonicSensor) {
         String ultrasonicSensorPort = getEnumCode(ultrasonicSensor.getPort());
         if ( ultrasonicSensor.getMode() == UltrasonicSensorMode.DISTANCE ) {
-            this.sb.append("hal.getUltraSonicSensorDistance(" + ultrasonicSensorPort + ")");
+            this.sb.append("getUltraSonicSensorDistance(" + ultrasonicSensorPort + ")");
         } else {
-            this.sb.append("hal.getUltraSonicSensorPresence(" + ultrasonicSensorPort + ")");
+            this.sb.append("getUltraSonicSensorPresence(" + ultrasonicSensorPort + ")");
         }
         return null;
     }

@@ -8,11 +8,11 @@ public class ColorSensorTest {
 
     @Test
     public void setColor() throws Exception {
-        String a =
-            "\nhal.getColorSensorColour(SensorPort.S3)"
-                + "hal.getColorSensorRed(SensorPort.S1)"
-                + "hal.getColorSensorRgb(SensorPort.S2)"
-                + "hal.getColorSensorAmbient(SensorPort.S4)";
+        final String a =
+            "\nSetSensor(IN_SensorPort.S3,COLOUR);"
+                + "SetSensor(IN_SensorPort.S1,RED);"
+                + "SetSensor(IN_SensorPort.S2,RGB);"
+                + "SetSensor(IN_SensorPort.S4,AMBIENT);";
 
         Helper.assertCodeIsOk(a, "/ast/sensors/sensor_setColor.xml");
     }

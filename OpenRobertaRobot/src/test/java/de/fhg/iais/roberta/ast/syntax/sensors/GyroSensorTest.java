@@ -8,14 +8,14 @@ public class GyroSensorTest {
 
     @Test
     public void setGyro() throws Exception {
-        String a = "\nhal.getGyroSensorAngle(SensorPort.S2)" + "hal.getGyroSensorRate(SensorPort.S4)";
+        final String a = "\n SetSensorGyro(IN_SensorPort.S2,ANGLE);" + "SetSensorGyro(IN_SensorPort.S4,RATE);";
 
         Helper.assertCodeIsOk(a, "/ast/sensors/sensor_setGyro.xml");
     }
 
     @Test
     public void resetGyroSensor() throws Exception {
-        String a = "\nhal.resetGyroSensor(SensorPort.S2);";
+        final String a = "\n SetSensorGyro(IN_SensorPort.S2,RESET);";
 
         Helper.assertCodeIsOk(a, "/ast/sensors/sensor_resetGyro.xml");
     }

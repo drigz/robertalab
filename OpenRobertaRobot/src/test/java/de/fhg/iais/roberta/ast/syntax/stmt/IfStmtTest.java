@@ -8,7 +8,7 @@ public class IfStmtTest {
 
     @Test
     public void ifStmt() throws Exception {
-        String a =
+        final String a =
             "\nif ( true ) {\n"
                 + "}\n"
                 + "if ( false ) {\n"
@@ -43,14 +43,14 @@ public class IfStmtTest {
 
     @Test
     public void ifStmt1() throws Exception {
-        String a = "\nif ( ( (5 + 7) == (5 + 7) ) >= ( ((5 + 7) == (5 + 7)) && ((5 + 7) <= (5 + 7) )) ) {\n}";
+        final String a = "\nif ( ( 5 + 7== 5 + 7 ) >= (5 + 7 == 5 + 7 && 5 + 7 <= 5 + 7)) {\n}";
 
         Helper.assertCodeIsOk(a, "/syntax/stmt/if_stmt1.xml");
     }
 
     @Test
     public void ifStmt2() throws Exception {
-        String a =
+        final String a =
             "\nif ( true ) {\n"
                 + "    System.out.println(\"1\");\n"
                 + "    System.out.println(\"8\");\n"
@@ -71,7 +71,7 @@ public class IfStmtTest {
 
     @Test
     public void ifStmt3() throws Exception {
-        String a =
+        final String a =
             "\nif ( true ) {\n"
                 + "    if ( false ) {\n"
                 + "    }\n"

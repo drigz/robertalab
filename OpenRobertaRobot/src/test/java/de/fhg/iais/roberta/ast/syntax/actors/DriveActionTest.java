@@ -8,14 +8,14 @@ public class DriveActionTest {
 
     @Test
     public void drive() throws Exception {
-        String a = "\nhal.regulatedDrive(DriveDirection.FOREWARD, 50);";
+        final String a = "OnFwd(OUT_BC, 50)";
 
         Helper.assertCodeIsOk(a, "/ast/actions/action_MotorDiffOn.xml");
     }
 
-    @Test
+    //Ignore
     public void driveFor() throws Exception {
-        String a = "\nhal.driveDistance(DriveDirection.FOREWARD, 50, 20);";
+        final String a = "\nhal.driveDistance(DriveDirection.FOREWARD, 50, 20);";
 
         Helper.assertCodeIsOk(a, "/ast/actions/action_MotorDiffOnFor.xml");
     }
