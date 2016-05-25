@@ -256,7 +256,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return this.sb;
     }
 
-    //nxc can't cast "(float)"
+    //nxc can't cast "(float)", it does it automatically
     @Override
     public Void visitNumConst(NumConst<Void> numConst) {
         if ( isInteger(numConst.getValue()) ) {
@@ -293,7 +293,6 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             case SQRT1_2:
                 this.sb.append("sqrt(1.0/2.0)");
                 break;
-
             case INFINITY:
                 this.sb.append("0x7f800000");
                 break;
@@ -303,6 +302,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
+    //NXT has only light sensor, no colors
     @Override
     public Void visitColorConst(ColorConst<Void> colorConst) {
         this.sb.append(getEnumCode(colorConst.getValue()));
@@ -929,6 +929,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return sensorGetSample.getSensor().visit(this);
     }
 
+    //irrelevant?
     @Override
     public Void visitTextPrintFunct(TextPrintFunct<Void> textPrintFunct) {
         this.sb.append("System.out.println(");
@@ -949,6 +950,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         functionExpr.getFunction().visit(this);
         return null;
     }
+
+    //Change it later
 
     @Override
     public Void visitGetSubFunct(GetSubFunct<Void> getSubFunct) {
@@ -1556,20 +1559,20 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         this.sb.append("package generated.main;\n\n");
         this.sb.append("import de.fhg.iais.roberta.runtime.*;\n");
         this.sb.append("import de.fhg.iais.roberta.runtime.ev3.*;\n\n");
-
+    
         this.sb.append("import de.fhg.iais.roberta.shared.*;\n");
         this.sb.append("import de.fhg.iais.roberta.shared.action.ev3.*;\n");
         this.sb.append("import de.fhg.iais.roberta.shared.sensor.ev3.*;\n\n");
-
+    
         this.sb.append("import de.fhg.iais.roberta.components.*;\n");
         this.sb.append("import de.fhg.iais.roberta.components.ev3.*;\n\n");
-
+    
         this.sb.append("import java.util.LinkedHashSet;\n");
         this.sb.append("import java.util.Set;\n");
         this.sb.append("import java.util.List;\n");
         this.sb.append("import java.util.ArrayList;\n");
         this.sb.append("import java.util.Arrays;\n\n");
-
+    
         this.sb.append("import lejos.remote.nxt.NXTConnection;\n\n");
     }
     */
@@ -1588,15 +1591,15 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         sb.append(INDENT).append(INDENT).append(INDENT).append("    .build();");
         return sb.toString();
     }
-    
-    
+
+
     private void appendSensors(StringBuilder sb) {
         for ( Map.Entry<SensorPort, EV3Sensor> entry : this.brickConfiguration.getSensors().entrySet() ) {
             sb.append(INDENT).append(INDENT).append(INDENT);
             appendOptional(sb, "    .addSensor(", entry.getKey(), entry.getValue());
         }
     }
-    
+
     private void appendActors(StringBuilder sb) {
         for ( Map.Entry<ActorPort, EV3Actor> entry : this.brickConfiguration.getActors().entrySet() ) {
             sb.append(INDENT).append(INDENT).append(INDENT);
