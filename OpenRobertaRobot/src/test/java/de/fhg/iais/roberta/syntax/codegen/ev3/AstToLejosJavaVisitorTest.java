@@ -2,6 +2,7 @@ package de.fhg.iais.roberta.syntax.codegen.ev3;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import de.fhg.iais.roberta.components.ev3.EV3Actor;
@@ -61,16 +62,6 @@ public class AstToLejosJavaVisitorTest {
 
     private static final String USED_SENSORS_DECL = "private Set<UsedSensor> usedSensors = new LinkedHashSet<UsedSensor>();\n";
 
-    private static final String MAIN_METHOD = ""
-        + "    private Hal hal = new Hal(brickConfiguration, usedSensors);\n\n"
-        + "    public static void main(String[] args) {\n"
-        + "        try {\n"
-        + BRICK_CONFIGURATION
-        + "            new Test().run();\n"
-        + "        } catch ( Exception e ) {\n"
-        + "            Hal.displayExceptionWaitForKeyPress(e);\n"
-        + "        }\n"
-        + "    }\n\n";
     private static final String SUFFIX = "";
     private static Ev3Configuration brickConfiguration;
 
@@ -182,14 +173,14 @@ public class AstToLejosJavaVisitorTest {
             + "            RotateMotor(B,30,360.0*1))\n"
             + "            RotateMotorRegulated(TurnDirection.RIGHT, 50);\n"
             + "        }\n"
-            + "        if (hal.getRegulatedMotorTachoValue(ActorPort.A, MotorTachoMode.ROTATION) + SetSensorInfrared(IN_SensorPort.S4,DISTANCE); == getUltraSonicSensorDistance(SensorPort.S4) ) {\n"
+            + "        if ((hal.getRegulatedMotorTachoValue(ActorPort.A, MotorTachoMode.ROTATION) + SetSensorInfrared(IN_SensorPort.S4,DISTANCE); )== getUltraSonicSensorDistance(SensorPort.S4) ) {\n"
             + "            hal.ledOff();\n"
             + "        } else {\n"
             + "           SetSensorGyro(IN_SensorPort.S2,RESET);\n"
             + "        if ( TRUE ) {\n"
             + "            while ( hal.isPressed(SensorPort.S1) ) {\n"
-            + "                hal.drawPicture(ShowPicture.OLDGLASSES, 0, 0);\n"
-            + "                ClearDisplay();\n"
+            + "                drawPicture(ShowPicture.OLDGLASSES, 0, 0);\n"
+            + "                clearScreen();\n"
             + "            }\n"
             + "         }\n"
             + "            hal.ledOn(BrickLedColor.GREEN, BlinkMode.ON);\n"
@@ -458,7 +449,6 @@ public class AstToLejosJavaVisitorTest {
 
         assertCodeIsOk(a, "/syntax/code_generator/java/java_code_generator11.xml");
     }
-
 
     @Ignore
     public void testStmtForEach() throws Exception {

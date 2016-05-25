@@ -707,7 +707,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     @Override
     public Void visitMotorStopAction(MotorStopAction<Void> motorStopAction) {
         boolean isRegulated = this.brickConfiguration.isMotorRegulated(motorStopAction.getPort());
-        String methodName = isRegulated ? "hal.stopRegulatedMotor(" : "hal.stopUnregulatedMotor(";
+        String methodName = isRegulated ? "Off(" : "Off(";
         this.sb.append(methodName + getEnumCode(motorStopAction.getPort()) + ", " + getEnumCode(motorStopAction.getMode()) + ");");
         return null;
     }
@@ -729,7 +729,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             this.sb.append(", ");
             driveAction.getParam().getDuration().getValue().visit(this);
         }
-        this.sb.append(");");
+        this.sb.append(")");
         return null;
     }
 
