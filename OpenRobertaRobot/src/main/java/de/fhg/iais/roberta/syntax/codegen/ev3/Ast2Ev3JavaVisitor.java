@@ -292,10 +292,10 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             case SQRT1_2:
                 this.sb.append("sqrt(1.0/2.0)");
                 break;
-            //can't represent infinity?
-            //case INFINITY:
-            //    this.sb.append("Float.POSITIVE_INFINITY");
-            //    break;
+
+            case INFINITY:
+                this.sb.append("0x7f800000");
+                break;
             default:
                 break;
         }
@@ -976,11 +976,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitEmptyList(EmptyList<Void> emptyList) {
-        this.sb.append(
-            "new ArrayList<"
-                + getBlocklyTypeCode(emptyList.getTypeVar()).substring(0, 1).toUpperCase()
-                + getBlocklyTypeCode(emptyList.getTypeVar()).substring(1).toLowerCase()
-                + ">()");
+        this.sb.append("{}");
         return null;
     }
 
@@ -1516,9 +1512,9 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     this.sb.append(INDENT).append("SetSensorLowspeed(" + entry.getKey() + ");" + "\n");
                     break;
                 //to be created
-                case "robBrick_sound":
-                    this.sb.append(INDENT).append("SetSensorSound(" + entry.getKey() + ");" + "\n");
-                    break;
+                //case "robBrick_sound":
+                //    this.sb.append(INDENT).append("SetSensorSound(" + entry.getKey() + ");" + "\n");
+                //    break;
 
                 default:
                     break;
@@ -1531,20 +1527,20 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         this.sb.append("package generated.main;\n\n");
         this.sb.append("import de.fhg.iais.roberta.runtime.*;\n");
         this.sb.append("import de.fhg.iais.roberta.runtime.ev3.*;\n\n");
-    
+
         this.sb.append("import de.fhg.iais.roberta.shared.*;\n");
         this.sb.append("import de.fhg.iais.roberta.shared.action.ev3.*;\n");
         this.sb.append("import de.fhg.iais.roberta.shared.sensor.ev3.*;\n\n");
-    
+
         this.sb.append("import de.fhg.iais.roberta.components.*;\n");
         this.sb.append("import de.fhg.iais.roberta.components.ev3.*;\n\n");
-    
+
         this.sb.append("import java.util.LinkedHashSet;\n");
         this.sb.append("import java.util.Set;\n");
         this.sb.append("import java.util.List;\n");
         this.sb.append("import java.util.ArrayList;\n");
         this.sb.append("import java.util.Arrays;\n\n");
-    
+
         this.sb.append("import lejos.remote.nxt.NXTConnection;\n\n");
     }
     */
@@ -1563,15 +1559,15 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         sb.append(INDENT).append(INDENT).append(INDENT).append("    .build();");
         return sb.toString();
     }
-
-
+    
+    
     private void appendSensors(StringBuilder sb) {
         for ( Map.Entry<SensorPort, EV3Sensor> entry : this.brickConfiguration.getSensors().entrySet() ) {
             sb.append(INDENT).append(INDENT).append(INDENT);
             appendOptional(sb, "    .addSensor(", entry.getKey(), entry.getValue());
         }
     }
-
+    
     private void appendActors(StringBuilder sb) {
         for ( Map.Entry<ActorPort, EV3Actor> entry : this.brickConfiguration.getActors().entrySet() ) {
             sb.append(INDENT).append(INDENT).append(INDENT);
