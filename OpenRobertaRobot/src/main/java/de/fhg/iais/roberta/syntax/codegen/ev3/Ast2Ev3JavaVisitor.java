@@ -779,21 +779,21 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         switch ( colorSensor.getMode() ) {
             case AMBIENTLIGHT:
                 this.sb.append(Port + (",") + ("AMBIENT"));
-                this.sb.append(")" + (";"));
+                this.sb.append(");");
                 break;
             case COLOUR:
                 this.sb.append(Port + (",") + ("COLOUR"));
-                this.sb.append(")" + (";"));
+                this.sb.append(");");
 
                 break;
             case RED:
                 this.sb.append(Port + (",") + ("RED"));
-                this.sb.append(")" + (";"));
+                this.sb.append(");");
 
                 break;
             case RGB:
                 this.sb.append(Port + (",") + ("RGB"));
-                this.sb.append(")" + (";"));
+                this.sb.append(");");
                 break;
             default:
                 throw new DbcException("Invalide mode for Color Sensor!");
@@ -825,15 +825,15 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         switch ( gyroSensor.getMode() ) {
             case ANGLE:
                 this.sb.append(Port + (",") + ("ANGLE"));
-                this.sb.append(")" + (";"));
+                this.sb.append(");");
                 break;
             case RATE:
                 this.sb.append(Port + (",") + ("RATE"));
-                this.sb.append(")" + (";"));
+                this.sb.append(");");
                 break;
             case RESET:
                 this.sb.append(Port + (",") + ("RESET"));
-                this.sb.append(")" + (";"));
+                this.sb.append(");");
                 break;
             default:
                 throw new DbcException("Invalid GyroSensorMode");
@@ -850,11 +850,11 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
             case DISTANCE:
                 this.sb.append(Port + (",") + ("DISTANCE"));
-                this.sb.append(")" + (";"));
+                this.sb.append(");");
                 break;
             case SEEK:
                 this.sb.append(Port + (",") + ("SEEK"));
-                this.sb.append(")" + (";"));
+                this.sb.append(");");
                 break;
             default:
                 throw new DbcException("Invalid Infrared Sensor Mode!");
@@ -879,17 +879,33 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitTouchSensor(TouchSensor<Void> touchSensor) {
-        this.sb.append("hal.isPressed(" + getEnumCode(touchSensor.getPort()) + ")");
+        String Port = (getEnumCode(touchSensor.getPort()));
+        final String methodName = "SetSensorTouch";
+
+        this.sb.append(methodName + "(IN_");
+        {
+            this.sb.append(Port + (""));
+            this.sb.append(");");
+
+        }
         return null;
     }
 
     @Override
     public Void visitUltrasonicSensor(UltrasonicSensor<Void> ultrasonicSensor) {
-        String ultrasonicSensorPort = getEnumCode(ultrasonicSensor.getPort());
+        String Port = getEnumCode(ultrasonicSensor.getPort());
+        final String methodName = "SetSensorUS";
+        this.sb.append(methodName + "(IN_");
         if ( ultrasonicSensor.getMode() == UltrasonicSensorMode.DISTANCE ) {
-            this.sb.append("getUltraSonicSensorDistance(" + ultrasonicSensorPort + ")");
+
+            this.sb.append(Port + (",") + ("DISTANCE"));
+            this.sb.append(");");
+
         } else {
-            this.sb.append("getUltraSonicSensorPresence(" + ultrasonicSensorPort + ")");
+
+            this.sb.append(Port + (",") + ("PRESENCE"));
+            this.sb.append(");");
+
         }
         return null;
     }
