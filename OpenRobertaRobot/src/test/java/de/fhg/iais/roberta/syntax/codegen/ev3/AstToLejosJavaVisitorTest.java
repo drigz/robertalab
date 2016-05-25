@@ -17,14 +17,17 @@ import de.fhg.iais.roberta.testutil.Helper;
 
 public class AstToLejosJavaVisitorTest {
 
+    //TODO: change diameter and trackwidth to changeable
+    // when sensors are added to nxt, fix the sensors description here
+
     private static final String MAIN_METHOD = ""
-        + "#define WHEELDIAMETER 5.6\n"
-        + "#define TRACKWIDTH 18.1\n"
-        + "task main {\n"
-        + "    SetSensorTouch(IN_1);\n"
-        + "    SetSensorSound(IN_2);\n"
-        + "    SetSensorLight(IN_3);\n"
-        + "    SetSensorLowspeed(IN_4);\n";
+    + "#define WHEELDIAMETER 5.6\n"
+    + "#define TRACKWIDTH 17.0\n"
+    + "task main {\n"
+    + "    SetSensorTouch(S1);\n"
+    //+ "    SetSensorSound(S2);\n"
+    //+ "    SetSensorLight(S3);\n"
+        + "    SetSensorLowspeed(S2);\n";
     private static final String SUFFIX = "";
     private static Ev3Configuration brickConfiguration;
 
@@ -237,26 +240,27 @@ public class AstToLejosJavaVisitorTest {
         assertCodeIsOk(a, "/syntax/code_generator/java/java_code_generator9.xml");
     }
 
-    @Test
-    public void test9() throws Exception {
+    //Test accepts some types, those don't exist in NXC. Should be fixed later, when the
+    //OpenRoberta for NXT is ready
 
-        String a = "" //
-            + MAIN_METHOD
-            + "        floatitem=0;"
-            + "        stringitem2=\"ss\";"
-            + "        booleanitem3=true;"
-            + "        floatitem4=BlocklyMethods.createListWithNumber(1,2,3);"
-            + "        stringitem5=BlocklyMethods.createListWithString(\"a\",\"b\");"
-            + "        booleanitem6=BlocklyMethods.createListWithBoolean(true,false);"
-            + "        ArrayList<Pickcolor>item7=BlocklyMethods.createListWithColour(Pickcolor.RED,Pickcolor.BLACK,Pickcolor.NONE);"
-            + "        Pickcoloritem8=Pickcolor.NONE;"
+    // @Test
+    //public void test9() throws Exception {
 
-            + SUFFIX
+    //String a = "" //
+    //+ MAIN_METHOD
+    //+ "        floatitem=0;"
+    //+ "        stringitem2=\"ss\";"
+    //+ "        booleanitem3=true;"
+    //+ "        floatitem4={1,2,3};"
+    //+ "        stringitem5={\"a\",\"b\"};"
+    //+ "        booleanitem6={true,false};"
 
-            + "}\n";
+    //+ SUFFIX
 
-        assertCodeIsOk(a, "/ast/task/task_mainTask.xml");
-    }
+    //+ "}\n";
+
+    //assertCodeIsOk(a, "/ast/task/task_mainTask.xml");
+    //}
 
     @Test
     public void test10() throws Exception {
@@ -336,11 +340,11 @@ public class AstToLejosJavaVisitorTest {
 
         String a = "" //
             + MAIN_METHOD
-            + "    string variablenName=BlocklyMethods.createListWithString(\"a\", \"b\", \"c\");\n"
+            + "    string variablenName[]={\"a\",\"b\",\"c\"};\n"
 
             + "        hal.drawText(String.valueOf(test(0, variablenName)), 0, 0);"
 
-            + "    private float test(float x, string x2) {\n"
+            + "    private float test(float x, string x2[]) {\n"
             + "        hal.drawText(String.valueOf(x2), x, 0);\n"
             + "        return x;\n"
             + "    }"
@@ -349,42 +353,40 @@ public class AstToLejosJavaVisitorTest {
         assertCodeIsOk(a, "/syntax/methods/method_return_1.xml");
     }
 
-    @Test
-    public void test15() throws Exception {
+    //Test accepts some types, those don't exist in NXC. Should be fixed later, when the
+    //OpenRoberta for NXT is ready
+    //@Test
+    //public void test15() throws Exception {
 
-        String a = "" //
-            + MAIN_METHOD
-            + "    string variablenName=BlocklyMethods.createListWithString(\"a\", \"b\", \"c\");\n"
+    //String a = "" //
+    //+ MAIN_METHOD
+    //+ "    string variablenName=BlocklyMethods.createListWithString(\"a\", \"b\", \"c\");\n"
 
-            + "        hal.drawText(String.valueOf(test()), 0, 0);"
+    //+ "        hal.drawText(String.valueOf(test()), 0, 0);"
 
-            + "    private Pickcolor test() {\n"
-            + "        hal.drawText(String.valueOf(variablenName), 0, 0);\n"
-            + "        return Pickcolor.NONE;\n"
-            + "    }"
-            + "}\n";
+    //+ "    private Pickcolor test() {\n"
+    //+ "        hal.drawText(String.valueOf(variablenName), 0, 0);\n"
+    //+ "        return Pickcolor.NONE;\n"
+    //+ "    }"
+    //+"}\n";
 
-        assertCodeIsOk(a, "/syntax/methods/method_return_2.xml");
-    }
+    //    assertCodeIsOk(a, "/syntax/methods/method_return_2.xml");
+    //}
 
-    @Test
-    public void test16() throws Exception {
+    //Test accepts some types, those don't exist in NXC. Should be fixed later, when the
+    //OpenRoberta for NXT is ready
+    //@Test
+    //public void test16() throws Exception {
 
-        String a = "" //
-            + MAIN_METHOD
-            + "    string variablenName=BlocklyMethods.createListWithString(\"a\", \"b\", \"c\");\n"
+    //    String a = "" //
 
-            + "        hal.drawText(String.valueOf(test()), 0, 0);"
+    //        + "    string variablenName=BlocklyMethods.createListWithString(\"a\", \"b\", \"c\");\n"
 
-            + "    private Pickcolor test() {\n"
-            + "        if (true) return Pickcolor.RED;\n"
-            + "        hal.drawText(String.valueOf(variablenName), 0, 0);\n"
-            + "        return Pickcolor.NONE;\n"
-            + "    }"
-            + "}\n";
+    //        + "        hal.drawText(String.valueOf(test()), 0, 0);"
+    //        + "}\n";
 
-        assertCodeIsOk(a, "/syntax/methods/method_if_return_2.xml");
-    }
+    //    assertCodeIsOk(a, "/syntax/methods/method_if_return_2.xml");
+    //}
 
     @Test
     public void test17() throws Exception {
@@ -412,20 +414,6 @@ public class AstToLejosJavaVisitorTest {
             + "}\n";
 
         assertCodeIsOk(a, "/syntax/code_generator/java/java_code_generator11.xml");
-    }
-
-    @Test
-    public void testStmtForEach() throws Exception {
-        String a = "" //
-            + MAIN_METHOD
-            + "ArrayList<Pickcolor>variablenName=BlocklyMethods.createListWithColour(Pickcolor.NONE,Pickcolor.RED,Pickcolor.BLUE);\n"
-
-            + "        for (PickcolorvariablenName2 : variablenName) {\n"
-            + "            hal.drawText(String.valueOf(variablenName2),0,0);\n"
-            + "}\n"
-            + "}\n";
-
-        assertCodeIsOk(a, "/syntax/stmt/forEach_stmt.xml");
     }
 
     private void assertCodeIsOk(String a, String fileName) throws Exception {
