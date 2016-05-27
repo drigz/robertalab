@@ -485,12 +485,12 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitIfStmt(IfStmt<Void> ifStmt) {
-        if ( ifStmt.isTernary() ) {
-            generateCodeFromTernary(ifStmt);
-        } else {
-            generateCodeFromIfElse(ifStmt);
-            generateCodeFromElse(ifStmt);
-        }
+        //if ( ifStmt.isTernary() ) {
+        //    generateCodeFromTernary(ifStmt);
+        //} else {
+        generateCodeFromIfElse(ifStmt);
+        generateCodeFromElse(ifStmt);
+        //}
         return null;
     }
 
@@ -951,7 +951,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    //Change it later
+    //TODO: Change it later
 
     @Override
     public Void visitGetSubFunct(GetSubFunct<Void> getSubFunct) {
@@ -1429,6 +1429,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         }
     }
 
+    /* there is no ternary in nxc
     private void generateCodeFromTernary(IfStmt<Void> ifStmt) {
         this.sb.append("(" + whitespace());
         ifStmt.getExpr().get(0).visit(this);
@@ -1437,6 +1438,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         this.sb.append(whitespace() + ":" + whitespace());
         ((ExprStmt<Void>) ifStmt.getElseList().get().get(0)).getExpr().visit(this);
     }
+    */
 
     private void generateCodeFromIfElse(IfStmt<Void> ifStmt) {
         for ( int i = 0; i < ifStmt.getExpr().size(); i++ ) {
@@ -1497,6 +1499,15 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         }
     }
 
+    private void callConstants() {
+        this.sb.append("#define WHEELDIAMETER " + this.brickConfiguration.getWheelDiameterCM() + "\n");
+        this.sb.append("#define TRACKWIDTH " + this.brickConfiguration.getTrackWidthCM() + "\n");
+    }
+
+    private void callFunctions() {
+
+    }
+
     private void generatePrefix(boolean withWrapping) {
         if ( !withWrapping ) {
             return;
@@ -1517,10 +1528,11 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
         //this.sb.append(INDENT).append("private Hal hal = new Hal(brickConfiguration, usedSensors);\n\n");
 
-        //define robot constants:
+        //constants #CONSTANT:
+        this.callConstants();
+        // functions, subroutines, not main tasks:
+        this.callFunctions();
 
-        this.sb.append("#define WHEELDIAMETER " + this.brickConfiguration.getWheelDiameterCM() + "\n");
-        this.sb.append("#define TRACKWIDTH " + this.brickConfiguration.getTrackWidthCM() + "\n");
         this.sb.append("task main {\n");
         //this.sb.append(INDENT).append(INDENT).append("try {\n");
         //this.sb.append(INDENT).append(INDENT).append(INDENT).append(generateRegenerateConfiguration()).append("\n");
@@ -1544,38 +1556,15 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     this.sb.append(INDENT).append("SetSensorLowspeed(" + entry.getKey() + ");" + "\n");
                     break;
                 //to be created
-                //case "robBrick_sound":
-                //    this.sb.append(INDENT).append("SetSensorSound(" + entry.getKey() + ");" + "\n");
-                //    break;
+                case "EV3_GYRO_SENSOR":
+                    this.sb.append(INDENT).append("SetSensorSound(" + entry.getKey() + ");" + "\n");
+                    break;
 
                 default:
                     break;
             }
         }
     }
-
-    /*
-    private void generateImports() {
-        this.sb.append("package generated.main;\n\n");
-        this.sb.append("import de.fhg.iais.roberta.runtime.*;\n");
-        this.sb.append("import de.fhg.iais.roberta.runtime.ev3.*;\n\n");
-    
-        this.sb.append("import de.fhg.iais.roberta.shared.*;\n");
-        this.sb.append("import de.fhg.iais.roberta.shared.action.ev3.*;\n");
-        this.sb.append("import de.fhg.iais.roberta.shared.sensor.ev3.*;\n\n");
-    
-        this.sb.append("import de.fhg.iais.roberta.components.*;\n");
-        this.sb.append("import de.fhg.iais.roberta.components.ev3.*;\n\n");
-    
-        this.sb.append("import java.util.LinkedHashSet;\n");
-        this.sb.append("import java.util.Set;\n");
-        this.sb.append("import java.util.List;\n");
-        this.sb.append("import java.util.ArrayList;\n");
-        this.sb.append("import java.util.Arrays;\n\n");
-    
-        this.sb.append("import lejos.remote.nxt.NXTConnection;\n\n");
-    }
-    */
 
     /**
      * @return Java code used in the code generation to regenerates the same brick configuration
@@ -1591,15 +1580,15 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         sb.append(INDENT).append(INDENT).append(INDENT).append("    .build();");
         return sb.toString();
     }
-
-
+    
+    
     private void appendSensors(StringBuilder sb) {
         for ( Map.Entry<SensorPort, EV3Sensor> entry : this.brickConfiguration.getSensors().entrySet() ) {
             sb.append(INDENT).append(INDENT).append(INDENT);
             appendOptional(sb, "    .addSensor(", entry.getKey(), entry.getValue());
         }
     }
-
+    
     private void appendActors(StringBuilder sb) {
         for ( Map.Entry<ActorPort, EV3Actor> entry : this.brickConfiguration.getActors().entrySet() ) {
             sb.append(INDENT).append(INDENT).append(INDENT);

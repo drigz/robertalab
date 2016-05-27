@@ -28,39 +28,6 @@ public class AstToLejosJavaVisitorTest {
     //+ "    SetSensorSound(S2);\n"
     //+ "    SetSensorLight(S3);\n"
         + "    SetSensorLowspeed(S2);\n";
-    private static final String MAIN_CLASS = "" //
-        + "public class Test {\n"
-        + "private static final boolean TRUE = true;";
-
-    private static final String IMPORTS = "" //
-        + "package generated.main;\n\n"
-        + "import de.fhg.iais.roberta.runtime.*;\n"
-        + "import de.fhg.iais.roberta.runtime.ev3.*;\n\n"
-        + "import de.fhg.iais.roberta.shared.*;\n"
-        + "import de.fhg.iais.roberta.shared.action.ev3.*;\n"
-        + "import de.fhg.iais.roberta.shared.sensor.ev3.*;\n\n"
-        + "import de.fhg.iais.roberta.components.*;\n"
-        + "import de.fhg.iais.roberta.components.ev3.*;\n\n"
-        + "import java.util.LinkedHashSet;\n"
-        + "import java.util.Set;\n"
-        + "import java.util.List;\n"
-        + "import java.util.ArrayList;\n"
-        + "import java.util.Arrays;\n"
-        + "import lejos.remote.nxt.NXTConnection;\n\n";
-
-    private static final String BRICK_CONFIGURATION = "" //
-        + "    brickConfiguration = new Ev3Configuration.Builder()\n"
-        + "    .setWheelDiameter(5.6)\n"
-        + "    .setTrackWidth(17.0)\n"
-        + "    .addActor(ActorPort.A, new EV3Actor(EV3Actors.EV3_MEDIUM_MOTOR, true, DriveDirection.FOREWARD, MotorSide.LEFT))\n"
-        + "    .addActor(ActorPort.B, new EV3Actor(EV3Actors.EV3_LARGE_MOTOR, true, DriveDirection.FOREWARD, MotorSide.RIGHT))\n"
-        + "    .addSensor(SensorPort.S1, new EV3Sensor(EV3Sensors.EV3_TOUCH_SENSOR))\n"
-        + "    .addSensor(SensorPort.S2, new EV3Sensor(EV3Sensors.EV3_ULTRASONIC_SENSOR))\n"
-        + "    .build();\n\n";
-
-    private static final String BRICK_CONFIGURATION_DECL = "private static Ev3Configuration brickConfiguration;\n";
-
-    private static final String USED_SENSORS_DECL = "private Set<UsedSensor> usedSensors = new LinkedHashSet<UsedSensor>();\n";
 
     private static final String SUFFIX = "";
     private static Ev3Configuration brickConfiguration;
@@ -453,10 +420,6 @@ public class AstToLejosJavaVisitorTest {
     @Ignore
     public void testStmtForEach() throws Exception {
         final String a = "" //
-            + IMPORTS
-            + MAIN_CLASS
-            + BRICK_CONFIGURATION_DECL
-            + USED_SENSORS_DECL
             + MAIN_METHOD
             + "ArrayList<Pickcolor>variablenName=BlocklyMethods.createListWithColour(Pickcolor.NONE,Pickcolor.RED,Pickcolor.BLUE);\n"
             + "    public void run() throwsException {\n"
