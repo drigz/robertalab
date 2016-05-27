@@ -78,7 +78,7 @@ public class AstToLejosJavaVisitorTest {
         String a = "" //
             + MAIN_METHOD
 
-            + "        if ( hal.isPressed(SensorPort.S1) ) {\n"
+            + "        if ( SetSensorTouch(IN_SensorPort.S1);) {\n"
             + "            hal.ledOn(BrickLedColor.GREEN, BlinkMode.ON);\n"
             + "        } else if ( Pickcolor.RED == SetSensor(IN_SensorPort.S3 ,COLOUR);) {\n"
             + "        if ( TRUE ) {\n"
@@ -107,12 +107,12 @@ public class AstToLejosJavaVisitorTest {
 
             + MAIN_METHOD
 
-            + "        if ( hal.isPressed(SensorPort.S1) ) {\n"
+            + "        if ( SetSensorTouch(IN_SensorPort.S1) ;) {\n"
             + "            hal.ledOn(BrickLedColor.GREEN, BlinkMode.ON);\n"
             + "        } else {\n"
-            + "            if ( hal.isPressed(SensorPort.S1) ) {\n"
+            + "            if ( SetSensorTouch(IN_SensorPort.S1) ;) {\n"
             + "                hal.ledOn(BrickLedColor.GREEN, BlinkMode.ON);\n"
-            + "            } else if ( 0==getUltraSonicSensorDistance(SensorPort.S4) ) {\n"
+            + "            } else if ( 0==SetSensorUS(IN_SensorPort.S4,DISTANCE); ) {\n"
             + "                drawPicture(ShowPicture.FLOWERS, 15, 15);\n"
             + "            } else {\n"
             + "            if ( TRUE ) {\n"
@@ -140,12 +140,12 @@ public class AstToLejosJavaVisitorTest {
             + "            RotateMotor(B,30,360.0*1))\n"
             + "            RotateMotorRegulated(TurnDirection.RIGHT, 50);\n"
             + "        }\n"
-            + "        if ((hal.getRegulatedMotorTachoValue(ActorPort.A, MotorTachoMode.ROTATION) + SetSensorInfrared(IN_SensorPort.S4,DISTANCE); )== getUltraSonicSensorDistance(SensorPort.S4) ) {\n"
+            + "        if ((hal.getRegulatedMotorTachoValue(ActorPort.A, MotorTachoMode.ROTATION) + SetSensorInfrared(IN_SensorPort.S4,DISTANCE); )== SetSensorUS(IN_SensorPort.S4,DISTANCE); ) {\n"
             + "            hal.ledOff();\n"
             + "        } else {\n"
             + "           SetSensorGyro(IN_SensorPort.S2,RESET);\n"
             + "        if ( TRUE ) {\n"
-            + "            while ( hal.isPressed(SensorPort.S1) ) {\n"
+            + "            while ( SetSensorTouch(IN_SensorPort.S1);) {\n"
             + "                drawPicture(ShowPicture.OLDGLASSES, 0, 0);\n"
             + "                clearScreen();\n"
             + "            }\n"
