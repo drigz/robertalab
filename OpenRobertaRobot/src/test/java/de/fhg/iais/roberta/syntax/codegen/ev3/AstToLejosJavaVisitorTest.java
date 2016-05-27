@@ -23,7 +23,7 @@ public class AstToLejosJavaVisitorTest {
     private static final String MAIN_METHOD = ""
     + "#define WHEELDIAMETER 5.6\n"
     + "#define TRACKWIDTH 17.0\n"
-    + "task main {\n"
+    + "task main(){"
     + "    SetSensorTouch(S1);\n"
     //+ "    SetSensorSound(S2);\n"
     //+ "    SetSensorLight(S3);\n"
@@ -78,7 +78,7 @@ public class AstToLejosJavaVisitorTest {
         String a = "" //
             + MAIN_METHOD
 
-            + "        if ( SetSensorTouch(IN_SensorPort.S1);) {\n"
+            + "        if (hal.isPressed(SensorPort.S1)) {\n"
             + "            hal.ledOn(BrickLedColor.GREEN, BlinkMode.ON);\n"
             + "        } else if ( Pickcolor.RED == SetSensor(IN_SensorPort.S3 ,COLOUR);) {\n"
             + "        if ( TRUE ) {\n"
@@ -107,12 +107,12 @@ public class AstToLejosJavaVisitorTest {
 
             + MAIN_METHOD
 
-            + "        if ( SetSensorTouch(IN_SensorPort.S1) ;) {\n"
+            + "        if (hal.isPressed(SensorPort.S1)) {\n"
             + "            hal.ledOn(BrickLedColor.GREEN, BlinkMode.ON);\n"
             + "        } else {\n"
-            + "            if ( SetSensorTouch(IN_SensorPort.S1) ;) {\n"
+            + "            if (hal.isPressed(SensorPort.S1)) {\n"
             + "                hal.ledOn(BrickLedColor.GREEN, BlinkMode.ON);\n"
-            + "            } else if ( 0==SetSensorUS(IN_SensorPort.S4,DISTANCE); ) {\n"
+            + "            } else if (0==getUltraSonicSensorDistance(SensorPort.S4)) {\n"
             + "                drawPicture(ShowPicture.FLOWERS, 15, 15);\n"
             + "            } else {\n"
             + "            if ( TRUE ) {\n"
@@ -140,12 +140,12 @@ public class AstToLejosJavaVisitorTest {
             + "            RotateMotor(B,30,360.0*1))\n"
             + "            RotateMotorRegulated(TurnDirection.RIGHT, 50);\n"
             + "        }\n"
-            + "        if ((hal.getRegulatedMotorTachoValue(ActorPort.A, MotorTachoMode.ROTATION) + SetSensorInfrared(IN_SensorPort.S4,DISTANCE); )== SetSensorUS(IN_SensorPort.S4,DISTANCE); ) {\n"
+            + "        if ((hal.getRegulatedMotorTachoValue(ActorPort.A, MotorTachoMode.ROTATION) + SetSensorInfrared(IN_SensorPort.S4,DISTANCE); )== getUltraSonicSensorDistance(SensorPort.S4)) {\n"
             + "            hal.ledOff();\n"
             + "        } else {\n"
             + "           SetSensorGyro(IN_SensorPort.S2,RESET);\n"
             + "        if ( TRUE ) {\n"
-            + "            while ( SetSensorTouch(IN_SensorPort.S1);) {\n"
+            + "            while ( hal.isPressed(SensorPort.S1)) {\n"
             + "                drawPicture(ShowPicture.OLDGLASSES, 0, 0);\n"
             + "                clearScreen();\n"
             + "            }\n"
@@ -214,9 +214,9 @@ public class AstToLejosJavaVisitorTest {
             + "        float item = 10;\n"
             + "        string item2 = \"TTTT\";\n"
             + "        boolean item3 = true;\n"
-            + "        TextOut(String(item), 0, 0);\n"
-            + "        TextOut(String(item2), 0, 0);\n"
-            + "        TextOut(String(item3), 0, 0);\n"
+            + "        TextOut(string(item), 0, 0);\n"
+            + "        TextOut(string(item2), 0, 0);\n"
+            + "        TextOut(string(item3), 0, 0);\n"
             + "        item3 = false;\n"
             + SUFFIX
 
@@ -343,10 +343,10 @@ public class AstToLejosJavaVisitorTest {
             + MAIN_METHOD
             + "    string variablenName[]={\"a\",\"b\",\"c\"};\n"
 
-            + "        TextOut(String(test(0, variablenName)), 0, 0);"
+            + "        TextOut(string(test(0, variablenName)), 0, 0);"
 
             + "    private float test(float x, string x2[]) {\n"
-            + "       TextOut(String(x2), x, 0);\n"
+            + "       TextOut(string(x2), x, 0);\n"
             + "        return x;\n"
             + "    }"
             + "}\n";

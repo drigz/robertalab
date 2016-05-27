@@ -1,5 +1,6 @@
 package de.fhg.iais.roberta.ast.syntax.expr;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import de.fhg.iais.roberta.testutil.Helper;
@@ -36,7 +37,8 @@ public class LogicExprTest {
         Helper.assertCodeIsOk(a, "/syntax/expr/logic_null.xml");
     }
 
-    @Test
+    // The ternary was removed
+    @Ignore
     public void logicTernary() throws Exception {
         final String a = "\n( 0 == 0 ) ? false : true";
 
