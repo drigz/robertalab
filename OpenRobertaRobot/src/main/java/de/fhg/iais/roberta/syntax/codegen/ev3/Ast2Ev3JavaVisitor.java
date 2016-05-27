@@ -7,9 +7,6 @@ import java.util.Set;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import de.fhg.iais.roberta.components.Category;
-import de.fhg.iais.roberta.components.HardwareComponent;
-import de.fhg.iais.roberta.components.HardwareComponentType;
-import de.fhg.iais.roberta.components.ev3.EV3Actor;
 import de.fhg.iais.roberta.components.ev3.EV3Sensor;
 import de.fhg.iais.roberta.components.ev3.Ev3Configuration;
 import de.fhg.iais.roberta.components.ev3.UsedSensor;
@@ -485,12 +482,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitIfStmt(IfStmt<Void> ifStmt) {
-        //if ( ifStmt.isTernary() ) {
-        //    generateCodeFromTernary(ifStmt);
-        //} else {
         generateCodeFromIfElse(ifStmt);
         generateCodeFromElse(ifStmt);
-        //}
         return null;
     }
 
@@ -779,21 +772,21 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         switch ( colorSensor.getMode() ) {
             case AMBIENTLIGHT:
                 this.sb.append(Port + (",") + ("AMBIENT"));
-                this.sb.append(");");
+                this.sb.append(")" + (";"));
                 break;
             case COLOUR:
                 this.sb.append(Port + (",") + ("COLOUR"));
-                this.sb.append(");");
+                this.sb.append(")" + (";"));
 
                 break;
             case RED:
                 this.sb.append(Port + (",") + ("RED"));
-                this.sb.append(");");
+                this.sb.append(")" + (";"));
 
                 break;
             case RGB:
                 this.sb.append(Port + (",") + ("RGB"));
-                this.sb.append(");");
+                this.sb.append(")" + (";"));
                 break;
             default:
                 throw new DbcException("Invalide mode for Color Sensor!");
@@ -825,15 +818,15 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         switch ( gyroSensor.getMode() ) {
             case ANGLE:
                 this.sb.append(Port + (",") + ("ANGLE"));
-                this.sb.append(");");
+                this.sb.append(")" + (";"));
                 break;
             case RATE:
                 this.sb.append(Port + (",") + ("RATE"));
-                this.sb.append(");");
+                this.sb.append(")" + (";"));
                 break;
             case RESET:
                 this.sb.append(Port + (",") + ("RESET"));
-                this.sb.append(");");
+                this.sb.append(")" + (";"));
                 break;
             default:
                 throw new DbcException("Invalid GyroSensorMode");
@@ -850,11 +843,11 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
             case DISTANCE:
                 this.sb.append(Port + (",") + ("DISTANCE"));
-                this.sb.append(");");
+                this.sb.append(")" + (";"));
                 break;
             case SEEK:
                 this.sb.append(Port + (",") + ("SEEK"));
-                this.sb.append(");");
+                this.sb.append(")" + (";"));
                 break;
             default:
                 throw new DbcException("Invalid Infrared Sensor Mode!");
@@ -879,33 +872,17 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitTouchSensor(TouchSensor<Void> touchSensor) {
-        String Port = (getEnumCode(touchSensor.getPort()));
-        final String methodName = "SetSensorTouch";
-
-        this.sb.append(methodName + "(IN_");
-        {
-            this.sb.append(Port + (""));
-            this.sb.append(");");
-
-        }
+        this.sb.append("hal.isPressed(" + getEnumCode(touchSensor.getPort()) + ")");
         return null;
     }
 
     @Override
     public Void visitUltrasonicSensor(UltrasonicSensor<Void> ultrasonicSensor) {
-        String Port = getEnumCode(ultrasonicSensor.getPort());
-        final String methodName = "SetSensorUS";
-        this.sb.append(methodName + "(IN_");
+        String ultrasonicSensorPort = getEnumCode(ultrasonicSensor.getPort());
         if ( ultrasonicSensor.getMode() == UltrasonicSensorMode.DISTANCE ) {
-
-            this.sb.append(Port + (",") + ("DISTANCE"));
-            this.sb.append(");");
-
+            this.sb.append("getUltraSonicSensorDistance(" + ultrasonicSensorPort + ")");
         } else {
-
-            this.sb.append(Port + (",") + ("PRESENCE"));
-            this.sb.append(");");
-
+            this.sb.append("getUltraSonicSensorPresence(" + ultrasonicSensorPort + ")");
         }
         return null;
     }
@@ -967,7 +944,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    //TODO: Change it later
+    //Change it later
 
     @Override
     public Void visitGetSubFunct(GetSubFunct<Void> getSubFunct) {
@@ -1445,8 +1422,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         }
     }
 
-    /* there is no ternary in nxc
-    private void generateCodeFromTernary(IfStmt<Void> ifStmt) {
+    /*private void generateCodeFromTernary(IfStmt<Void> ifStmt) {
         this.sb.append("(" + whitespace());
         ifStmt.getExpr().get(0).visit(this);
         this.sb.append(whitespace() + ")" + whitespace() + "?" + whitespace());
@@ -1515,12 +1491,12 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         }
     }
 
-    private void callConstants() {
+    private void addConstants() {
         this.sb.append("#define WHEELDIAMETER " + this.brickConfiguration.getWheelDiameterCM() + "\n");
         this.sb.append("#define TRACKWIDTH " + this.brickConfiguration.getTrackWidthCM() + "\n");
     }
 
-    private void callFunctions() {
+    private void addFunctions() {
 
     }
 
@@ -1544,10 +1520,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
         //this.sb.append(INDENT).append("private Hal hal = new Hal(brickConfiguration, usedSensors);\n\n");
 
-        //constants #CONSTANT:
-        this.callConstants();
-        // functions, subroutines, not main tasks:
-        this.callFunctions();
+        this.addConstants();
+        this.addFunctions();
 
         this.sb.append("task main {\n");
         //this.sb.append(INDENT).append(INDENT).append("try {\n");
@@ -1571,7 +1545,6 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                 case "EV3_ULTRASONIC_SENSOR":
                     this.sb.append(INDENT).append("SetSensorLowspeed(" + entry.getKey() + ");" + "\n");
                     break;
-                //to be created
                 case "EV3_GYRO_SENSOR":
                     this.sb.append(INDENT).append("SetSensorSound(" + entry.getKey() + ");" + "\n");
                     break;
@@ -1581,6 +1554,29 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             }
         }
     }
+
+    /*
+    private void generateImports() {
+        this.sb.append("package generated.main;\n\n");
+        this.sb.append("import de.fhg.iais.roberta.runtime.*;\n");
+        this.sb.append("import de.fhg.iais.roberta.runtime.ev3.*;\n\n");
+
+        this.sb.append("import de.fhg.iais.roberta.shared.*;\n");
+        this.sb.append("import de.fhg.iais.roberta.shared.action.ev3.*;\n");
+        this.sb.append("import de.fhg.iais.roberta.shared.sensor.ev3.*;\n\n");
+
+        this.sb.append("import de.fhg.iais.roberta.components.*;\n");
+        this.sb.append("import de.fhg.iais.roberta.components.ev3.*;\n\n");
+
+        this.sb.append("import java.util.LinkedHashSet;\n");
+        this.sb.append("import java.util.Set;\n");
+        this.sb.append("import java.util.List;\n");
+        this.sb.append("import java.util.ArrayList;\n");
+        this.sb.append("import java.util.Arrays;\n\n");
+
+        this.sb.append("import lejos.remote.nxt.NXTConnection;\n\n");
+    }
+    */
 
     /**
      * @return Java code used in the code generation to regenerates the same brick configuration
@@ -1613,7 +1609,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     }
     */
 
-    private static void appendOptional(StringBuilder sb, String type, @SuppressWarnings("rawtypes") Enum port, HardwareComponent hardwareComponent) {
+    /* NXT can run the sensors quite fast, so this check is unnecessary. The sensors are alreay added above.
+     private static void appendOptional(StringBuilder sb, String type, @SuppressWarnings("rawtypes") Enum port, HardwareComponent hardwareComponent) {
         if ( hardwareComponent != null ) {
             sb.append(type).append(getEnumCode(port)).append(", ");
             if ( hardwareComponent.getCategory() == Category.SENSOR ) {
@@ -1624,7 +1621,10 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             sb.append(")\n");
         }
     }
-
+    
+    
+    
+    
     private String generateRegenerateUsedSensors() {
         StringBuilder sb = new StringBuilder();
         String arrayOfSensors = "";
@@ -1632,7 +1632,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             arrayOfSensors += usedSensor.generateRegenerate();
             arrayOfSensors += ", ";
         }
-
+    
         sb.append("private Set<UsedSensor> usedSensors = " + "new LinkedHashSet<UsedSensor>(");
         if ( this.usedSensors.size() > 0 ) {
             sb.append("Arrays.asList(" + arrayOfSensors.substring(0, arrayOfSensors.length() - 2) + ")");
@@ -1640,8 +1640,11 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         sb.append(");");
         return sb.toString();
     }
+    */
 
-    private static String generateRegenerateEV3Actor(HardwareComponent actor) {
+    /* There is no need in explicit instantiation of the motors and other actors, except for the sensors,
+     * in nxc
+     private static String generateRegenerateEV3Actor(HardwareComponent actor) {
         StringBuilder sb = new StringBuilder();
         EV3Actor ev3Actor = (EV3Actor) actor;
         sb.append("new EV3Actor(").append(getHardwareComponentTypeCode(actor.getComponentType()));
@@ -1660,6 +1663,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     private static String getHardwareComponentTypeCode(HardwareComponentType type) {
         return type.getClass().getSimpleName() + "." + type.getTypeName();
     }
+     */
 
     private static boolean isInteger(String str) {
         try {
@@ -1669,4 +1673,5 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             return false;
         }
     }
+
 }
