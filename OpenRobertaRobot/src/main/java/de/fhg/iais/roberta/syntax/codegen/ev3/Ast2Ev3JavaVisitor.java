@@ -10,6 +10,7 @@ import de.fhg.iais.roberta.components.Category;
 import de.fhg.iais.roberta.components.ev3.EV3Sensor;
 import de.fhg.iais.roberta.components.ev3.Ev3Configuration;
 import de.fhg.iais.roberta.components.ev3.UsedSensor;
+import de.fhg.iais.roberta.runtime.BlocklyMethods;
 import de.fhg.iais.roberta.shared.IndexLocation;
 import de.fhg.iais.roberta.shared.action.ev3.ActorPort;
 import de.fhg.iais.roberta.shared.action.ev3.DriveDirection;
@@ -290,6 +291,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             case SQRT1_2:
                 this.sb.append("sqrt(1.0/2.0)");
                 break;
+            // IEEE 754 floating point representation
             case INFINITY:
                 this.sb.append("0x7f800000");
                 break;
@@ -1062,11 +1064,10 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     //end. LISTS
 
-    boolean MathConstrainFunct = false;
-
     @Override
     public Void visitMathConstrainFunct(MathConstrainFunct<Void> mathConstrainFunct) {
-        this.MathConstrainFunct = true;
+        NXCBool nxcBool = new NXCBool();
+        nxcBool.setMathConstrainFunct(true);
         this.sb.append("mathMin(mathMax(");
         mathConstrainFunct.getParam().get(0).visit(this);
         this.sb.append(", ");
@@ -1076,8 +1077,6 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         this.sb.append(")");
         return null;
     }
-
-    boolean prime = false;
 
     @Override
     public Void visitMathNumPropFunct(MathNumPropFunct<Void> mathNumPropFunct) {
@@ -1093,7 +1092,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                 this.sb.append(" % 2 == 1)");
                 break;
             case PRIME:
-                boolean prime = true;
+                NXCBool nxcBool = new NXCBool();
+                nxcBool.setPrime(true);
                 this.sb.append("mathPrime(");
                 mathNumPropFunct.getParam().get(0).visit(this);
                 this.sb.append(")");
@@ -1175,11 +1175,10 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    boolean rint = false;
-
     @Override
     public Void visitMathRandomIntFunct(MathRandomIntFunct<Void> mathRandomIntFunct) {
-        this.rint = true;
+        NXCBool nxcBool = new NXCBool();
+        nxcBool.setRint(true);
         this.sb.append("abs(");
         mathRandomIntFunct.getParam().get(0).visit(this);
         this.sb.append(" - ");
@@ -1252,7 +1251,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitMathPowerFunct(MathPowerFunct<Void> mathPowerFunct) {
-        this.sb.append("BlocklyMethods.pow(");
+        this.sb.append("pow(");
         mathPowerFunct.getParam().get(0).visit(this);
         this.sb.append(", ");
         mathPowerFunct.getParam().get(1).visit(this);
@@ -1262,9 +1261,11 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitTextJoinFunct(TextJoinFunct<Void> textJoinFunct) {
-        this.sb.append("BlocklyMethods.textJoin(");
-        textJoinFunct.getParam().visit(this);
-        this.sb.append(")");
+        BlocklyMethods.textJoin(textJoinFunct.getParam().visit(this));
+
+        //this.sb.append("BlocklyMethods.textJoin(");
+        //textJoinFunct.getParam().visit(this);
+        //this.sb.append(")");
         return null;
     }
 
@@ -1509,13 +1510,9 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         }
     }
 
-    private void addConstants() {
-        this.sb.append("#define WHEELDIAMETER " + this.brickConfiguration.getWheelDiameterCM() + "\n");
-        this.sb.append("#define TRACKWIDTH " + this.brickConfiguration.getTrackWidthCM() + "\n");
-    }
-
     private void addFunctions() {
-        if ( (this.MathConstrainFunct == true) || (this.rint = true) ) {
+        NXCBool nxcBool = new NXCBool();
+        if ( (nxcBool.isMathConstrainFunct() == true) || (nxcBool.isRint() == true) ) {
             //min of two values
             this.sb.append("inline float mathMin(float FirstValue, float SecondValue) {");
             this.incrIndentation();
@@ -1565,7 +1562,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             this.sb.append("}");
 
         }
-        if ( this.prime == true ) {
+        if ( nxcBool.isPrime() == true ) {
             this.sb.append("inline bool mathPrime(float number){");
             this.incrIndentation();
             nlIndent();
@@ -1594,6 +1591,11 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             this.sb.append("}");
         }
 
+    }
+
+    private void addConstants() {
+        this.sb.append("#define WHEELDIAMETER " + this.brickConfiguration.getWheelDiameterCM() + "\n");
+        this.sb.append("#define TRACKWIDTH " + this.brickConfiguration.getTrackWidthCM() + "\n");
     }
 
     private void generatePrefix(boolean withWrapping) {
@@ -1645,15 +1647,15 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         sb.append(INDENT).append(INDENT).append(INDENT).append("    .build();");
         return sb.toString();
     }
-
-
+    
+    
     private void appendSensors(StringBuilder sb) {
         for ( Map.Entry<SensorPort, EV3Sensor> entry : this.brickConfiguration.getSensors().entrySet() ) {
             sb.append(INDENT).append(INDENT).append(INDENT);
             appendOptional(sb, "    .addSensor(", entry.getKey(), entry.getValue());
         }
     }
-
+    
     private void appendActors(StringBuilder sb) {
         for ( Map.Entry<ActorPort, EV3Actor> entry : this.brickConfiguration.getActors().entrySet() ) {
             sb.append(INDENT).append(INDENT).append(INDENT);
@@ -1676,9 +1678,6 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     }
     
     
-    
-    
-    
     private String generateRegenerateUsedSensors() {
         StringBuilder sb = new StringBuilder();
         String arrayOfSensors = "";
@@ -1686,7 +1685,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             arrayOfSensors += usedSensor.generateRegenerate();
             arrayOfSensors += ", ";
         }
-
+    
         sb.append("private Set<UsedSensor> usedSensors = " + "new LinkedHashSet<UsedSensor>(");
         if ( this.usedSensors.size() > 0 ) {
             sb.append("Arrays.asList(" + arrayOfSensors.substring(0, arrayOfSensors.length() - 2) + ")");
@@ -1706,14 +1705,14 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         sb.append(", ").append(getEnumCode(ev3Actor.getRotationDirection())).append(", ").append(getEnumCode(ev3Actor.getMotorSide())).append(")");
         return sb.toString();
     }
-
+    
     private static String generateRegenerateEV3Sensor(HardwareComponent sensor) {
         StringBuilder sb = new StringBuilder();
         sb.append("new EV3Sensor(").append(getHardwareComponentTypeCode(sensor.getComponentType()));
         sb.append(")");
         return sb.toString();
     }
-
+    
     private static String getHardwareComponentTypeCode(HardwareComponentType type) {
         return type.getClass().getSimpleName() + "." + type.getTypeName();
     }
