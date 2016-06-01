@@ -7,6 +7,8 @@ import de.fhg.iais.roberta.syntax.expr.Assoc;
 import de.fhg.iais.roberta.util.dbc.DbcException;
 
 public enum FunctionNames {
+    RINT( 10, Assoc.LEFT ),
+    CLAMP( 10, Assoc.LEFT ),
     DIVISIBLE_BY( 80, Assoc.NONE ),
     MAX( 80, Assoc.NONE ),
     MIN( 80, Assoc.NONE ),

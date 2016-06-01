@@ -9,7 +9,6 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import de.fhg.iais.roberta.components.Category;
 import de.fhg.iais.roberta.components.ev3.EV3Sensor;
 import de.fhg.iais.roberta.components.ev3.Ev3Configuration;
-import de.fhg.iais.roberta.components.ev3.UsedSensor;
 import de.fhg.iais.roberta.shared.IndexLocation;
 import de.fhg.iais.roberta.shared.action.ev3.ActorPort;
 import de.fhg.iais.roberta.shared.action.ev3.DriveDirection;
@@ -80,7 +79,6 @@ import de.fhg.iais.roberta.syntax.functions.MathRandomIntFunct;
 import de.fhg.iais.roberta.syntax.functions.MathSingleFunct;
 import de.fhg.iais.roberta.syntax.functions.TextJoinFunct;
 import de.fhg.iais.roberta.syntax.functions.TextPrintFunct;
-import de.fhg.iais.roberta.syntax.hardwarecheck.ev3.UsedSensorsCheckVisitor;
 import de.fhg.iais.roberta.syntax.methods.MethodCall;
 import de.fhg.iais.roberta.syntax.methods.MethodIfReturn;
 import de.fhg.iais.roberta.syntax.methods.MethodReturn;
@@ -123,7 +121,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     private final Ev3Configuration brickConfiguration;
     private final String programName;
     private final StringBuilder sb = new StringBuilder();
-    private final Set<UsedSensor> usedSensors;
+    private final Set<FunctionNames> usedFunctions;
     private int indentation;
 
     /**
@@ -131,14 +129,14 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
      *
      * @param programName name of the program
      * @param brickConfiguration hardware configuration of the brick
-     * @param usedSensors in the current program
+     * @param usedFunctions in the current program
      * @param indentation to start with. Will be ince/decr depending on block structure
      */
-    Ast2Ev3JavaVisitor(String programName, Ev3Configuration brickConfiguration, Set<UsedSensor> usedSensors, int indentation) {
+    Ast2Ev3JavaVisitor(String programName, Ev3Configuration brickConfiguration, Set<FunctionNames> usedFunctions, int indentation) {
         this.programName = programName;
         this.brickConfiguration = brickConfiguration;
         this.indentation = indentation;
-        this.usedSensors = usedSensors;
+        this.usedFunctions = usedFunctions;
     }
 
     /**
@@ -154,8 +152,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         Assert.notNull(brickConfiguration);
         Assert.isTrue(phrasesSet.size() >= 1);
 
-        Set<UsedSensor> usedSensors = UsedSensorsCheckVisitor.check(phrasesSet);
-        Ast2Ev3JavaVisitor astVisitor = new Ast2Ev3JavaVisitor(programName, brickConfiguration, usedSensors, withWrapping ? 1 : 0);
+        Set<FunctionNames> usedFunctions = CustomFunctionsVisitor.check(phrasesSet);
+        Ast2Ev3JavaVisitor astVisitor = new Ast2Ev3JavaVisitor(programName, brickConfiguration, usedFunctions, withWrapping ? 1 : 0);
         astVisitor.generatePrefix(withWrapping);
 
         generateCodeFromPhrases(phrasesSet, withWrapping, astVisitor);
@@ -1062,8 +1060,6 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitMathConstrainFunct(MathConstrainFunct<Void> mathConstrainFunct) {
-        NXCBool nxcBool = new NXCBool();
-        nxcBool.setMathConstrainFunct(true);
         this.sb.append("mathMin(mathMax(");
         mathConstrainFunct.getParam().get(0).visit(this);
         this.sb.append(", ");
@@ -1073,6 +1069,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         this.sb.append(")");
         return null;
     }
+
+    boolean prime = false;
 
     @Override
     public Void visitMathNumPropFunct(MathNumPropFunct<Void> mathNumPropFunct) {
@@ -1088,8 +1086,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                 this.sb.append(" % 2 == 1)");
                 break;
             case PRIME:
-                NXCBool nxcBool = new NXCBool();
-                nxcBool.setPrime(true);
+
                 this.sb.append("mathPrime(");
                 mathNumPropFunct.getParam().get(0).visit(this);
                 this.sb.append(")");
@@ -1167,14 +1164,12 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitMathRandomFloatFunct(MathRandomFloatFunct<Void> mathRandomFloatFunct) {
-        this.sb.append("Random(100) / 100");
+        this.sb.append("Randoms(100) / 100");
         return null;
     }
 
     @Override
     public Void visitMathRandomIntFunct(MathRandomIntFunct<Void> mathRandomIntFunct) {
-        NXCBool nxcBool = new NXCBool();
-        nxcBool.setRint(true);
         this.sb.append("abs(");
         mathRandomIntFunct.getParam().get(0).visit(this);
         this.sb.append(" - ");
@@ -1255,13 +1250,23 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
+    //modified method "textJoin"
+    public static String[] textToString(Object... items) {
+        String[] temp = new String[items.length];
+        int i = 0;
+        for ( Object string : items ) {
+            temp[i] = (String) (string);
+        }
+        return temp;
+    }
+
     @Override
     public Void visitTextJoinFunct(TextJoinFunct<Void> textJoinFunct) {
         //It is not possible to map this method to nxc directly due to the
         // limitations of the language, that can't deal with unknown types.
         // So, so far the unknown object is being converted to string in Java and
         // then processed in in the nxc. Perhaps, to be changed later.
-
+        // Also, there perhaps should be a way to deal with expressions.
         this.sb.append("BlocklyMethods.textJoin(");
         textJoinFunct.getParam().visit(this);
         this.sb.append(")");
@@ -1270,7 +1275,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitMethodVoid(MethodVoid<Void> methodVoid) {
-        this.sb.append("\n").append(INDENT).append("private void ");
+        this.sb.append("\n").append(INDENT).append("void ");
         this.sb.append(methodVoid.getMethodName() + "(");
         methodVoid.getParameters().visit(this);
         this.sb.append(") {");
@@ -1281,7 +1286,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitMethodReturn(MethodReturn<Void> methodReturn) {
-        this.sb.append("\n").append(INDENT).append("private " + getBlocklyTypeCode(methodReturn.getReturnType()));
+        this.sb.append("\n").append(INDENT).append(getBlocklyTypeCode(methodReturn.getReturnType()));
         this.sb.append(" " + methodReturn.getMethodName() + "(");
         methodReturn.getParameters().visit(this);
         this.sb.append(") {");
@@ -1321,6 +1326,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
+    // TODO: find out hoe to establish bluetooth connection using nxc
     @Override
     public Void visitBluetoothReceiveAction(BluetoothReceiveAction<Void> bluetoothReadAction) {
         this.sb.append("hal.readMessage(");
@@ -1510,89 +1516,116 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     }
 
     private void addFunctions() {
-        NXCBool nxcBool = new NXCBool();
-        if ( (nxcBool.isMathConstrainFunct() == true) || (nxcBool.isRint() == true) ) {
-            //min of two values
-            this.sb.append("inline float mathMin(float FirstValue, float SecondValue) {");
-            this.incrIndentation();
-            nlIndent();
-            //TODO: change to an automatic if statement?
-            this.sb.append("if (FirstValue < SecondValue){");
-            this.incrIndentation();
-            nlIndent();
-            this.sb.append("return FirstValue;");
-            this.decrIndentation();
-            nlIndent();
-            this.sb.append("}");
-            nlIndent();
-            this.sb.append("else{");
-            this.incrIndentation();
-            nlIndent();
-            this.sb.append("return SecondValue;");
-            this.decrIndentation();
-            nlIndent();
-            this.sb.append("}");
-            this.decrIndentation();
-            nlIndent();
-            this.sb.append("}");
-            //max of two values
-            this.sb.append("inline float mathMin(float FirstValue, float SecondValue) {");
-            this.incrIndentation();
-            nlIndent();
-            //TODO: change to an automatic if statement?
-            this.sb.append("if (FirstValue > SecondValue){");
-            this.incrIndentation();
-            nlIndent();
-            this.sb.append("return FirstValue;");
-            this.decrIndentation();
-            nlIndent();
-            this.sb.append("}");
-            nlIndent();
-            this.decrIndentation();
-            this.sb.append("else{");
-            this.incrIndentation();
-            nlIndent();
-            this.sb.append("return SecondValue;");
-            this.decrIndentation();
-            nlIndent();
-            this.sb.append("}");
-            this.decrIndentation();
-            nlIndent();
-            this.sb.append("}");
 
-        }
-        if ( nxcBool.isPrime() == true ) {
-            this.sb.append("inline bool mathPrime(float number){");
-            this.incrIndentation();
-            nlIndent();
-            this.sb.append("for ( int i = 2; i <= sqrt(number); i++ ) {");
-            this.incrIndentation();
-            nlIndent();
-            this.sb.append("if ((number % i) == 0 ) {");
-            this.incrIndentation();
-            nlIndent();
-            this.sb.append("return false;");
-            this.decrIndentation();
-            nlIndent();
-            this.sb.append("}");
-            this.sb.append("else{");
-            this.incrIndentation();
-            nlIndent();
-            this.sb.append("return true;");
-            this.decrIndentation();
-            nlIndent();
-            this.sb.append("}");
-            this.decrIndentation();
-            nlIndent();
-            this.sb.append("}");
-            this.decrIndentation();
-            nlIndent();
-            this.sb.append("}");
+        for ( FunctionNames customFunction : this.usedFunctions ) {
+            switch ( customFunction ) {
+                case PRIME:
+                    this.sb.append("inline bool mathPrime(float number){");
+                    nlIndent();
+                    this.sb.append("for ( int i = 2; i <= sqrt(number); i++ ) {");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("if ((number % i) == 0 ) {");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("return false;");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    nlIndent();
+                    this.sb.append("else{");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("return true;");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}  \n");
+                    this.incrIndentation();
+                    break;
+                case CLAMP:
+                    this.sb.append("inline float mathMin(float FirstValue, float SecondValue) {");
+                    nlIndent();
+                    this.sb.append("if (FirstValue < SecondValue){");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("return FirstValue;");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    nlIndent();
+                    this.sb.append("else{");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("return SecondValue;");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("} \n");
+                    this.incrIndentation();
+
+                    //max of two values
+                    this.sb.append("inline float mathMax(float FirstValue, float SecondValue) {");
+                    nlIndent();
+                    this.sb.append("if (FirstValue > SecondValue){");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("return FirstValue;");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    nlIndent();
+                    this.sb.append("else{");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("return SecondValue;");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("} \n");
+                    this.incrIndentation();
+                    break;
+                case RINT:
+                    this.sb.append("inline float mathMin(float FirstValue, float SecondValue) {");
+                    nlIndent();
+                    this.sb.append("if (FirstValue < SecondValue){");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("return FirstValue;");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    nlIndent();
+                    this.sb.append("else{");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("return SecondValue;");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("} \n");
+                    this.incrIndentation();
+                    break;
+                //case JTEXT:
+
+            }
         }
 
     }
 
     private void addConstants() {
+
         this.sb.append("#define WHEELDIAMETER " + this.brickConfiguration.getWheelDiameterCM() + "\n");
         this.sb.append("#define TRACKWIDTH " + this.brickConfiguration.getTrackWidthCM() + "\n");
     }
@@ -1604,6 +1637,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
         this.addConstants();
         this.addFunctions();
+
         this.sb.append("task main(){");
 
         //add sensors:
