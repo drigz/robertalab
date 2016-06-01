@@ -73,4 +73,9 @@ public class MotionParam<V> {
 
     }
 
+    public Object getport() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

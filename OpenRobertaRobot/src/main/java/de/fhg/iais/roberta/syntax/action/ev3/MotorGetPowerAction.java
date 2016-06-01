@@ -24,6 +24,8 @@ import de.fhg.iais.roberta.visitor.AstVisitor;
  */
 public class MotorGetPowerAction<V> extends MoveAction<V> {
 
+    public ActorPort BACKWARD;
+
     private MotorGetPowerAction(ActorPort port, BlocklyBlockProperties properties, BlocklyComment comment) {
         super(port, BlockType.MOTOR_GET_POWER_ACTION, properties, comment);
         Assert.isTrue(port != null);
@@ -74,5 +76,10 @@ public class MotorGetPowerAction<V> extends MoveAction<V> {
         JaxbTransformerHelper.addField(jaxbDestination, BlocklyConstants.MOTORPORT, getPort().name());
 
         return jaxbDestination;
+    }
+
+    public Phrase<V> getPower() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

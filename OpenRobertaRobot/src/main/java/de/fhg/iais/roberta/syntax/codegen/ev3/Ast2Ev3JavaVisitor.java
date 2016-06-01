@@ -124,6 +124,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     private final Set<FunctionNames> usedFunctions;
     private int indentation;
 
+    private int x;
+
     /**
      * initialize the Java code generator visitor.
      *
@@ -375,7 +377,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         generateSubExpr(this.sb, false, binary.getLeft(), binary);
         this.sb.append(whitespace() + binary.getOp().getOpSymbol() + whitespace());
         if ( binary.getOp() == Op.TEXT_APPEND ) {
-            this.sb.append("String.valueOf(");
+            this.sb.append("String(");
             generateSubExpr(this.sb, false, binary.getRight(), binary);
             this.sb.append(")");
         } else {
@@ -566,7 +568,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitClearDisplayAction(ClearDisplayAction<Void> clearDisplayAction) {
-        this.sb.append("clearScreen();");
+        this.sb.append("ClearScreen();");
         return null;
     }
 
@@ -675,9 +677,11 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitMotorSetPowerAction(MotorSetPowerAction<Void> motorSetPowerAction) {
+        String methodName = "MotorPower";
+        this.sb.append(methodName + "(OUT_" + (motorSetPowerAction.getPort()) + ", ");
+
         boolean isRegulated = this.brickConfiguration.isMotorRegulated(motorSetPowerAction.getPort());
-        String methodName = isRegulated ? "MotorPower(" : "MotorPower(";
-        this.sb.append(methodName + getEnumCode(motorSetPowerAction.getPort()) + ", ");
+
         motorSetPowerAction.getPower().visit(this);
         this.sb.append(");");
         return null;
@@ -855,10 +859,10 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     public Void visitTimerSensor(TimerSensor<Void> timerSensor) {
         switch ( timerSensor.getMode() ) {
             case GET_SAMPLE:
-                this.sb.append("hal.getTimerValue(" + timerSensor.getTimer() + ")");
+                this.sb.append("SetTimerValue(" + timerSensor.getTimer() + ")");
                 break;
             case RESET:
-                this.sb.append("hal.resetTimer(" + timerSensor.getTimer() + ");");
+                this.sb.append("resetTimer(" + timerSensor.getTimer() + ");");
                 break;
             default:
                 throw new DbcException("Invalid Time Mode!");

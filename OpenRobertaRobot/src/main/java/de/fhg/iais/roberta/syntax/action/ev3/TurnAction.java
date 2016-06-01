@@ -28,6 +28,8 @@ import de.fhg.iais.roberta.visitor.AstVisitor;
  * The client must provide the {@link TurnDirection} and {@link MotionParam} (distance the robot should cover and speed).
  */
 public class TurnAction<V> extends Action<V> {
+    public static final TurnDirection RIGHT = null;
+    public static final TurnDirection LEFT = null;
     private final TurnDirection direction;
     private final MotionParam<V> param;
 
