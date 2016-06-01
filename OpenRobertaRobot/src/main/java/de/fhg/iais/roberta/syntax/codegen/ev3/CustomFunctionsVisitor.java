@@ -17,6 +17,7 @@ import de.fhg.iais.roberta.syntax.functions.FunctionNames;
 import de.fhg.iais.roberta.syntax.functions.MathConstrainFunct;
 import de.fhg.iais.roberta.syntax.functions.MathNumPropFunct;
 import de.fhg.iais.roberta.syntax.functions.MathRandomIntFunct;
+import de.fhg.iais.roberta.syntax.functions.TextJoinFunct;
 import de.fhg.iais.roberta.syntax.hardwarecheck.CheckVisitor;
 import de.fhg.iais.roberta.syntax.sensor.ev3.ColorSensor;
 import de.fhg.iais.roberta.syntax.sensor.ev3.EncoderSensor;
@@ -55,6 +56,13 @@ public class CustomFunctionsVisitor extends CheckVisitor {
     }
 
     @Override
+    public Void visitTextJoinFunct(TextJoinFunct<Void> textJoinFunct) {
+        this.functionWasMet.add(FunctionNames.JTEXT);
+        textJoinFunct.getParam().visit(this);
+        return null;
+    }
+
+    @Override
     public Void visitMathConstrainFunct(MathConstrainFunct<Void> mathConstrainFunct) {
         this.functionWasMet.add(FunctionNames.CLAMP);
         mathConstrainFunct.getParam().get(0).visit(this);
@@ -74,13 +82,20 @@ public class CustomFunctionsVisitor extends CheckVisitor {
     @Override
     public Void visitDriveAction(DriveAction<Void> driveAction) {
         driveAction.getParam().getSpeed().visit(this);
-        driveAction.getParam().getDuration().getValue().visit(this);
+        final boolean isDuration = driveAction.getParam().getDuration() != null;
+        if ( isDuration == true ) {
+            driveAction.getParam().getDuration().getValue().visit(this);
+        }
+
         return null;
     }
 
     @Override
     public Void visitTurnAction(TurnAction<Void> turnAction) {
-        turnAction.getParam().getDuration().getValue().visit(this);
+        final boolean isDuration = turnAction.getParam().getDuration() != null;
+        if ( isDuration == true ) {
+            turnAction.getParam().getDuration().getValue().visit(this);
+        }
         turnAction.getParam().getSpeed().visit(this);
         return null;
     }
@@ -93,7 +108,10 @@ public class CustomFunctionsVisitor extends CheckVisitor {
 
     @Override
     public Void visitMotorOnAction(MotorOnAction<Void> motorOnAction) {
-        motorOnAction.getParam().getDuration().getValue().visit(this);
+        final boolean isDuration = motorOnAction.getParam().getDuration() != null;
+        if ( isDuration == true ) {
+            motorOnAction.getParam().getDuration().getValue().visit(this);
+        }
         motorOnAction.getParam().getSpeed().visit(this);
         return null;
     }

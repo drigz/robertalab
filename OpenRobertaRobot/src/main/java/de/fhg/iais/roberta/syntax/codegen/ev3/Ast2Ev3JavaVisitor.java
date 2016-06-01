@@ -402,7 +402,6 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    //TODO
     @Override
     public Void visitEmptyExpr(EmptyExpr<Void> emptyExpr) {
         switch ( emptyExpr.getDefVal().getName() ) {
@@ -1056,8 +1055,6 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    //end. LISTS
-
     @Override
     public Void visitMathConstrainFunct(MathConstrainFunct<Void> mathConstrainFunct) {
         this.sb.append("mathMin(mathMax(");
@@ -1069,8 +1066,6 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         this.sb.append(")");
         return null;
     }
-
-    boolean prime = false;
 
     @Override
     public Void visitMathNumPropFunct(MathNumPropFunct<Void> mathNumPropFunct) {
@@ -1119,33 +1114,38 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    //TODO: LISTS, do it later
+    //TODO: finish
     @Override
     public Void visitMathOnListFunct(MathOnListFunct<Void> mathOnListFunct) {
         switch ( mathOnListFunct.getFunctName() ) {
             case SUM:
-                this.sb.append("BlocklyMethods.sumOnList(");
+                this.sb.append("ArraySum(");
                 mathOnListFunct.getParam().get(0).visit(this);
+                this.sb.append(", NA, NA");
                 break;
             case MIN:
-                this.sb.append("BlocklyMethods.minOnList(");
+                this.sb.append("ArrayMin(");
                 mathOnListFunct.getParam().get(0).visit(this);
+                this.sb.append(", NA, NA");
                 break;
             case MAX:
-                this.sb.append("BlocklyMethods.maxOnList(");
+                this.sb.append("ArrayMax(");
                 mathOnListFunct.getParam().get(0).visit(this);
+                this.sb.append(", NA, NA");
                 break;
             case AVERAGE:
-                this.sb.append("BlocklyMethods.averageOnList(");
+                this.sb.append("ArrayMean(");
                 mathOnListFunct.getParam().get(0).visit(this);
+                this.sb.append(", NA, NA");
                 break;
             case MEDIAN:
                 this.sb.append("BlocklyMethods.medianOnList(");
                 mathOnListFunct.getParam().get(0).visit(this);
                 break;
             case STD_DEV:
-                this.sb.append("BlocklyMethods.standardDeviatioin(");
+                this.sb.append("ArrayStd(");
                 mathOnListFunct.getParam().get(0).visit(this);
+                this.sb.append(", NA, NA");
                 break;
             case RANDOM:
                 this.sb.append("BlocklyMethods.randOnList(");
@@ -1251,25 +1251,23 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     }
 
     //modified method "textJoin"
-    public static String[] textToString(Object... items) {
-        String[] temp = new String[items.length];
-        int i = 0;
+    public static String smthToString(Object... items) {
+        String temp = "";
+
         for ( Object string : items ) {
-            temp[i] = (String) (string);
+            temp = temp + string;
         }
         return temp;
     }
 
     @Override
     public Void visitTextJoinFunct(TextJoinFunct<Void> textJoinFunct) {
-        //It is not possible to map this method to nxc directly due to the
-        // limitations of the language, that can't deal with unknown types.
-        // So, so far the unknown object is being converted to string in Java and
-        // then processed in in the nxc. Perhaps, to be changed later.
-        // Also, there perhaps should be a way to deal with expressions.
-        this.sb.append("BlocklyMethods.textJoin(");
-        textJoinFunct.getParam().visit(this);
-        this.sb.append(")");
+        //Fix this method
+        // using java methods just receive a string. So far it is not clear how to implement it in nxc directly
+        // TBD: at leat how to deal with equations
+
+        smthToString(textJoinFunct.getParam());
+        //this.sb.append(")");
         return null;
     }
 
@@ -1617,11 +1615,26 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     this.sb.append("} \n");
                     this.incrIndentation();
                     break;
-                //case JTEXT:
-
+                /*
+                case JTEXT:
+                    this.sb.append("inline string textJoin (string arr[]) {");
+                    nlIndent();
+                    this.sb.append("string temp;");
+                    nlIndent();
+                    this.sb.append("for (int i=0; i < ArrayLen(arr); i++)  {");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("temp = temp + arr[i];");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    nlIndent();
+                    this.sb.append("return temp; \n");
+                    this.sb.append("}\n");
+                    break;
+                    */
             }
         }
-
     }
 
     private void addConstants() {
@@ -1681,15 +1694,15 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         sb.append(INDENT).append(INDENT).append(INDENT).append("    .build();");
         return sb.toString();
     }
-
-
+    
+    
     private void appendSensors(StringBuilder sb) {
         for ( Map.Entry<SensorPort, EV3Sensor> entry : this.brickConfiguration.getSensors().entrySet() ) {
             sb.append(INDENT).append(INDENT).append(INDENT);
             appendOptional(sb, "    .addSensor(", entry.getKey(), entry.getValue());
         }
     }
-
+    
     private void appendActors(StringBuilder sb) {
         for ( Map.Entry<ActorPort, EV3Actor> entry : this.brickConfiguration.getActors().entrySet() ) {
             sb.append(INDENT).append(INDENT).append(INDENT);
@@ -1710,8 +1723,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             sb.append(")\n");
         }
     }
-
-
+    
+    
     private String generateRegenerateUsedSensors() {
         StringBuilder sb = new StringBuilder();
         String arrayOfSensors = "";
@@ -1719,7 +1732,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             arrayOfSensors += usedSensor.generateRegenerate();
             arrayOfSensors += ", ";
         }
-
+    
         sb.append("private Set<UsedSensor> usedSensors = " + "new LinkedHashSet<UsedSensor>(");
         if ( this.usedSensors.size() > 0 ) {
             sb.append("Arrays.asList(" + arrayOfSensors.substring(0, arrayOfSensors.length() - 2) + ")");
@@ -1739,14 +1752,14 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         sb.append(", ").append(getEnumCode(ev3Actor.getRotationDirection())).append(", ").append(getEnumCode(ev3Actor.getMotorSide())).append(")");
         return sb.toString();
     }
-
+    
     private static String generateRegenerateEV3Sensor(HardwareComponent sensor) {
         StringBuilder sb = new StringBuilder();
         sb.append("new EV3Sensor(").append(getHardwareComponentTypeCode(sensor.getComponentType()));
         sb.append(")");
         return sb.toString();
     }
-
+    
     private static String getHardwareComponentTypeCode(HardwareComponentType type) {
         return type.getClass().getSimpleName() + "." + type.getTypeName();
     }
