@@ -10,7 +10,6 @@ import de.fhg.iais.roberta.components.Category;
 import de.fhg.iais.roberta.components.ev3.EV3Sensor;
 import de.fhg.iais.roberta.components.ev3.Ev3Configuration;
 import de.fhg.iais.roberta.components.ev3.UsedSensor;
-import de.fhg.iais.roberta.runtime.BlocklyMethods;
 import de.fhg.iais.roberta.shared.IndexLocation;
 import de.fhg.iais.roberta.shared.action.ev3.ActorPort;
 import de.fhg.iais.roberta.shared.action.ev3.DriveDirection;
@@ -492,17 +491,12 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitRepeatStmt(RepeatStmt<Void> repeatStmt) {
-        boolean additionalClosingBracket = false;
+        //boolean additionalClosingBracket = false;
         switch ( repeatStmt.getMode() ) {
             case UNTIL:
             case WHILE:
             case FOREVER:
-                //??
-                this.sb.append("if ( TRUE ) {");
-                incrIndentation();
-                nlIndent();
                 generateCodeFromStmtCondition("while", repeatStmt.getExpr());
-                additionalClosingBracket = true;
                 break;
             case TIMES:
             case FOR:
@@ -523,11 +517,11 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         decrIndentation();
         nlIndent();
         this.sb.append("}");
-        if ( additionalClosingBracket ) {
-            decrIndentation();
-            nlIndent();
-            this.sb.append("}");
-        }
+        //if ( additionalClosingBracket ) {
+        //    decrIndentation();
+        //    nlIndent();
+        //    this.sb.append("}");
+        //}
         return null;
     }
 
@@ -712,20 +706,22 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     public Void visitDriveAction(DriveAction<Void> driveAction) {
         String methodName = "OnFwd";
         final boolean isDuration = driveAction.getParam().getDuration() != null;
-
+        //Casts error, must be fixed, so it won't get two numbers after OUT_CB
+        // and also the letter order in "OUT_CB" should be "OUT_BC", otherwise error as
+        //well (changed the last part - Evg)
         if ( driveAction.getDirection() == DriveDirection.BACKWARD ) {
             methodName = "OnRev";
         }
         this.sb.append(methodName + "(OUT_");
-        this.sb.append(this.brickConfiguration.getLeftMotorPort());
         this.sb.append(this.brickConfiguration.getRightMotorPort());
+        this.sb.append(this.brickConfiguration.getLeftMotorPort());
         this.sb.append(", ");
         driveAction.getParam().getSpeed().visit(this);
         if ( isDuration ) {
             this.sb.append(", ");
             driveAction.getParam().getDuration().getValue().visit(this);
         }
-        this.sb.append(")");
+        this.sb.append(");");
         return null;
     }
 
@@ -1261,11 +1257,14 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitTextJoinFunct(TextJoinFunct<Void> textJoinFunct) {
-        BlocklyMethods.textJoin(textJoinFunct.getParam().visit(this));
+        //It is not possible to map this method to nxc directly due to the
+        // limitations of the language, that can't deal with unknown types.
+        // So, so far the unknown object is being converted to string in Java and
+        // then processed in in the nxc. Perhaps, to be changed later.
 
-        //this.sb.append("BlocklyMethods.textJoin(");
-        //textJoinFunct.getParam().visit(this);
-        //this.sb.append(")");
+        this.sb.append("BlocklyMethods.textJoin(");
+        textJoinFunct.getParam().visit(this);
+        this.sb.append(")");
         return null;
     }
 
@@ -1608,24 +1607,25 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         this.sb.append("task main(){");
 
         //add sensors:
+
         for ( Entry<SensorPort, EV3Sensor> entry : this.brickConfiguration.getSensors().entrySet() ) {
             System.out.println(entry.getValue().getComponentTypeName());
             switch ( entry.getValue().getComponentTypeName() ) {
                 case "EV3_COLOR_SENSOR":
                     nlIndent();
-                    this.sb.append("SetSensorLight(" + entry.getKey() + ");");
+                    this.sb.append("SetSensorLight(IN_" + entry.getKey().getPortNumber() + ");");
                     break;
                 case "EV3_TOUCH_SENSOR":
                     nlIndent();
-                    this.sb.append("SetSensorTouch(" + entry.getKey() + ");");
+                    this.sb.append("SetSensorTouch(IN_" + entry.getKey().getPortNumber() + ");");
                     break;
                 case "EV3_ULTRASONIC_SENSOR":
                     nlIndent();
-                    this.sb.append("SetSensorLowspeed(" + entry.getKey() + ");");
+                    this.sb.append("SetSensorLowspeed(IN_" + entry.getKey().getPortNumber() + ");");
                     break;
                 case "EV3_GYRO_SENSOR":
                     nlIndent();
-                    this.sb.append("SetSensorSound(" + entry.getKey() + ");");
+                    this.sb.append("SetSensorSound(IN_" + entry.getKey().getPortNumber() + ");");
                     break;
                 default:
                     break;
@@ -1647,15 +1647,15 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         sb.append(INDENT).append(INDENT).append(INDENT).append("    .build();");
         return sb.toString();
     }
-    
-    
+
+
     private void appendSensors(StringBuilder sb) {
         for ( Map.Entry<SensorPort, EV3Sensor> entry : this.brickConfiguration.getSensors().entrySet() ) {
             sb.append(INDENT).append(INDENT).append(INDENT);
             appendOptional(sb, "    .addSensor(", entry.getKey(), entry.getValue());
         }
     }
-    
+
     private void appendActors(StringBuilder sb) {
         for ( Map.Entry<ActorPort, EV3Actor> entry : this.brickConfiguration.getActors().entrySet() ) {
             sb.append(INDENT).append(INDENT).append(INDENT);
@@ -1676,8 +1676,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             sb.append(")\n");
         }
     }
-    
-    
+
+
     private String generateRegenerateUsedSensors() {
         StringBuilder sb = new StringBuilder();
         String arrayOfSensors = "";
@@ -1685,7 +1685,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             arrayOfSensors += usedSensor.generateRegenerate();
             arrayOfSensors += ", ";
         }
-    
+
         sb.append("private Set<UsedSensor> usedSensors = " + "new LinkedHashSet<UsedSensor>(");
         if ( this.usedSensors.size() > 0 ) {
             sb.append("Arrays.asList(" + arrayOfSensors.substring(0, arrayOfSensors.length() - 2) + ")");
@@ -1705,14 +1705,14 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         sb.append(", ").append(getEnumCode(ev3Actor.getRotationDirection())).append(", ").append(getEnumCode(ev3Actor.getMotorSide())).append(")");
         return sb.toString();
     }
-    
+
     private static String generateRegenerateEV3Sensor(HardwareComponent sensor) {
         StringBuilder sb = new StringBuilder();
         sb.append("new EV3Sensor(").append(getHardwareComponentTypeCode(sensor.getComponentType()));
         sb.append(")");
         return sb.toString();
     }
-    
+
     private static String getHardwareComponentTypeCode(HardwareComponentType type) {
         return type.getClass().getSimpleName() + "." + type.getTypeName();
     }
