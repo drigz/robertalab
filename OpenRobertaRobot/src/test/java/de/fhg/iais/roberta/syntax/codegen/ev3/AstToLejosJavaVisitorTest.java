@@ -24,10 +24,10 @@ public class AstToLejosJavaVisitorTest {
     + "#define WHEELDIAMETER 5.6\n"
     + "#define TRACKWIDTH 17.0\n"
     + "task main(){"
-    + "    SetSensorTouch(S1);\n"
+    + "    SetSensorTouch(IN_1);\n"
     //+ "    SetSensorSound(S2);\n"
     //+ "    SetSensorLight(S3);\n"
-        + "    SetSensorLowspeed(S2);\n";
+        + "    SetSensorLowspeed(IN_2);\n";
 
     private static final String SUFFIX = "";
     private static Ev3Configuration brickConfiguration;
@@ -81,11 +81,11 @@ public class AstToLejosJavaVisitorTest {
             + "        if (hal.isPressed(SensorPort.S1)) {\n"
             + "            hal.ledOn(BrickLedColor.GREEN, BlinkMode.ON);\n"
             + "        } else if ( Pickcolor.RED == SetSensor(IN_SensorPort.S3 ,COLOUR);) {\n"
-            + "        if ( TRUE ) {\n"
+            + "        \n"
             + "            while ( true ) {\n"
             + "               drawPicture(ShowPicture.EYESOPEN, 0, 0);\n\n"
             + "                  RotateMotor(OUT_B,30);"
-            + "            }\n"
+            + "            \n"
             + "        }\n"
             + "        }\n"
             + "        playFile(1);\n"
@@ -115,10 +115,10 @@ public class AstToLejosJavaVisitorTest {
             + "            } else if (0==getUltraSonicSensorDistance(SensorPort.S4)) {\n"
             + "                drawPicture(ShowPicture.FLOWERS, 15, 15);\n"
             + "            } else {\n"
-            + "            if ( TRUE ) {\n"
+            + "            \n"
             + "                while ( !hal.isPressed(BrickKey.UP) ) {\n\n"
             + "                    RotateMotor(OUT_B,30);"
-            + "                }\n"
+            + "               \n"
             + "            }\n"
             + "            }\n"
             + "        }\n"
@@ -144,11 +144,11 @@ public class AstToLejosJavaVisitorTest {
             + "            hal.ledOff();\n"
             + "        } else {\n"
             + "           SetSensorGyro(IN_SensorPort.S2,RESET);\n"
-            + "        if ( TRUE ) {\n"
+            + "       \n"
             + "            while ( hal.isPressed(SensorPort.S1)) {\n"
             + "                drawPicture(ShowPicture.OLDGLASSES, 0, 0);\n"
             + "                ClearScreen();\n"
-            + "            }\n"
+            + "           \n"
             + "         }\n"
             + "            hal.ledOn(BrickLedColor.GREEN, BlinkMode.ON);\n"
             + "        }\n"
@@ -232,7 +232,7 @@ public class AstToLejosJavaVisitorTest {
             + MAIN_METHOD
             + "        float variablenName = 0;\n"
 
-            + "OnFwd(OUT_AB,50)"
+            + "OnFwd(OUT_BA,50);"
             + "drawPicture(ShowPicture.OLDGLASSES,0,0);"
             + SUFFIX
 
@@ -272,7 +272,7 @@ public class AstToLejosJavaVisitorTest {
             + "       RotateMotor(OUT_B,30,360.0*1);"
             + "        macheEtwas(10, 10);"
 
-            + "    private void macheEtwas(float x, float x2) {\n"
+            + "   void macheEtwas(float x, float x2) {\n"
             + "        drawPicture(ShowPicture.OLDGLASSES, x, x2);\n"
             + "    }"
             + "}\n";
@@ -288,7 +288,7 @@ public class AstToLejosJavaVisitorTest {
 
             + "        test();"
 
-            + "    private void test() {\n"
+            + "    void test() {\n"
             + "        hal.ledOn(BrickLedColor.GREEN, BlinkMode.ON);\n"
             + "    }"
             + "}\n";
@@ -304,7 +304,7 @@ public class AstToLejosJavaVisitorTest {
 
             + "        test(true);"
 
-            + "    private void test(boolean x) {\n"
+            + "     void test(boolean x) {\n"
             + "        if (x) return;"
             + "        hal.ledOn(BrickLedColor.GREEN, BlinkMode.ON);\n"
             + "    }"
@@ -324,10 +324,10 @@ public class AstToLejosJavaVisitorTest {
             + "        test1(0, 0);"
             + "        test2();"
 
-            + "    private void test1(float x, float x2) {\n"
+            + "     void test1(float x, float x2) {\n"
             + "        TextOut(\"Hallo\", x, x2);\n"
             + "    }\n\n"
-            + "    private void test2() {\n"
+            + "    void test2() {\n"
             + "        if (variablenName2) return;"
             + "        hal.ledOn(BrickLedColor.GREEN, BlinkMode.ON);\n"
             + "    }"
@@ -345,7 +345,7 @@ public class AstToLejosJavaVisitorTest {
 
             + "        TextOut(string(test(0, variablenName)), 0, 0);"
 
-            + "    private float test(float x, string x2[]) {\n"
+            + "     float test(float x, string x2[]) {\n"
             + "       TextOut(string(x2), x, 0);\n"
             + "        return x;\n"
             + "    }"
