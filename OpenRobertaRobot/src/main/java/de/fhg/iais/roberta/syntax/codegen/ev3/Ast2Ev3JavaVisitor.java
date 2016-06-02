@@ -12,6 +12,7 @@ import de.fhg.iais.roberta.components.ev3.Ev3Configuration;
 import de.fhg.iais.roberta.shared.IndexLocation;
 import de.fhg.iais.roberta.shared.action.ev3.ActorPort;
 import de.fhg.iais.roberta.shared.action.ev3.DriveDirection;
+import de.fhg.iais.roberta.shared.action.ev3.TurnDirection;
 import de.fhg.iais.roberta.shared.sensor.ev3.MotorTachoMode;
 import de.fhg.iais.roberta.shared.sensor.ev3.SensorPort;
 import de.fhg.iais.roberta.shared.sensor.ev3.UltrasonicSensorMode;
@@ -125,6 +126,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     private int indentation;
 
     private int x;
+
+    private String left;
 
     /**
      * initialize the Java code generator visitor.
@@ -658,28 +661,32 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     public Void visitMotorOnAction(MotorOnAction<Void> motorOnAction) {
         {
             final boolean isDuration = motorOnAction.getParam().getDuration() != null;
-            this.sb.append("RotateMotor(" + motorOnAction.getPort() + ", ");
+
+            String methodName = "RotateMotor";
+
+            this.sb.append(methodName + "(OUT_" + motorOnAction.getPort());
+
+            this.sb.append(", ");
             motorOnAction.getParam().getSpeed().visit(this);
+
             if ( isDuration ) {
                 this.sb.append(", ");
                 if ( motorOnAction.getParam().getDuration().getType() == de.fhg.iais.roberta.shared.action.ev3.MotorMoveMode.ROTATIONS ) {
                     this.sb.append("360.0*");
                 }
-                // this.sb.append(motorOnAction.getParam().getDuration().getType().toString()
-                // + ", ");
                 motorOnAction.getParam().getDuration().getValue().visit(this);
-                this.sb.append(")");
+
             }
-            this.sb.append(")");
+            this.sb.append(");");
             return null;
         }
     }
 
     @Override
     public Void visitMotorSetPowerAction(MotorSetPowerAction<Void> motorSetPowerAction) {
+        
         String methodName = "MotorPower";
-        this.sb.append(methodName + "(OUT_" + (motorSetPowerAction.getPort()) + ", ");
-
+        this.sb.append(methodName + "(OUT_" + motorSetPowerAction.getPort() + ", ");
         boolean isRegulated = this.brickConfiguration.isMotorRegulated(motorSetPowerAction.getPort());
 
         motorSetPowerAction.getPower().visit(this);
@@ -728,10 +735,13 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitTurnAction(TurnAction<Void> turnAction) {
+
+        String methodName = "turn_right";
         final boolean isDuration = turnAction.getParam().getDuration() != null;
-        final String methodName = "RotateMotor" + (isDuration ? "Angle" : "Regulated") + "(";
-        this.sb.append(methodName);
-        this.sb.append(getEnumCode(turnAction.getDirection()) + ", ");
+        if ( turnAction.getDirection() == TurnDirection.LEFT ) {
+            methodName = "turn_left";
+        }
+        this.sb.append(methodName + "(");
         turnAction.getParam().getSpeed().visit(this);
         if ( isDuration ) {
             this.sb.append(", ");
@@ -739,7 +749,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         }
         this.sb.append(");");
         return null;
-    }
+    } // have to fix degree
 
     @Override
     public Void visitMotorDriveStopAction(MotorDriveStopAction<Void> stopAction) {

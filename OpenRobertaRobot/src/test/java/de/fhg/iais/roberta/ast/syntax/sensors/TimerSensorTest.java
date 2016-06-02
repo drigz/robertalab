@@ -7,14 +7,14 @@ import de.fhg.iais.roberta.testutil.Helper;
 public class TimerSensorTest {
     @Test
     public void getTimerValue() throws Exception {
-        String a = "\nSetTimerValue(1)";
+        String a = "\nhal.getTimerValue(1)";
 
         Helper.assertCodeIsOk(a, "/ast/sensors/sensor_getSampleTimer.xml");
     }
 
     @Test
     public void resetTimer() throws Exception {
-        String a = "\nresetTimer(1);";
+        String a = "\nhal.resetTimer(1);";
 
         Helper.assertCodeIsOk(a, "/ast/sensors/sensor_resetTimer.xml");
     }

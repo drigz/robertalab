@@ -84,14 +84,14 @@ public class AstToLejosJavaVisitorTest {
             + "        if ( TRUE ) {\n"
             + "            while ( true ) {\n"
             + "               drawPicture(ShowPicture.EYESOPEN, 0, 0);\n\n"
-            + "                RotateMotorEx(OUT_AB,30);"
+            + "                  RotateMotor(OUT_B,30);"
             + "            }\n"
             + "        }\n"
             + "        }\n"
             + "        playFile(1);\n"
             + "        setVolume(50);\n"
             + "        for ( float i = 1; i < 10; i += 1 ) {\n\n"
-            + "        RotateMotorEx(OUT_AB,30,360.0*1);"
+            + "        RotateMotor(OUT_B,30,360.0*1);"
             + "        }\n"
             + SUFFIX
 
@@ -116,8 +116,8 @@ public class AstToLejosJavaVisitorTest {
             + "                drawPicture(ShowPicture.FLOWERS, 15, 15);\n"
             + "            } else {\n"
             + "            if ( TRUE ) {\n"
-            + "                while ( !hal.isPressed(BrickKey.UP) ) {RotateMotorEx(OUT_AB,30);\n\n"
-            + "                     "
+            + "                while ( !hal.isPressed(BrickKey.UP) ) {\n\n"
+            + "                    RotateMotor(OUT_B,30);"
             + "                }\n"
             + "            }\n"
             + "            }\n"
@@ -136,9 +136,9 @@ public class AstToLejosJavaVisitorTest {
             + MAIN_METHOD
 
             + "        if ( 5 < hal.getRegulatedMotorSpeed(ActorPort.B) ) {\n\n\n"
-            + "            RotateMotorEx(OUT_AB,30);\n"
-            + "            RotateMotorEx(OUT_AB,30,360.0*1);\n"
-            + "            RotateMotorRegulated(TurnDirection.RIGHT, 50);\n"
+            + "             RotateMotor(OUT_B,30);\n"
+            + "          RotateMotor(OUT_B,30,360.0*1);\n"
+            + "            turn_right(50);\n"
             + "        }\n"
             + "        if ((hal.getRegulatedMotorTachoValue(ActorPort.A, MotorTachoMode.ROTATION) + SetSensorInfrared(IN_SensorPort.S4,DISTANCE); )== getUltraSonicSensorDistance(SensorPort.S4)) {\n"
             + "            hal.ledOff();\n"
@@ -165,9 +165,9 @@ public class AstToLejosJavaVisitorTest {
         String a = "" //
             + MAIN_METHOD
 
-            + "        RotateMotorEx(OUT_AB,0);"
-            + "        RotateMotorEx(OUT_AB,30,360.0*0);"
-            + "        RotateMotorRegulated(TurnDirection.RIGHT,0);"
+            + "          RotateMotor(OUT_B,0);"
+            + "        RotateMotor(OUT_B,30,360.0*0);"
+            + "        turn_right(0);"
             + "        setVolume(50);"
             + "        PlayTone(0,0);"
             + SUFFIX
@@ -197,8 +197,8 @@ public class AstToLejosJavaVisitorTest {
         String a = "" //
             + MAIN_METHOD
 
-            + "        RotateMotorEx(OUT_AB,30);\n"
-            + "        RotateMotorEx(OUT_AB,30,360.0*1);\n"
+            + "          RotateMotor(OUT_B,30);\n"
+            + "          RotateMotor(OUT_B,30,360.0*1);\n"
             + SUFFIX
 
             + "}\n";
@@ -232,7 +232,7 @@ public class AstToLejosJavaVisitorTest {
             + MAIN_METHOD
             + "        float variablenName = 0;\n"
 
-            + "OnFwd(OUT_AB,50);"
+            + "OnFwd(OUT_AB,50)"
             + "drawPicture(ShowPicture.OLDGLASSES,0,0);"
             + SUFFIX
 
@@ -269,7 +269,7 @@ public class AstToLejosJavaVisitorTest {
         String a = "" //
             + MAIN_METHOD
 
-            + "       RotateMotorEx(OUT_AB,30,360.0*1);"
+            + "       RotateMotor(OUT_B,30,360.0*1);"
             + "        macheEtwas(10, 10);"
 
             + "    private void macheEtwas(float x, float x2) {\n"

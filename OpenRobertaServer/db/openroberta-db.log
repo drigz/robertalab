@@ -1,3 +1,4 @@
+<<<<<<< da843ee25b4c801ae4beeb8c38b8be0aa38c757e
 <<<<<<< 20c20ff97b4431af9e2a1e798e63b00a80e9dd18
 =======
 /*C13*/SET SCHEMA PUBLIC
@@ -21,3 +22,5 @@ DISCONNECT
 /*C17*/SET SCHEMA PUBLIC
 DISCONNECT
 >>>>>>> #128 nxc code for motor rotate
+=======
+>>>>>>> #128 nxc code for rotate motor and turn action
