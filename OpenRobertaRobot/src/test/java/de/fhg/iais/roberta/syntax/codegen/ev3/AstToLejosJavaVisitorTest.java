@@ -83,7 +83,7 @@ public class AstToLejosJavaVisitorTest {
             + "        } else if ( Pickcolor.RED == SetSensor(IN_SensorPort.S3 ,COLOUR);) {\n"
             + "        \n"
             + "            while ( true ) {\n"
-            + "               drawPicture(ShowPicture.EYESOPEN, 0, 0);\n\n"
+            + "               GraphicOut(EYESOPEN, 0, 0);\n\n"
             + "                  RotateMotor(OUT_B,30);"
             + "            \n"
             + "        }\n"
@@ -113,7 +113,7 @@ public class AstToLejosJavaVisitorTest {
             + "            if (hal.isPressed(SensorPort.S1)) {\n"
             + "                hal.ledOn(BrickLedColor.GREEN, BlinkMode.ON);\n"
             + "            } else if (0==getUltraSonicSensorDistance(SensorPort.S4)) {\n"
-            + "                drawPicture(ShowPicture.FLOWERS, 15, 15);\n"
+            + "               GraphicOut(FLOWERS, 15, 15);\n"
             + "            } else {\n"
             + "            \n"
             + "                while ( !hal.isPressed(BrickKey.UP) ) {\n\n"
@@ -146,7 +146,7 @@ public class AstToLejosJavaVisitorTest {
             + "           SetSensorGyro(IN_SensorPort.S2,RESET);\n"
             + "       \n"
             + "            while ( hal.isPressed(SensorPort.S1)) {\n"
-            + "                drawPicture(ShowPicture.OLDGLASSES, 0, 0);\n"
+            + "                GraphicOut(OLDGLASSES, 0, 0);\n"
             + "                ClearScreen();\n"
             + "           \n"
             + "         }\n"
@@ -233,7 +233,7 @@ public class AstToLejosJavaVisitorTest {
             + "        float variablenName = 0;\n"
 
             + "OnFwd(OUT_AB,50);"
-            + "drawPicture(ShowPicture.OLDGLASSES,0,0);"
+            + "GraphicOut(OLDGLASSES,0,0);"
             + SUFFIX
 
             + "}\n";
@@ -273,7 +273,7 @@ public class AstToLejosJavaVisitorTest {
             + "        macheEtwas(10, 10);"
 
             + "   void macheEtwas(float x, float x2) {\n"
-            + "        drawPicture(ShowPicture.OLDGLASSES, x, x2);\n"
+            + "        GraphicOut(OLDGLASSES, x, x2);\n"
             + "    }"
             + "}\n";
 
