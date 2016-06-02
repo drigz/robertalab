@@ -728,7 +728,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         if ( isDuration ) {
             this.sb.append(", ");
             driveAction.getParam().getDuration().getValue().visit(this);
-            this.sb.append(");");
+
         }
         this.sb.append(");");
         return null;
