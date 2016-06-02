@@ -15,7 +15,7 @@ public class TurnActionTest {
 
     @Test
     public void turnFor() throws Exception {
-        String a = "\nturn_right(50, 20);";
+        String a = "\nturn_right(50, 360.0*20);";
 
         Helper.assertCodeIsOk(a, "/ast/actions/action_MotorDiffTurnFor.xml");
     }

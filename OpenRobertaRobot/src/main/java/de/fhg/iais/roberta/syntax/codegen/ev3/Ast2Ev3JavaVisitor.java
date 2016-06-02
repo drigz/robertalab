@@ -714,21 +714,29 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     public Void visitDriveAction(DriveAction<Void> driveAction) {
         String methodName = "OnFwd";
         final boolean isDuration = driveAction.getParam().getDuration() != null;
-        //Casts error, must be fixed, so it won't get two numbers after OUT_CB
-        // and also the letter order in "OUT_CB" should be "OUT_BC", otherwise error as
-        //well (changed the last part - Evg)
+
         if ( driveAction.getDirection() == DriveDirection.BACKWARD ) {
             methodName = "OnRev";
         }
         this.sb.append(methodName + "(OUT_");
-        this.sb.append(this.brickConfiguration.getRightMotorPort());
         this.sb.append(this.brickConfiguration.getLeftMotorPort());
+        this.sb.append(this.brickConfiguration.getRightMotorPort());
         this.sb.append(", ");
         driveAction.getParam().getSpeed().visit(this);
-        if ( isDuration ) {
-            this.sb.append(", ");
-            driveAction.getParam().getDuration().getValue().visit(this);
 
+        if ( isDuration ) {
+            this.sb.append(",");
+
+            if ( driveAction.getParam().getDuration().getType() == de.fhg.iais.roberta.shared.action.ev3.MotorMoveMode.DISTANCE ) {
+                this.sb.append("18.0*"); // 18cm is one rotation
+                driveAction.getParam().getDuration().getValue().visit(this);
+
+                this.sb.append(");");
+                return null;
+            }
+            this.sb.append(")");
+
+            return null;
         }
         this.sb.append(");");
         return null;
@@ -746,11 +754,15 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         turnAction.getParam().getSpeed().visit(this);
         if ( isDuration ) {
             this.sb.append(", ");
+            if ( turnAction.getParam().getDuration().getType() == de.fhg.iais.roberta.shared.action.ev3.MotorMoveMode.DEGREE ) {
+                this.sb.append("360.0*");
+            }
+
             turnAction.getParam().getDuration().getValue().visit(this);
         }
         this.sb.append(");");
         return null;
-    } // have to fix degree
+    }
 
     @Override
     public Void visitMotorDriveStopAction(MotorDriveStopAction<Void> stopAction) {
@@ -1709,15 +1721,15 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         sb.append(INDENT).append(INDENT).append(INDENT).append("    .build();");
         return sb.toString();
     }
-
-
+    
+    
     private void appendSensors(StringBuilder sb) {
         for ( Map.Entry<SensorPort, EV3Sensor> entry : this.brickConfiguration.getSensors().entrySet() ) {
             sb.append(INDENT).append(INDENT).append(INDENT);
             appendOptional(sb, "    .addSensor(", entry.getKey(), entry.getValue());
         }
     }
-
+    
     private void appendActors(StringBuilder sb) {
         for ( Map.Entry<ActorPort, EV3Actor> entry : this.brickConfiguration.getActors().entrySet() ) {
             sb.append(INDENT).append(INDENT).append(INDENT);
@@ -1738,8 +1750,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             sb.append(")\n");
         }
     }
-
-
+    
+    
     private String generateRegenerateUsedSensors() {
         StringBuilder sb = new StringBuilder();
         String arrayOfSensors = "";
@@ -1747,7 +1759,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             arrayOfSensors += usedSensor.generateRegenerate();
             arrayOfSensors += ", ";
         }
-
+    
         sb.append("private Set<UsedSensor> usedSensors = " + "new LinkedHashSet<UsedSensor>(");
         if ( this.usedSensors.size() > 0 ) {
             sb.append("Arrays.asList(" + arrayOfSensors.substring(0, arrayOfSensors.length() - 2) + ")");
@@ -1767,14 +1779,14 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         sb.append(", ").append(getEnumCode(ev3Actor.getRotationDirection())).append(", ").append(getEnumCode(ev3Actor.getMotorSide())).append(")");
         return sb.toString();
     }
-
+    
     private static String generateRegenerateEV3Sensor(HardwareComponent sensor) {
         StringBuilder sb = new StringBuilder();
         sb.append("new EV3Sensor(").append(getHardwareComponentTypeCode(sensor.getComponentType()));
         sb.append(")");
         return sb.toString();
     }
-
+    
     private static String getHardwareComponentTypeCode(HardwareComponentType type) {
         return type.getClass().getSimpleName() + "." + type.getTypeName();
     }

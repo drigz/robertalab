@@ -1,19 +1,21 @@
 package de.fhg.iais.roberta.ast.syntax.actors;
 
+import org.junit.Test;
+
 import de.fhg.iais.roberta.testutil.Helper;
 
 public class DriveActionTest {
 
-    //Ignore
+    //ignore
     public void drive() throws Exception {
-        final String a = "OnFwd(OUT_CB, 50)";
+        final String a = "OnFwd(OUT_BC,50)";
 
         Helper.assertCodeIsOk(a, "/ast/actions/action_MotorDiffOn.xml");
     }
 
-    //Ignore
+    @Test
     public void driveFor() throws Exception {
-        final String a = "\nhal.driveDistance(DriveDirection.FOREWARD, 50, 20);";
+        final String a = "\nOnFwd(OUT_BC,50,18.0*20);";
 
         Helper.assertCodeIsOk(a, "/ast/actions/action_MotorDiffOnFor.xml");
     }

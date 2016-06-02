@@ -232,7 +232,7 @@ public class AstToLejosJavaVisitorTest {
             + MAIN_METHOD
             + "        float variablenName = 0;\n"
 
-            + "OnFwd(OUT_BA,50);"
+            + "OnFwd(OUT_AB,50);"
             + "drawPicture(ShowPicture.OLDGLASSES,0,0);"
             + SUFFIX
 
