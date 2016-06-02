@@ -767,7 +767,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitMotorDriveStopAction(MotorDriveStopAction<Void> stopAction) {
-        this.sb.append("hal.stopRegulatedDrive();");
+        this.sb.append("off();");
         return null;
     }
 
