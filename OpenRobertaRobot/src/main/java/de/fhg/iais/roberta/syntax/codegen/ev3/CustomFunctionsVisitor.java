@@ -16,7 +16,9 @@ import de.fhg.iais.roberta.syntax.expr.Expr;
 import de.fhg.iais.roberta.syntax.functions.FunctionNames;
 import de.fhg.iais.roberta.syntax.functions.MathConstrainFunct;
 import de.fhg.iais.roberta.syntax.functions.MathNumPropFunct;
+import de.fhg.iais.roberta.syntax.functions.MathPowerFunct;
 import de.fhg.iais.roberta.syntax.functions.MathRandomIntFunct;
+import de.fhg.iais.roberta.syntax.functions.MathSingleFunct;
 import de.fhg.iais.roberta.syntax.functions.TextJoinFunct;
 import de.fhg.iais.roberta.syntax.hardwarecheck.CheckVisitor;
 import de.fhg.iais.roberta.syntax.sensor.ev3.ColorSensor;
@@ -59,6 +61,34 @@ public class CustomFunctionsVisitor extends CheckVisitor {
     public Void visitTextJoinFunct(TextJoinFunct<Void> textJoinFunct) {
         this.functionWasMet.add(FunctionNames.JTEXT);
         textJoinFunct.getParam().visit(this);
+        return null;
+    }
+
+    @Override
+    public Void visitMathSingleFunct(MathSingleFunct<Void> mathSingleFunct) {
+        switch ( mathSingleFunct.getFunctName() ) {
+
+            case ROUND:
+                this.functionWasMet.add(mathSingleFunct.getFunctName());
+                break;
+            case ROUNDUP:
+                this.functionWasMet.add(mathSingleFunct.getFunctName());
+                break;
+            case ROUNDDOWN:
+                this.functionWasMet.add(mathSingleFunct.getFunctName());
+                break;
+            default:
+                break;
+        }
+        mathSingleFunct.getParam().get(0).visit(this);
+        return null;
+    }
+
+    @Override
+    public Void visitMathPowerFunct(MathPowerFunct<Void> mathPowerFunct) {
+        this.functionWasMet.add(FunctionNames.POW);
+        mathPowerFunct.getParam().get(0).visit(this);
+        mathPowerFunct.getParam().get(1).visit(this);
         return null;
     }
 
