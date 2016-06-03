@@ -554,7 +554,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         incrIndentation();
         visitStmtList(waitStmt.getStatements());
         nlIndent();
-        this.sb.append("wait(15);");
+        //why 15?
+        this.sb.append("Wait(15);");
         decrIndentation();
         nlIndent();
         this.sb.append("}");
@@ -563,7 +564,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitWaitTimeStmt(WaitTimeStmt<Void> waitTimeStmt) {
-        this.sb.append("wait(");
+        this.sb.append("Wait(");
         waitTimeStmt.getTime().visit(this);
         this.sb.append(");");
         return null;
@@ -633,18 +634,24 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     @Override
     public Void visitShowTextAction(ShowTextAction<Void> showTextAction) {
         this.sb.append("TextOut(");
-        if ( showTextAction.getMsg().getKind() != BlockType.STRING_CONST ) {
-            this.sb.append("string(");
+        showTextAction.getX().visit(this);
+        this.sb.append(", LCD_LINE");
+        showTextAction.getY().visit(this);
+        this.sb.append(", ");
+
+        if ( showTextAction.getMsg().getKind() == BlockType.NUM_CONST ) {
+            this.sb.append("NumToStr(");
             showTextAction.getMsg().visit(this);
             this.sb.append(")");
-        } else {
+        } else if ( showTextAction.getMsg().getKind() == BlockType.STRING_CONST ) {
             showTextAction.getMsg().visit(this);
+        } else if ( showTextAction.getMsg().getKind() == BlockType.BOOL_CONST ) {
+            //TODO: change it into switch and assign the correct outputs to the other types of variables
+        } else {
+            this.sb.append("ERROR: Please, insert a string or a number");
         }
-        this.sb.append(", ");
-        showTextAction.getX().visit(this);
-        this.sb.append(", ");
-        showTextAction.getY().visit(this);
         this.sb.append(");");
+
         return null;
     }
 
@@ -1219,7 +1226,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             case ABS:
                 this.sb.append("abs(");
                 break;
-            case LN:
+            // TODO: Ask. Exists only in extended version. It is possible to implement it as an extension into row, but does it make sense?
+            /* case LN:
                 this.sb.append("log(");
                 break;
             case LOG10:
@@ -1249,15 +1257,16 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             case ACOS:
                 this.sb.append("acos(");
                 break;
-            //check if it is correct. Round to nearest int. There is no function like "round" in NXC.
+                */
             case ROUND:
-                this.sb.append("floor(0.5 + ");
+                this.sb.append("mathFloor(0.5 + ");
                 break;
             case ROUNDUP:
-                this.sb.append("ceil(");
+                this.sb.append("1 + mathFloor(");
                 break;
+            //check why there are double brackets
             case ROUNDDOWN:
-                this.sb.append("floor(");
+                this.sb.append("mathFloor(");
                 break;
             default:
                 break;
@@ -1268,9 +1277,10 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
+    //TODOL check
     @Override
     public Void visitMathPowerFunct(MathPowerFunct<Void> mathPowerFunct) {
-        this.sb.append("pow(");
+        this.sb.append("mathPow(");
         mathPowerFunct.getParam().get(0).visit(this);
         this.sb.append(", ");
         mathPowerFunct.getParam().get(1).visit(this);
@@ -1575,12 +1585,12 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     this.incrIndentation();
                     break;
                 case CLAMP:
-                    this.sb.append("inline float mathMin(float FirstValue, float SecondValue) {");
+                    this.sb.append("inline float mathMin(float firstValue, float secondValue) {");
                     nlIndent();
-                    this.sb.append("if (FirstValue < SecondValue){");
+                    this.sb.append("if (firstValue < secondValue){");
                     this.incrIndentation();
                     nlIndent();
-                    this.sb.append("return FirstValue;");
+                    this.sb.append("return firstValue;");
                     this.decrIndentation();
                     nlIndent();
                     this.sb.append("}");
@@ -1588,7 +1598,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     this.sb.append("else{");
                     this.incrIndentation();
                     nlIndent();
-                    this.sb.append("return SecondValue;");
+                    this.sb.append("return secondValue;");
                     this.decrIndentation();
                     nlIndent();
                     this.sb.append("}");
@@ -1598,12 +1608,12 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     this.incrIndentation();
 
                     //max of two values
-                    this.sb.append("inline float mathMax(float FirstValue, float SecondValue) {");
+                    this.sb.append("inline float mathMax(float firstValue, float secondValue) {");
                     nlIndent();
-                    this.sb.append("if (FirstValue > SecondValue){");
+                    this.sb.append("if (firstValue > secondValue){");
                     this.incrIndentation();
                     nlIndent();
-                    this.sb.append("return FirstValue;");
+                    this.sb.append("return firstValue;");
                     this.decrIndentation();
                     nlIndent();
                     this.sb.append("}");
@@ -1611,7 +1621,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     this.sb.append("else{");
                     this.incrIndentation();
                     nlIndent();
-                    this.sb.append("return SecondValue;");
+                    this.sb.append("return secondValue;");
                     this.decrIndentation();
                     nlIndent();
                     this.sb.append("}");
@@ -1621,12 +1631,12 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     this.incrIndentation();
                     break;
                 case RINT:
-                    this.sb.append("inline float mathMin(float FirstValue, float SecondValue) {");
+                    this.sb.append("inline float mathMin(float firstValue, float secondValue) {");
                     nlIndent();
-                    this.sb.append("if (FirstValue < SecondValue){");
+                    this.sb.append("if (firstValue < SecondValue){");
                     this.incrIndentation();
                     nlIndent();
-                    this.sb.append("return FirstValue;");
+                    this.sb.append("return firstValue;");
                     this.decrIndentation();
                     nlIndent();
                     this.sb.append("}");
@@ -1634,7 +1644,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     this.sb.append("else{");
                     this.incrIndentation();
                     nlIndent();
-                    this.sb.append("return SecondValue;");
+                    this.sb.append("return secondValue;");
                     this.decrIndentation();
                     nlIndent();
                     this.sb.append("}");
@@ -1643,24 +1653,64 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     this.sb.append("} \n");
                     this.incrIndentation();
                     break;
-                /*
-                case JTEXT:
-                    this.sb.append("inline string textJoin (string arr[]) {");
+                case ROUNDDOWN:
+                    this.sb.append("inline int mathFloor(float val) {");
                     nlIndent();
-                    this.sb.append("string temp;");
+                    this.sb.append("int temp = val;");
                     nlIndent();
-                    this.sb.append("for (int i=0; i < ArrayLen(arr); i++)  {");
+                    this.sb.append("return temp; \n");
+                    this.sb.append("} \n");
+                    break;
+                case ROUNDUP:
+                    this.sb.append("inline int mathFloor(float val) {");
+                    nlIndent();
+                    this.sb.append("int temp = val;");
+                    nlIndent();
+                    this.sb.append("return temp; \n");
+                    this.sb.append("} \n");
+                case ROUND:
+                    this.sb.append("inline int mathFloor(float val) {");
+                    nlIndent();
+                    this.sb.append("int temp = val;");
+                    nlIndent();
+                    this.sb.append("return temp; \n");
+                    this.sb.append("} \n");
+                    //won't work with fractional power
+                case POW:
+                    this.sb.append("inline float mathPow(float firstValue, float secondValue) {");
+                    nlIndent();
+                    this.sb.append("float result = 1;");
+                    nlIndent();
+                    this.sb.append("for (int i = 0; i < secondValue; i++) {");
                     this.incrIndentation();
                     nlIndent();
-                    this.sb.append("temp = temp + arr[i];");
+                    this.sb.append("result = result * firstValue;");
                     this.decrIndentation();
                     nlIndent();
                     this.sb.append("}");
                     nlIndent();
-                    this.sb.append("return temp; \n");
-                    this.sb.append("}\n");
+                    this.sb.append("return result; \n");
+                    this.sb.append("} \n");
                     break;
-                    */
+
+                /*
+                case JTEXT:
+                this.sb.append("inline string textJoin (string arr[]) {");
+                nlIndent();
+                this.sb.append("string temp;");
+                nlIndent();
+                this.sb.append("for (int i=0; i < ArrayLen(arr); i++)  {");
+                this.incrIndentation();
+                nlIndent();
+                this.sb.append("temp = temp + arr[i];");
+                this.decrIndentation();
+                nlIndent();
+                this.sb.append("}");
+                nlIndent();
+                this.sb.append("return temp; \n");
+                this.sb.append("}\n");
+                break;
+                */
             }
         }
     }
@@ -1722,15 +1772,15 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         sb.append(INDENT).append(INDENT).append(INDENT).append("    .build();");
         return sb.toString();
     }
-
-
+    
+    
     private void appendSensors(StringBuilder sb) {
         for ( Map.Entry<SensorPort, EV3Sensor> entry : this.brickConfiguration.getSensors().entrySet() ) {
             sb.append(INDENT).append(INDENT).append(INDENT);
             appendOptional(sb, "    .addSensor(", entry.getKey(), entry.getValue());
         }
     }
-
+    
     private void appendActors(StringBuilder sb) {
         for ( Map.Entry<ActorPort, EV3Actor> entry : this.brickConfiguration.getActors().entrySet() ) {
             sb.append(INDENT).append(INDENT).append(INDENT);
@@ -1751,8 +1801,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             sb.append(")\n");
         }
     }
-
-
+    
+    
     private String generateRegenerateUsedSensors() {
         StringBuilder sb = new StringBuilder();
         String arrayOfSensors = "";
@@ -1760,7 +1810,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             arrayOfSensors += usedSensor.generateRegenerate();
             arrayOfSensors += ", ";
         }
-
+    
         sb.append("private Set<UsedSensor> usedSensors = " + "new LinkedHashSet<UsedSensor>(");
         if ( this.usedSensors.size() > 0 ) {
             sb.append("Arrays.asList(" + arrayOfSensors.substring(0, arrayOfSensors.length() - 2) + ")");
@@ -1780,14 +1830,14 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         sb.append(", ").append(getEnumCode(ev3Actor.getRotationDirection())).append(", ").append(getEnumCode(ev3Actor.getMotorSide())).append(")");
         return sb.toString();
     }
-
+    
     private static String generateRegenerateEV3Sensor(HardwareComponent sensor) {
         StringBuilder sb = new StringBuilder();
         sb.append("new EV3Sensor(").append(getHardwareComponentTypeCode(sensor.getComponentType()));
         sb.append(")");
         return sb.toString();
     }
-
+    
     private static String getHardwareComponentTypeCode(HardwareComponentType type) {
         return type.getClass().getSimpleName() + "." + type.getTypeName();
     }
