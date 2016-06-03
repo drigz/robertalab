@@ -211,9 +211,9 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             case ARRAY_STRING:
                 return "string";
             case ARRAY_BOOLEAN:
-                return "boolean";
+                return "bool";
             case BOOLEAN:
-                return "boolean";
+                return "bool";
             case NUMBER:
                 return "float";
             case NUMBER_INT:
