@@ -12,6 +12,7 @@ import de.fhg.iais.roberta.components.ev3.Ev3Configuration;
 import de.fhg.iais.roberta.shared.IndexLocation;
 import de.fhg.iais.roberta.shared.action.ev3.ActorPort;
 import de.fhg.iais.roberta.shared.action.ev3.DriveDirection;
+import de.fhg.iais.roberta.shared.action.ev3.TurnDirection;
 import de.fhg.iais.roberta.shared.sensor.ev3.MotorTachoMode;
 import de.fhg.iais.roberta.shared.sensor.ev3.SensorPort;
 import de.fhg.iais.roberta.shared.sensor.ev3.UltrasonicSensorMode;
@@ -123,6 +124,10 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     private final StringBuilder sb = new StringBuilder();
     private final Set<FunctionNames> usedFunctions;
     private int indentation;
+
+    private int x;
+
+    private String left;
 
     /**
      * initialize the Java code generator visitor.
@@ -375,7 +380,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         generateSubExpr(this.sb, false, binary.getLeft(), binary);
         this.sb.append(whitespace() + binary.getOp().getOpSymbol() + whitespace());
         if ( binary.getOp() == Op.TEXT_APPEND ) {
-            this.sb.append("String.valueOf(");
+            this.sb.append("String(");
             generateSubExpr(this.sb, false, binary.getRight(), binary);
             this.sb.append(")");
         } else {
@@ -566,7 +571,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitClearDisplayAction(ClearDisplayAction<Void> clearDisplayAction) {
-        this.sb.append("clearScreen();");
+        this.sb.append("ClearScreen();");
         return null;
     }
 
@@ -615,8 +620,9 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     }
 
     @Override
+
     public Void visitShowPictureAction(ShowPictureAction<Void> showPictureAction) {
-        this.sb.append("drawPicture(" + getEnumCode(showPictureAction.getPicture()) + ", ");
+        this.sb.append("GraphicOut(" + (showPictureAction.getPicture()) + ", ");
         showPictureAction.getX().visit(this);
         this.sb.append(", ");
         showPictureAction.getY().visit(this);
@@ -656,28 +662,34 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     public Void visitMotorOnAction(MotorOnAction<Void> motorOnAction) {
         {
             final boolean isDuration = motorOnAction.getParam().getDuration() != null;
-            this.sb.append("RotateMotor(" + motorOnAction.getPort() + ", ");
+
+            String methodName = "RotateMotor";
+
+            this.sb.append(methodName + "(OUT_" + motorOnAction.getPort());
+
+            this.sb.append(", ");
             motorOnAction.getParam().getSpeed().visit(this);
+
             if ( isDuration ) {
                 this.sb.append(", ");
                 if ( motorOnAction.getParam().getDuration().getType() == de.fhg.iais.roberta.shared.action.ev3.MotorMoveMode.ROTATIONS ) {
                     this.sb.append("360.0*");
                 }
-                // this.sb.append(motorOnAction.getParam().getDuration().getType().toString()
-                // + ", ");
                 motorOnAction.getParam().getDuration().getValue().visit(this);
-                this.sb.append(")");
+
             }
-            this.sb.append(")");
+            this.sb.append(");");
             return null;
         }
     }
 
     @Override
     public Void visitMotorSetPowerAction(MotorSetPowerAction<Void> motorSetPowerAction) {
+
+        String methodName = "MotorPower";
+        this.sb.append(methodName + "(OUT_" + motorSetPowerAction.getPort() + ", ");
         boolean isRegulated = this.brickConfiguration.isMotorRegulated(motorSetPowerAction.getPort());
-        String methodName = isRegulated ? "MotorPower(" : "MotorPower(";
-        this.sb.append(methodName + getEnumCode(motorSetPowerAction.getPort()) + ", ");
+
         motorSetPowerAction.getPower().visit(this);
         this.sb.append(");");
         return null;
@@ -703,20 +715,29 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     public Void visitDriveAction(DriveAction<Void> driveAction) {
         String methodName = "OnFwd";
         final boolean isDuration = driveAction.getParam().getDuration() != null;
-        //Casts error, must be fixed, so it won't get two numbers after OUT_CB
-        // and also the letter order in "OUT_CB" should be "OUT_BC", otherwise error as
-        //well (changed the last part - Evg)
+
         if ( driveAction.getDirection() == DriveDirection.BACKWARD ) {
             methodName = "OnRev";
         }
         this.sb.append(methodName + "(OUT_");
-        this.sb.append(this.brickConfiguration.getRightMotorPort());
         this.sb.append(this.brickConfiguration.getLeftMotorPort());
+        this.sb.append(this.brickConfiguration.getRightMotorPort());
         this.sb.append(", ");
         driveAction.getParam().getSpeed().visit(this);
+
         if ( isDuration ) {
-            this.sb.append(", ");
-            driveAction.getParam().getDuration().getValue().visit(this);
+            this.sb.append(",");
+
+            if ( driveAction.getParam().getDuration().getType() == de.fhg.iais.roberta.shared.action.ev3.MotorMoveMode.DISTANCE ) {
+                this.sb.append("18.0*"); // 18cm is one rotation
+                driveAction.getParam().getDuration().getValue().visit(this);
+
+                this.sb.append(");");
+                return null;
+            }
+            this.sb.append(")");
+
+            return null;
         }
         this.sb.append(");");
         return null;
@@ -724,13 +745,20 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitTurnAction(TurnAction<Void> turnAction) {
+
+        String methodName = "turn_right";
         final boolean isDuration = turnAction.getParam().getDuration() != null;
-        final String methodName = "RotateMotor" + (isDuration ? "Angle" : "Regulated") + "(";
-        this.sb.append(methodName);
-        this.sb.append(getEnumCode(turnAction.getDirection()) + ", ");
+        if ( turnAction.getDirection() == TurnDirection.LEFT ) {
+            methodName = "turn_left";
+        }
+        this.sb.append(methodName + "(");
         turnAction.getParam().getSpeed().visit(this);
         if ( isDuration ) {
             this.sb.append(", ");
+            if ( turnAction.getParam().getDuration().getType() == de.fhg.iais.roberta.shared.action.ev3.MotorMoveMode.DEGREE ) {
+                this.sb.append("360.0*");
+            }
+
             turnAction.getParam().getDuration().getValue().visit(this);
         }
         this.sb.append(");");
@@ -739,7 +767,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitMotorDriveStopAction(MotorDriveStopAction<Void> stopAction) {
-        this.sb.append("hal.stopRegulatedDrive();");
+        this.sb.append("off();");
         return null;
     }
 
@@ -855,10 +883,10 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     public Void visitTimerSensor(TimerSensor<Void> timerSensor) {
         switch ( timerSensor.getMode() ) {
             case GET_SAMPLE:
-                this.sb.append("hal.getTimerValue(" + timerSensor.getTimer() + ")");
+                this.sb.append("SetTimerValue(" + timerSensor.getTimer() + ")");
                 break;
             case RESET:
-                this.sb.append("hal.resetTimer(" + timerSensor.getTimer() + ");");
+                this.sb.append("resetTimer(" + timerSensor.getTimer() + ");");
                 break;
             default:
                 throw new DbcException("Invalid Time Mode!");
@@ -1694,15 +1722,15 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         sb.append(INDENT).append(INDENT).append(INDENT).append("    .build();");
         return sb.toString();
     }
-    
-    
+
+
     private void appendSensors(StringBuilder sb) {
         for ( Map.Entry<SensorPort, EV3Sensor> entry : this.brickConfiguration.getSensors().entrySet() ) {
             sb.append(INDENT).append(INDENT).append(INDENT);
             appendOptional(sb, "    .addSensor(", entry.getKey(), entry.getValue());
         }
     }
-    
+
     private void appendActors(StringBuilder sb) {
         for ( Map.Entry<ActorPort, EV3Actor> entry : this.brickConfiguration.getActors().entrySet() ) {
             sb.append(INDENT).append(INDENT).append(INDENT);
@@ -1723,8 +1751,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             sb.append(")\n");
         }
     }
-    
-    
+
+
     private String generateRegenerateUsedSensors() {
         StringBuilder sb = new StringBuilder();
         String arrayOfSensors = "";
@@ -1732,7 +1760,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             arrayOfSensors += usedSensor.generateRegenerate();
             arrayOfSensors += ", ";
         }
-    
+
         sb.append("private Set<UsedSensor> usedSensors = " + "new LinkedHashSet<UsedSensor>(");
         if ( this.usedSensors.size() > 0 ) {
             sb.append("Arrays.asList(" + arrayOfSensors.substring(0, arrayOfSensors.length() - 2) + ")");
@@ -1752,14 +1780,14 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         sb.append(", ").append(getEnumCode(ev3Actor.getRotationDirection())).append(", ").append(getEnumCode(ev3Actor.getMotorSide())).append(")");
         return sb.toString();
     }
-    
+
     private static String generateRegenerateEV3Sensor(HardwareComponent sensor) {
         StringBuilder sb = new StringBuilder();
         sb.append("new EV3Sensor(").append(getHardwareComponentTypeCode(sensor.getComponentType()));
         sb.append(")");
         return sb.toString();
     }
-    
+
     private static String getHardwareComponentTypeCode(HardwareComponentType type) {
         return type.getClass().getSimpleName() + "." + type.getTypeName();
     }

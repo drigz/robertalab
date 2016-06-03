@@ -7,28 +7,28 @@ import de.fhg.iais.roberta.testutil.Helper;
 public class MathOnListsTest {
     @Test
     public void mathOnListSum() throws Exception {
-        String a = "BlocklyMethods.sumOnList({5,3,2})";
+        String a = "ArraySum({5,3,2},NA,NA)";
 
         Helper.assertCodeIsOk(a, "/syntax/math/math_on_list_sum.xml");
     }
 
     @Test
     public void mathOnListMin() throws Exception {
-        String a = "BlocklyMethods.minOnList({5,3,2})";
+        String a = "ArrayMin({5,3,2},NA,NA)";
 
         Helper.assertCodeIsOk(a, "/syntax/math/math_on_list_min.xml");
     }
 
     @Test
     public void mathOnListMax() throws Exception {
-        String a = "BlocklyMethods.maxOnList({5,3,2})";
+        String a = "ArrayMax({5,3,2},NA,NA)";
 
         Helper.assertCodeIsOk(a, "/syntax/math/math_on_list_max.xml");
     }
 
     @Test
     public void mathOnListAverage() throws Exception {
-        String a = "BlocklyMethods.averageOnList({5,3,2})";
+        String a = "ArrayMean({5,3,2},NA,NA)";
 
         Helper.assertCodeIsOk(a, "/syntax/math/math_on_list_average.xml");
     }
@@ -42,7 +42,7 @@ public class MathOnListsTest {
 
     @Test
     public void mathOnListStandardDeviatioin() throws Exception {
-        String a = "BlocklyMethods.standardDeviatioin({5,3,2})";
+        String a = "ArrayStd({5,3,2},NA,NA)";
 
         Helper.assertCodeIsOk(a, "/syntax/math/math_on_list_std_dev.xml");
     }
