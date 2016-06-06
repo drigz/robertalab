@@ -16,6 +16,7 @@ import de.fhg.iais.roberta.syntax.expr.Expr;
 import de.fhg.iais.roberta.syntax.functions.FunctionNames;
 import de.fhg.iais.roberta.syntax.functions.MathConstrainFunct;
 import de.fhg.iais.roberta.syntax.functions.MathNumPropFunct;
+import de.fhg.iais.roberta.syntax.functions.MathOnListFunct;
 import de.fhg.iais.roberta.syntax.functions.MathPowerFunct;
 import de.fhg.iais.roberta.syntax.functions.MathRandomIntFunct;
 import de.fhg.iais.roberta.syntax.functions.MathSingleFunct;
@@ -65,8 +66,49 @@ public class CustomFunctionsVisitor extends CheckVisitor {
     }
 
     @Override
+    public Void visitMathOnListFunct(MathOnListFunct<Void> mathOnListFunct) {
+        switch ( mathOnListFunct.getFunctName() ) {
+            case SUM:
+                this.functionWasMet.add(mathOnListFunct.getFunctName());
+                break;
+            case MIN:
+                this.functionWasMet.add(mathOnListFunct.getFunctName());
+                break;
+            case MAX:
+                this.functionWasMet.add(mathOnListFunct.getFunctName());
+                break;
+            case AVERAGE:
+                this.functionWasMet.add(mathOnListFunct.getFunctName());
+                break;
+            case MEDIAN:
+                this.functionWasMet.add(mathOnListFunct.getFunctName());
+                break;
+            case STD_DEV:
+                this.functionWasMet.add(mathOnListFunct.getFunctName());
+                break;
+            case RANDOM:
+                this.functionWasMet.add(mathOnListFunct.getFunctName());
+                break;
+            case MODE:
+                this.functionWasMet.add(mathOnListFunct.getFunctName());
+                break;
+            default:
+                break;
+        }
+
+        return null;
+    }
+
+    @Override
     public Void visitMathSingleFunct(MathSingleFunct<Void> mathSingleFunct) {
         switch ( mathSingleFunct.getFunctName() ) {
+
+            case EXP:
+                this.functionWasMet.add(mathSingleFunct.getFunctName());
+                break;
+            case POW10:
+                this.functionWasMet.add(mathSingleFunct.getFunctName());
+                break;
 
             case ROUND:
                 this.functionWasMet.add(mathSingleFunct.getFunctName());
