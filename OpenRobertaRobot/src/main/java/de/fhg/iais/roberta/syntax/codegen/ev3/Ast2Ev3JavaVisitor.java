@@ -1019,13 +1019,22 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitLengthOfIsEmptyFunct(LengthOfIsEmptyFunct<Void> lengthOfIsEmptyFunct) {
-        String methodName = "BlocklyMethods.length( ";
+        //TODO: deal with empty lists
         if ( lengthOfIsEmptyFunct.getFunctName() == FunctionNames.LIST_IS_EMPTY ) {
-            methodName = "BlocklyMethods.isEmpty( ";
+            this.sb.append("0");
+        } else {
+            String methodName = "ArrayLen(";
+            this.sb.append(methodName);
+            lengthOfIsEmptyFunct.getParam().get(0).visit(this);
+            this.sb.append(")");
         }
-        this.sb.append(methodName);
-        lengthOfIsEmptyFunct.getParam().get(0).visit(this);
-        this.sb.append(")");
+        //String methodName = "BlocklyMethods.length( ";
+        //if ( lengthOfIsEmptyFunct.getFunctName() == FunctionNames.LIST_IS_EMPTY ) {
+        //    methodName = "BlocklyMethods.isEmpty( ";
+        //}
+        //this.sb.append(methodName);
+        //lengthOfIsEmptyFunct.getParam().get(0).visit(this);
+        //this.sb.append(")");
         return null;
     }
 
@@ -1149,38 +1158,33 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    //TODO: finish
+    //TODO: change to standard functions
     @Override
     public Void visitMathOnListFunct(MathOnListFunct<Void> mathOnListFunct) {
         switch ( mathOnListFunct.getFunctName() ) {
             case SUM:
-                this.sb.append("ArraySum(");
+                this.sb.append("arraySum(");
                 mathOnListFunct.getParam().get(0).visit(this);
-                this.sb.append(", NA, NA");
                 break;
             case MIN:
-                this.sb.append("ArrayMin(");
+                this.sb.append("arrayMin(");
                 mathOnListFunct.getParam().get(0).visit(this);
-                this.sb.append(", NA, NA");
                 break;
             case MAX:
-                this.sb.append("ArrayMax(");
+                this.sb.append("arrayMax(");
                 mathOnListFunct.getParam().get(0).visit(this);
-                this.sb.append(", NA, NA");
                 break;
             case AVERAGE:
-                this.sb.append("ArrayMean(");
+                this.sb.append("arrayMean(");
                 mathOnListFunct.getParam().get(0).visit(this);
-                this.sb.append(", NA, NA");
                 break;
             case MEDIAN:
-                this.sb.append("BlocklyMethods.medianOnList(");
+                this.sb.append("arrayMedian(");
                 mathOnListFunct.getParam().get(0).visit(this);
                 break;
             case STD_DEV:
-                this.sb.append("ArrayStd(");
+                this.sb.append("arrayStandardDeviatioin(");
                 mathOnListFunct.getParam().get(0).visit(this);
-                this.sb.append(", NA, NA");
                 break;
             case RANDOM:
                 this.sb.append("BlocklyMethods.randOnList(");
@@ -1199,7 +1203,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitMathRandomFloatFunct(MathRandomFloatFunct<Void> mathRandomFloatFunct) {
-        this.sb.append("Randoms(100) / 100");
+        this.sb.append("Random(100) / 100");
         return null;
     }
 
@@ -1233,31 +1237,33 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             case LOG10:
                 this.sb.append("log10(");
                 break;
+            */
             case EXP:
-                this.sb.append("exp(");
+                this.sb.append("mathPow(E, ");
                 break;
             case POW10:
-                this.sb.append("pow(10, ");
+                this.sb.append("mathPow(10, ");
                 break;
+            /*
             case SIN:
-                this.sb.append("sin(");
-                break;
+            this.sb.append("sin(");
+            break;
             case COS:
-                this.sb.append("cos(");
-                break;
+            this.sb.append("cos(");
+            break;
             case TAN:
-                this.sb.append("tan(");
-                break;
+            this.sb.append("tan(");
+            break;
             case ASIN:
-                this.sb.append("asin(");
-                break;
+            this.sb.append("asin(");
+            break;
             case ATAN:
-                this.sb.append("atan(");
-                break;
+            this.sb.append("atan(");
+            break;
             case ACOS:
-                this.sb.append("acos(");
-                break;
-                */
+            this.sb.append("acos(");
+            break;
+            */
             case ROUND:
                 this.sb.append("mathFloor(0.5 + ");
                 break;
@@ -1277,7 +1283,6 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    //TODOL check
     @Override
     public Void visitMathPowerFunct(MathPowerFunct<Void> mathPowerFunct) {
         this.sb.append("mathPow(");
@@ -1692,6 +1697,249 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     this.sb.append("return result; \n");
                     this.sb.append("} \n");
                     break;
+                case EXP:
+                    this.sb.append("inline float mathPow(float firstValue, float secondValue) {");
+                    nlIndent();
+                    this.sb.append("float result = 1;");
+                    nlIndent();
+                    this.sb.append("for (int i = 0; i < secondValue; i++) {");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("result = result * firstValue;");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    nlIndent();
+                    this.sb.append("return result; \n");
+                    this.sb.append("} \n");
+                    break;
+                case POW10:
+                    this.sb.append("inline float mathPow(float firstValue, float secondValue) {");
+                    nlIndent();
+                    this.sb.append("float result = 1;");
+                    nlIndent();
+                    this.sb.append("for (int i = 0; i < secondValue; i++) {");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("result = result * firstValue;");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    nlIndent();
+                    this.sb.append("return result; \n");
+                    this.sb.append("} \n");
+                    break;
+                case SUM:
+                    this.sb.append("inline float arraySum(float arr[]) {");
+                    nlIndent();
+                    this.sb.append("float sum = 0;");
+                    nlIndent();
+                    this.sb.append("for(int i = 0; i < ArrayLen(arr); i++) {{");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("sum += arr[i];");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    nlIndent();
+                    this.sb.append("return sum; \n");
+                    this.sb.append("} \n");
+                case MIN:
+                    this.sb.append("inline float arrayMin(float arr[]) {");
+                    nlIndent();
+                    this.sb.append("float min = arr[0];");
+                    nlIndent();
+                    this.sb.append("for(int i = 1; i < ArrayLen(arr); i++) {");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("if (arr[i] < min){");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("min = arr[i];");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    nlIndent();
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    nlIndent();
+                    this.sb.append("return min;");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}  \n");
+                    this.incrIndentation();
+                    break;
+                case MAX:
+                    this.sb.append("inline float arrayMax(float arr[]) {");
+                    nlIndent();
+                    this.sb.append("float max = arr[0];");
+                    nlIndent();
+                    this.sb.append("for(int i = 1; i < ArrayLen(arr); i++) {");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("if (arr[i] > max){");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("max = arr[i];");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    nlIndent();
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    nlIndent();
+                    this.sb.append("return max;");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}  \n");
+                    this.incrIndentation();
+                    break;
+                case AVERAGE:
+                    this.sb.append("inline float arrayMean(float arr[]) {");
+                    nlIndent();
+                    this.sb.append("float sum = 0;");
+                    nlIndent();
+                    this.sb.append("for(int i = 0; i < ArrayLen(arr); i++) {");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("sum += arr[i];");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    nlIndent();
+                    this.sb.append("sum/ArrayLen(arr); \n");
+                    this.sb.append("} \n");
+                case MEDIAN:
+                    this.sb.append("inline void arrayInsertionSort(float &arr[]) {");
+                    nlIndent();
+                    this.sb.append("for (int i=1; i < ArrayLen(arr); i++){");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("int index = arr[i];");
+                    nlIndent();
+                    this.sb.append("int j = i;");
+                    nlIndent();
+                    this.sb.append("while (j > 0 && arr[j-1] > index){");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("arr[j] = arr[j-1];");
+                    nlIndent();
+                    this.sb.append("j--;");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    nlIndent();
+                    this.sb.append("arr[j] = index;");
+                    nlIndent();
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}  \n");
+                    this.incrIndentation();
+
+                    this.sb.append("inline float arrayMedian(float arr[]) {");
+                    nlIndent();
+                    this.sb.append("int n = ArrayLen(arr);");
+                    nlIndent();
+                    this.sb.append("if ( n == 0 ) {");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("return 0;");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    nlIndent();
+                    this.sb.append("arrayInsertionSort(arr);");
+                    nlIndent();
+                    this.sb.append("float median;");
+                    this.sb.append("if ( n % 2 == 0 ) {");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("median = (arr[n/2] + arr[n / 2 - 1]) / 2;");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    nlIndent();
+                    this.sb.append("else{");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("median = arr[n / 2];");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    nlIndent();
+                    this.sb.append("return median;");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("} \n");
+                    this.incrIndentation();
+                    break;
+                case STD_DEV:
+                    this.sb.append("inline float mathPow(float firstValue, float secondValue) {");
+                    nlIndent();
+                    this.sb.append("float result = 1;");
+                    nlIndent();
+                    this.sb.append("for (int i = 0; i < secondValue; i++) {");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("result = result * firstValue;");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    nlIndent();
+                    this.sb.append("return result; \n");
+                    this.sb.append("} \n");
+
+                    this.sb.append("inline float arrayMean(float arr[]) {");
+                    nlIndent();
+                    this.sb.append("float sum = 0;");
+                    nlIndent();
+                    this.sb.append("for(int i = 0; i < ArrayLen(arr); i++) {");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("sum += arr[i];");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    nlIndent();
+                    this.sb.append("sum/ArrayLen(arr); \n");
+                    this.sb.append("} \n");
+
+                    this.sb.append("inline float arrayStandardDeviatioin(float arr[]) {");
+                    nlIndent();
+                    this.sb.append("int n = ArrayLen(arr);");
+                    nlIndent();
+                    this.sb.append("if ( n == 0 ) {");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("return 0;");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    nlIndent();
+                    this.sb.append("float variance = 0;");
+                    nlIndent();
+                    this.sb.append("float mean = arrayMean(arr);");
+                    this.sb.append("for ( int i = 0; i < ArrayLen(arr); i++) {");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("variance += mathPow(arr[i] - mean, 2);");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    nlIndent();
+                    this.sb.append("variance /= n;");
+                    nlIndent();
+                    this.sb.append("return sqrt(variance)");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("} \n");
+                    this.incrIndentation();
+                    break;
 
                 /*
                 case JTEXT:
@@ -1719,6 +1967,13 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
         this.sb.append("#define WHEELDIAMETER " + this.brickConfiguration.getWheelDiameterCM() + "\n");
         this.sb.append("#define TRACKWIDTH " + this.brickConfiguration.getTrackWidthCM() + "\n");
+        for ( FunctionNames customFunction : this.usedFunctions ) {
+            switch ( customFunction ) {
+                case EXP:
+                    this.sb.append("#define E 2.71828 \n");
+
+            }
+        }
     }
 
     private void generatePrefix(boolean withWrapping) {
