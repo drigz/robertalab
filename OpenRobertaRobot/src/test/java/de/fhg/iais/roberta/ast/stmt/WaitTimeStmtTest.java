@@ -9,7 +9,7 @@ public class WaitTimeStmtTest {
 
     @Test
     public void test() throws Exception {
-        String a = "BlockAST [project=[[Location [x=75, y=116], WaitTimeStmt [time=NumConst [500]]]]]";
+        final String a = "BlockAST [project=[[Location [x=75, y=116], WaitTimeStmt [time=NumConst [500]]]]]";
         Assert.assertEquals(a, Helper.generateTransformerString("/ast/control/wait_time_stmt.xml"));
     }
 
@@ -20,7 +20,7 @@ public class WaitTimeStmtTest {
 
     @Test
     public void javaCode() throws Exception {
-        String a = "\nwait(500);";
+        final String a = "\nWait(500);";
 
         Helper.assertCodeIsOk(a, "/ast/control/wait_time_stmt.xml");
     }

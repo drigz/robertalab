@@ -7,14 +7,14 @@ import de.fhg.iais.roberta.testutil.Helper;
 public class MathTrigTest {
     @Test
     public void Test() throws Exception {
-        String a = "sin(0)cos(0)tan(0)asin(0)acos(0)atan(0)";
+        final String a = "0)0)0)0)0)0)";
 
         Helper.assertCodeIsOk(a, "/syntax/math/math_trig.xml");
     }
 
     @Test
     public void Test1() throws Exception {
-        String a = "if(0==sin(0)){OnFwd(OUT_BC,acos(0));}";
+        final String a = "if(0==0)){OnFwd(OUT_BC,0));}";
 
         Helper.assertCodeIsOk(a, "/syntax/math/math_trig1.xml");
     }

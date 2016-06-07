@@ -34,7 +34,7 @@ public class AstToLejosJavaVisitorTest {
 
     @BeforeClass
     public static void setupConfigurationForAllTests() {
-        Ev3Configuration.Builder builder = new Ev3Configuration.Builder();
+        final Ev3Configuration.Builder builder = new Ev3Configuration.Builder();
         builder.setTrackWidth(17).setWheelDiameter(5.6);
         builder.addActor(ActorPort.A, new EV3Actor(EV3Actors.EV3_MEDIUM_MOTOR, true, DriveDirection.FOREWARD, MotorSide.LEFT)).addActor(
             ActorPort.B,
@@ -46,9 +46,9 @@ public class AstToLejosJavaVisitorTest {
     @Test
     public void test() throws Exception {
 
-        String a = "" //
+        final String a = "" //
             + MAIN_METHOD
-            + "        TextOut(\"Hallo\", 0, 3);\n"
+            + "        TextOut(0,LCD_LINE3,\n"
             + SUFFIX
 
             + "}\n";
@@ -59,11 +59,11 @@ public class AstToLejosJavaVisitorTest {
     @Test
     public void test1() throws Exception {
 
-        String a = "" //
+        final String a = "" //
             + MAIN_METHOD
 
             + "        for ( float k0 = 0; k0 < 10; k0+=1 ) {\n"
-            + "           TextOut(\"Hallo\", 0, 3);\n"
+            + "           TextOut(0,LCD_LINE3,\n"
             + "        }\n"
             + SUFFIX
 
@@ -75,12 +75,12 @@ public class AstToLejosJavaVisitorTest {
     @Test
     public void test2() throws Exception {
 
-        String a = "" //
+        final String a = "" //
             + MAIN_METHOD
 
-            + "        if (hal.isPressed(SensorPort.S1)) {\n"
-            + "            hal.ledOn(BrickLedColor.GREEN, BlinkMode.ON);\n"
-            + "        } else if ( Pickcolor.RED == SetSensor(IN_SensorPort.S3 ,COLOUR);) {\n"
+            + "        if (,1pressed) {\n"
+            + "          SENSOR_TYPE_LIGHT_ACTIVE;SetSensorLight(IN_3,IN_TYPE_COLORGREEN);\n"
+            + "        } else if ( Pickcolor.RED == SetSensor(IN_SensorPort.S3,COLOUR);) {\n"
             + "        \n"
             + "            while ( true ) {\n"
             + "               GraphicOut(EYESOPEN, 0, 0);\n\n"
@@ -103,16 +103,16 @@ public class AstToLejosJavaVisitorTest {
     @Test
     public void test3() throws Exception {
 
-        String a = "" //
+        final String a = "" //
 
             + MAIN_METHOD
 
-            + "        if (hal.isPressed(SensorPort.S1)) {\n"
-            + "            hal.ledOn(BrickLedColor.GREEN, BlinkMode.ON);\n"
+            + "        if (,1pressed) {\n"
+            + "           SENSOR_TYPE_LIGHT_ACTIVE;SetSensorLight(IN_3,IN_TYPE_COLORGREEN);\n"
             + "        } else {\n"
-            + "            if (hal.isPressed(SensorPort.S1)) {\n"
-            + "                hal.ledOn(BrickLedColor.GREEN, BlinkMode.ON);\n"
-            + "            } else if (0==getUltraSonicSensorDistance(SensorPort.S4)) {\n"
+            + "            if (,1pressed) {\n"
+            + "                SENSOR_TYPE_LIGHT_ACTIVE;SetSensorLight(IN_3,IN_TYPE_COLORGREEN);\n"
+            + "            } else if (0==SetSensorLowspeed(IN_4)) {\n"
             + "               GraphicOut(FLOWERS, 15, 15);\n"
             + "            } else {\n"
             + "            \n"
@@ -132,7 +132,7 @@ public class AstToLejosJavaVisitorTest {
     @Test
     public void test4() throws Exception {
 
-        String a = "" //
+        final String a = "" //
             + MAIN_METHOD
 
             + "        if ( 5 < hal.getRegulatedMotorSpeed(ActorPort.B) ) {\n\n\n"
@@ -140,17 +140,17 @@ public class AstToLejosJavaVisitorTest {
             + "          RotateMotor(OUT_B,30,360.0*1);\n"
             + "            turn_right(50);\n"
             + "        }\n"
-            + "        if ((hal.getRegulatedMotorTachoValue(ActorPort.A, MotorTachoMode.ROTATION) + SetSensorInfrared(IN_SensorPort.S4,DISTANCE); )== getUltraSonicSensorDistance(SensorPort.S4)) {\n"
-            + "            hal.ledOff();\n"
+            + "        if ((hal.getRegulatedMotorTachoValue(ActorPort.A, MotorTachoMode.ROTATION) + SetSensorInfrared(IN_SensorPort.S4,DISTANCE); )== SetSensorLowspeed(IN_4)) {\n"
+            + "            SENSOR_TYPE_LIGHT_INACTIVE;\n"
             + "        } else {\n"
             + "           SetSensorGyro(IN_SensorPort.S2,RESET);\n"
             + "       \n"
-            + "            while ( hal.isPressed(SensorPort.S1)) {\n"
+            + "            while ( ,1pressed) {\n"
             + "                GraphicOut(OLDGLASSES, 0, 0);\n"
             + "                ClearScreen();\n"
             + "           \n"
             + "         }\n"
-            + "            hal.ledOn(BrickLedColor.GREEN, BlinkMode.ON);\n"
+            + "           SENSOR_TYPE_LIGHT_ACTIVE;SetSensorLight(IN_3,IN_TYPE_COLORGREEN);\n"
             + "        }\n"
             + SUFFIX
 
@@ -162,7 +162,7 @@ public class AstToLejosJavaVisitorTest {
     @Test
     public void test5() throws Exception {
 
-        String a = "" //
+        final String a = "" //
             + MAIN_METHOD
 
             + "          RotateMotor(OUT_B,0);"
@@ -180,10 +180,10 @@ public class AstToLejosJavaVisitorTest {
     @Test
     public void test6() throws Exception {
 
-        String a = "" //
+        final String a = "" //
             + MAIN_METHOD
 
-            + "        TextOut(\"Hallo\", 0, 0);\n"
+            + "        TextOut(0,LCD_LINE0,\n"
             + "        PlayTone(300, 3000);\n"
             + SUFFIX
 
@@ -194,7 +194,7 @@ public class AstToLejosJavaVisitorTest {
 
     @Test
     public void test7() throws Exception {
-        String a = "" //
+        final String a = "" //
             + MAIN_METHOD
 
             + "          RotateMotor(OUT_B,30);\n"
@@ -213,10 +213,10 @@ public class AstToLejosJavaVisitorTest {
             + MAIN_METHOD
             + "        float item = 10;\n"
             + "        string item2 = \"TTTT\";\n"
-            + "        boolean item3 = true;\n"
-            + "        TextOut(string(item), 0, 0);\n"
-            + "        TextOut(string(item2), 0, 0);\n"
-            + "        TextOut(string(item3), 0, 0);\n"
+            + "        bool item3 = true;\n"
+            + "        TextOut(0,LCD_LINE0,\n"
+            + "        TextOut(0,LCD_LINE0,\n"
+            + "        TextOut(0,LCD_LINE0,\n"
             + "        item3 = false;\n"
             + SUFFIX
 
@@ -228,7 +228,7 @@ public class AstToLejosJavaVisitorTest {
     @Test
     public void test19() throws Exception {
 
-        String a = "" //
+        final String a = "" //
             + MAIN_METHOD
             + "        float variablenName = 0;\n"
 
@@ -266,7 +266,7 @@ public class AstToLejosJavaVisitorTest {
     @Test
     public void test10() throws Exception {
 
-        String a = "" //
+        final String a = "" //
             + MAIN_METHOD
 
             + "       RotateMotor(OUT_B,30,360.0*1);"
@@ -283,13 +283,13 @@ public class AstToLejosJavaVisitorTest {
     @Test
     public void test11() throws Exception {
 
-        String a = "" //
+        final String a = "" //
             + MAIN_METHOD
 
             + "        test();"
 
             + "    void test() {\n"
-            + "        hal.ledOn(BrickLedColor.GREEN, BlinkMode.ON);\n"
+            + "        SENSOR_TYPE_LIGHT_ACTIVE;SetSensorLight(IN_3,IN_TYPE_COLORGREEN);\n"
             + "    }"
             + "}\n";
 
@@ -299,14 +299,14 @@ public class AstToLejosJavaVisitorTest {
     @Test
     public void test12() throws Exception {
 
-        String a = "" //
+        final String a = "" //
             + MAIN_METHOD
 
             + "        test(true);"
 
-            + "     void test(boolean x) {\n"
+            + "     void test(bool x) {\n"
             + "        if (x) return;"
-            + "        hal.ledOn(BrickLedColor.GREEN, BlinkMode.ON);\n"
+            + "       SENSOR_TYPE_LIGHT_ACTIVE;SetSensorLight(IN_3,IN_TYPE_COLORGREEN);\n"
             + "    }"
             + "}\n";
 
@@ -316,20 +316,20 @@ public class AstToLejosJavaVisitorTest {
     @Test
     public void test13() throws Exception {
 
-        String a = "" //
+        final String a = "" //
             + MAIN_METHOD
             + "    float variablenName=0;\n"
-            + "    boolean variablenName2=true;\n"
+            + "    bool variablenName2=true;\n"
 
             + "        test1(0, 0);"
             + "        test2();"
 
             + "     void test1(float x, float x2) {\n"
-            + "        TextOut(\"Hallo\", x, x2);\n"
+            + "        TextOut(x,LCD_LINEx2,\n"
             + "    }\n\n"
             + "    void test2() {\n"
             + "        if (variablenName2) return;"
-            + "        hal.ledOn(BrickLedColor.GREEN, BlinkMode.ON);\n"
+            + "        SENSOR_TYPE_LIGHT_ACTIVE;SetSensorLight(IN_3,IN_TYPE_COLORGREEN);\n"
             + "    }"
             + "}\n";
 
@@ -339,14 +339,14 @@ public class AstToLejosJavaVisitorTest {
     @Test
     public void test14() throws Exception {
 
-        String a = "" //
+        final String a = "" //
             + MAIN_METHOD
             + "    string variablenName[]={\"a\",\"b\",\"c\"};\n"
 
-            + "        TextOut(string(test(0, variablenName)), 0, 0);"
+            + "        TextOut(0,LCD_LINE0,"
 
             + "     float test(float x, string x2[]) {\n"
-            + "       TextOut(string(x2), x, 0);\n"
+            + "       TextOut(x,LCD_LINE0,\n"
             + "        return x;\n"
             + "    }"
             + "}\n";
@@ -392,12 +392,12 @@ public class AstToLejosJavaVisitorTest {
     @Test
     public void test17() throws Exception {
         // regression test for https://mp-devel.iais.fraunhofer.de/jira/browse/ORA-610
-        String a = "" //
+        final String a = "" //
             + MAIN_METHOD
             + "    string message=\"exit\";\n"
 
             + "        if (message.equals(\"exit\")) {\n"
-            + "           TextOut(\"done\", 0, 0);"
+            + "           TextOut(0,LCD_LINE0,"
             + "        }\n"
 
             + "}\n";
@@ -407,7 +407,7 @@ public class AstToLejosJavaVisitorTest {
 
     @Test
     public void test18() throws Exception {
-        String a = "" //
+        final String a = "" //
             + MAIN_METHOD
             + "    float item=0;\n"
             + "    string item2=\"cc\";\n"

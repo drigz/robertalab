@@ -7,7 +7,7 @@ import de.fhg.iais.roberta.testutil.Helper;
 public class LightActionTest {
     @Test
     public void ledOn() throws Exception {
-        String a = "\nhal.ledOn(BrickLedColor.GREEN, BlinkMode.ON);";
+        final String a = "\nSENSOR_TYPE_LIGHT_ACTIVE;SetSensorLight(IN_3,IN_TYPE_COLORGREEN);";
 
         Helper.assertCodeIsOk(a, "/ast/actions/action_BrickLight.xml");
     }

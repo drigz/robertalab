@@ -11,11 +11,12 @@ import de.fhg.iais.roberta.components.ev3.EV3Sensor;
 import de.fhg.iais.roberta.components.ev3.Ev3Configuration;
 import de.fhg.iais.roberta.shared.IndexLocation;
 import de.fhg.iais.roberta.shared.action.ev3.ActorPort;
+import de.fhg.iais.roberta.shared.action.ev3.BlinkMode;
+import de.fhg.iais.roberta.shared.action.ev3.BrickLedColor;
 import de.fhg.iais.roberta.shared.action.ev3.DriveDirection;
 import de.fhg.iais.roberta.shared.action.ev3.TurnDirection;
 import de.fhg.iais.roberta.shared.sensor.ev3.MotorTachoMode;
 import de.fhg.iais.roberta.shared.sensor.ev3.SensorPort;
-import de.fhg.iais.roberta.shared.sensor.ev3.UltrasonicSensorMode;
 import de.fhg.iais.roberta.syntax.BlockType;
 import de.fhg.iais.roberta.syntax.Phrase;
 import de.fhg.iais.roberta.syntax.action.Action;
@@ -157,8 +158,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         Assert.notNull(brickConfiguration);
         Assert.isTrue(phrasesSet.size() >= 1);
 
-        Set<FunctionNames> usedFunctions = CustomFunctionsVisitor.check(phrasesSet);
-        Ast2Ev3JavaVisitor astVisitor = new Ast2Ev3JavaVisitor(programName, brickConfiguration, usedFunctions, withWrapping ? 1 : 0);
+        final Set<FunctionNames> usedFunctions = CustomFunctionsVisitor.check(phrasesSet);
+        final Ast2Ev3JavaVisitor astVisitor = new Ast2Ev3JavaVisitor(programName, brickConfiguration, usedFunctions, withWrapping ? 1 : 0);
         astVisitor.generatePrefix(withWrapping);
 
         generateCodeFromPhrases(phrasesSet, withWrapping, astVisitor);
@@ -168,8 +169,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     private static void generateCodeFromPhrases(ArrayList<ArrayList<Phrase<Void>>> phrasesSet, boolean withWrapping, Ast2Ev3JavaVisitor astVisitor) {
         boolean mainBlock = false;
-        for ( ArrayList<Phrase<Void>> phrases : phrasesSet ) {
-            for ( Phrase<Void> phrase : phrases ) {
+        for ( final ArrayList<Phrase<Void>> phrases : phrasesSet ) {
+            for ( final Phrase<Void> phrase : phrases ) {
                 mainBlock = handleMainBlocks(astVisitor, mainBlock, phrase);
                 phrase.visit(astVisitor);
             }
@@ -338,7 +339,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         if ( var.getValue().getKind() != BlockType.EMPTY_EXPR ) {
             this.sb.append(" = ");
             if ( var.getValue().getKind() == BlockType.EXPR_LIST ) {
-                ExprList<Void> list = (ExprList<Void>) var.getValue();
+                final ExprList<Void> list = (ExprList<Void>) var.getValue();
                 if ( list.get().size() == 2 ) {
                     list.get().get(1).visit(this);
                 } else {
@@ -443,7 +444,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     @Override
     public Void visitExprList(ExprList<Void> exprList) {
         boolean first = true;
-        for ( Expr<Void> expr : exprList.get() ) {
+        for ( final Expr<Void> expr : exprList.get() ) {
             if ( expr.getKind() != BlockType.EMPTY_EXPR ) {
                 if ( first ) {
                     first = false;
@@ -541,7 +542,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitStmtList(StmtList<Void> stmtList) {
-        for ( Stmt<Void> stmt : stmtList.get() ) {
+        for ( final Stmt<Void> stmt : stmtList.get() ) {
             nlIndent();
             stmt.visit(this);
         }
@@ -595,18 +596,36 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitLightAction(LightAction<Void> lightAction) {
-        this.sb.append("hal.ledOn(" + getEnumCode(lightAction.getColor()) + ", " + getEnumCode(lightAction.getBlinkMode()) + ");");
+        if ( lightAction.getBlinkMode() == BlinkMode.ON ) {
+            ;
+        }
+
+        {
+            this.sb.append("SENSOR_TYPE_LIGHT_ACTIVE;");
+        }
+        if ( lightAction.getColor() == BrickLedColor.RED ) {
+            this.sb.append("SetSensorLight(IN_3,IN_TYPE_COLORRED);");
+        } else if ( lightAction.getColor() == BrickLedColor.ORANGE ) {
+            this.sb.append("SetSensorLight(IN_3,IN_TYPE_COLORORANGE);");
+        }
+
+        if ( lightAction.getColor() == BrickLedColor.GREEN ) {
+            this.sb.append("SetSensorLight(IN_3,IN_TYPE_COLORGREEN);");
+            return null;
+        }
         return null;
+
     }
 
     @Override
     public Void visitLightStatusAction(LightStatusAction<Void> lightStatusAction) {
         switch ( lightStatusAction.getStatus() ) {
             case OFF:
-                this.sb.append("hal.ledOff();");
+                this.sb.append("SENSOR_TYPE_LIGHT_INACTIVE;");
                 break;
+
             case RESET:
-                this.sb.append("hal.resetLED();");
+                this.sb.append("ResetSensor(IN_);");
                 break;
             default:
                 throw new DbcException("Invalid LED status mode!");
@@ -641,17 +660,24 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
         if ( showTextAction.getMsg().getKind() == BlockType.NUM_CONST ) {
             this.sb.append("NumToStr(");
-            showTextAction.getMsg().visit(this);
-            this.sb.append(")");
-        } else if ( showTextAction.getMsg().getKind() == BlockType.STRING_CONST ) {
-            showTextAction.getMsg().visit(this);
-        } else if ( showTextAction.getMsg().getKind() == BlockType.BOOL_CONST ) {
-            //TODO: change it into switch and assign the correct outputs to the other types of variables
-        } else {
-            this.sb.append("ERROR: Please, insert a string or a number");
-        }
-        this.sb.append(");");
+            if ( showTextAction.getMsg().getKind() != BlockType.STRING_CONST ) {
+                this.sb.append("string(");
+                showTextAction.getMsg().visit(this);
+                this.sb.append(")");
+            } else if ( showTextAction.getMsg().getKind() == BlockType.STRING_CONST ) {
+                showTextAction.getMsg().visit(this);
+            } else if ( showTextAction.getMsg().getKind() == BlockType.BOOL_CONST ) {
+                //TODO: change it into switch and assign the correct outputs to the other types of variables
+            } else {
+                this.sb.append("ERROR: Please, insert a string or a number");
+            }
 
+            this.sb.append(", ");
+            showTextAction.getX().visit(this);
+            this.sb.append(", ");
+            showTextAction.getY().visit(this);
+            this.sb.append(");");
+        }
         return null;
     }
 
@@ -670,7 +696,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         {
             final boolean isDuration = motorOnAction.getParam().getDuration() != null;
 
-            String methodName = "RotateMotor";
+            final String methodName = "RotateMotor";
 
             this.sb.append(methodName + "(OUT_" + motorOnAction.getPort());
 
@@ -693,9 +719,9 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     @Override
     public Void visitMotorSetPowerAction(MotorSetPowerAction<Void> motorSetPowerAction) {
 
-        String methodName = "MotorPower";
+        final String methodName = "MotorPower";
         this.sb.append(methodName + "(OUT_" + motorSetPowerAction.getPort() + ", ");
-        boolean isRegulated = this.brickConfiguration.isMotorRegulated(motorSetPowerAction.getPort());
+        final boolean isRegulated = this.brickConfiguration.isMotorRegulated(motorSetPowerAction.getPort());
 
         motorSetPowerAction.getPower().visit(this);
         this.sb.append(");");
@@ -704,16 +730,16 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitMotorGetPowerAction(MotorGetPowerAction<Void> motorGetPowerAction) {
-        boolean isRegulated = this.brickConfiguration.isMotorRegulated(motorGetPowerAction.getPort());
-        String methodName = isRegulated ? "hal.getRegulatedMotorSpeed(" : "hal.getUnregulatedMotorSpeed(";
+        final boolean isRegulated = this.brickConfiguration.isMotorRegulated(motorGetPowerAction.getPort());
+        final String methodName = isRegulated ? "hal.getRegulatedMotorSpeed(" : "hal.getUnregulatedMotorSpeed(";
         this.sb.append(methodName + getEnumCode(motorGetPowerAction.getPort()) + ")");
         return null;
     }
 
     @Override
     public Void visitMotorStopAction(MotorStopAction<Void> motorStopAction) {
-        boolean isRegulated = this.brickConfiguration.isMotorRegulated(motorStopAction.getPort());
-        String methodName = isRegulated ? "Off(" : "Off(";
+        final boolean isRegulated = this.brickConfiguration.isMotorRegulated(motorStopAction.getPort());
+        final String methodName = isRegulated ? "Off(" : "Off(";
         this.sb.append(methodName + getEnumCode(motorStopAction.getPort()) + ", " + getEnumCode(motorStopAction.getMode()) + ");");
         return null;
     }
@@ -828,13 +854,13 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitEncoderSensor(EncoderSensor<Void> encoderSensor) {
-        ActorPort encoderMotorPort = encoderSensor.getMotor();
-        boolean isRegulated = this.brickConfiguration.isMotorRegulated(encoderMotorPort);
+        final ActorPort encoderMotorPort = encoderSensor.getMotor();
+        final boolean isRegulated = this.brickConfiguration.isMotorRegulated(encoderMotorPort);
         if ( encoderSensor.getMode() == MotorTachoMode.RESET ) {
-            String methodName = isRegulated ? "hal.resetRegulatedMotorTacho(" : "hal.resetUnregulatedMotorTacho(";
+            final String methodName = isRegulated ? "hal.resetRegulatedMotorTacho(" : "hal.resetUnregulatedMotorTacho(";
             this.sb.append(methodName + getEnumCode(encoderMotorPort) + ");");
         } else {
-            String methodName = isRegulated ? "hal.getRegulatedMotorTachoValue(" : "hal.getUnregulatedMotorTachoValue(";
+            final String methodName = isRegulated ? "hal.getRegulatedMotorTachoValue(" : "hal.getUnregulatedMotorTachoValue(";
             this.sb.append(methodName + getEnumCode(encoderMotorPort) + ", " + getEnumCode(encoderSensor.getMode()) + ")");
         }
         return null;
@@ -903,19 +929,39 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitTouchSensor(TouchSensor<Void> touchSensor) {
-        this.sb.append("hal.isPressed(" + getEnumCode(touchSensor.getPort()) + ")");
+
+        if ( touchSensor.getPort() == SensorPort.S1 ) {
+            this.sb.append(",1 pressed");
+        } else {
+            if ( touchSensor.getPort() == SensorPort.S2 ) {
+                ;
+            }
+            this.sb.append(",2 pressed");
+
+            if ( touchSensor.getPort() == SensorPort.S3 ) {
+                ;
+            }
+            this.sb.append(",3 pressed");
+            if ( touchSensor.getPort() == SensorPort.S4 ) {
+                ;
+            }
+            this.sb.append(",4 pressed");
+        }
         return null;
     }
 
     @Override
     public Void visitUltrasonicSensor(UltrasonicSensor<Void> ultrasonicSensor) {
-        String ultrasonicSensorPort = getEnumCode(ultrasonicSensor.getPort());
-        if ( ultrasonicSensor.getMode() == UltrasonicSensorMode.DISTANCE ) {
-            this.sb.append("getUltraSonicSensorDistance(" + ultrasonicSensorPort + ")");
-        } else {
-            this.sb.append("getUltraSonicSensorPresence(" + ultrasonicSensorPort + ")");
+
+        if ( ultrasonicSensor.getPort() == SensorPort.S4 ) {
+            ;
+
+            this.sb.append("SetSensorLowspeed(IN_4)");
         }
-        return null;
+
+        {
+            return null;
+        }
     }
 
     @Override
@@ -981,14 +1027,14 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         this.sb.append("BlocklyMethods.listsGetSubList( ");
         getSubFunct.getParam().get(0).visit(this);
         this.sb.append(", ");
-        IndexLocation where1 = IndexLocation.get(getSubFunct.getStrParam().get(0));
+        final IndexLocation where1 = IndexLocation.get(getSubFunct.getStrParam().get(0));
         this.sb.append(getEnumCode(where1));
         if ( where1 == IndexLocation.FROM_START || where1 == IndexLocation.FROM_END ) {
             this.sb.append(", ");
             getSubFunct.getParam().get(1).visit(this);
         }
         this.sb.append(", ");
-        IndexLocation where2 = IndexLocation.get(getSubFunct.getStrParam().get(1));
+        final IndexLocation where2 = IndexLocation.get(getSubFunct.getStrParam().get(1));
         this.sb.append(getEnumCode(where2));
         if ( where2 == IndexLocation.FROM_START || where2 == IndexLocation.FROM_END ) {
             this.sb.append(", ");
@@ -1023,7 +1069,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         if ( lengthOfIsEmptyFunct.getFunctName() == FunctionNames.LIST_IS_EMPTY ) {
             this.sb.append("0");
         } else {
-            String methodName = "ArrayLen(";
+            final String methodName = "ArrayLen(";
             this.sb.append(methodName);
             lengthOfIsEmptyFunct.getParam().get(0).visit(this);
             this.sb.append(")");
@@ -1297,7 +1343,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     public static String smthToString(Object... items) {
         String temp = "";
 
-        for ( Object string : items ) {
+        for ( final Object string : items ) {
             temp = temp + string;
         }
         return temp;
@@ -1446,13 +1492,13 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             case VAR:
                 return ((Var<?>) e).getTypeVar() == BlocklyType.STRING;
             case FUNCTION_EXPR:
-                BlockType functionKind = ((FunctionExpr<?>) e).getFunction().getKind();
+                final BlockType functionKind = ((FunctionExpr<?>) e).getFunction().getKind();
                 return functionKind == BlockType.TEXT_JOIN_FUNCT || functionKind == BlockType.LIST_INDEX_OF;
             case METHOD_EXPR:
-                MethodCall<?> methodCall = (MethodCall<?>) ((MethodExpr<?>) e).getMethod();
+                final MethodCall<?> methodCall = (MethodCall<?>) ((MethodExpr<?>) e).getMethod();
                 return methodCall.getKind() == BlockType.METHOD_CALL && methodCall.getReturnType() == BlocklyType.STRING;
             case ACTION_EXPR:
-                Action<?> action = ((ActionExpr<?>) e).getAction();
+                final Action<?> action = ((ActionExpr<?>) e).getAction();
                 return action.getKind() == BlockType.BLUETOOTH_RECEIVED_ACTION;
 
             default:
@@ -1532,7 +1578,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     private void generateCodeFromStmtConditionFor(String stmtType, Expr<Void> expr) {
         this.sb.append(stmtType + whitespace() + "(" + whitespace() + "float" + whitespace());
-        ExprList<Void> expressions = (ExprList<Void>) expr;
+        final ExprList<Void> expressions = (ExprList<Void>) expr;
         expressions.get().get(0).visit(this);
         this.sb.append(whitespace() + "=" + whitespace());
         expressions.get().get(1).visit(this);
@@ -1558,7 +1604,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     private void addFunctions() {
 
-        for ( FunctionNames customFunction : this.usedFunctions ) {
+        for ( final FunctionNames customFunction : this.usedFunctions ) {
             switch ( customFunction ) {
                 case PRIME:
                     this.sb.append("inline bool mathPrime(float number){");
@@ -1967,7 +2013,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
         this.sb.append("#define WHEELDIAMETER " + this.brickConfiguration.getWheelDiameterCM() + "\n");
         this.sb.append("#define TRACKWIDTH " + this.brickConfiguration.getTrackWidthCM() + "\n");
-        for ( FunctionNames customFunction : this.usedFunctions ) {
+        for ( final FunctionNames customFunction : this.usedFunctions ) {
             switch ( customFunction ) {
                 case EXP:
                     this.sb.append("#define E 2.71828 \n");
@@ -1988,7 +2034,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
         //add sensors:
 
-        for ( Entry<SensorPort, EV3Sensor> entry : this.brickConfiguration.getSensors().entrySet() ) {
+        for ( final Entry<SensorPort, EV3Sensor> entry : this.brickConfiguration.getSensors().entrySet() ) {
             System.out.println(entry.getValue().getComponentTypeName());
             switch ( entry.getValue().getComponentTypeName() ) {
                 case "EV3_COLOR_SENSOR":
@@ -2027,15 +2073,15 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         sb.append(INDENT).append(INDENT).append(INDENT).append("    .build();");
         return sb.toString();
     }
-    
-    
+
+
     private void appendSensors(StringBuilder sb) {
         for ( Map.Entry<SensorPort, EV3Sensor> entry : this.brickConfiguration.getSensors().entrySet() ) {
             sb.append(INDENT).append(INDENT).append(INDENT);
             appendOptional(sb, "    .addSensor(", entry.getKey(), entry.getValue());
         }
     }
-    
+
     private void appendActors(StringBuilder sb) {
         for ( Map.Entry<ActorPort, EV3Actor> entry : this.brickConfiguration.getActors().entrySet() ) {
             sb.append(INDENT).append(INDENT).append(INDENT);
@@ -2056,8 +2102,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             sb.append(")\n");
         }
     }
-    
-    
+
+
     private String generateRegenerateUsedSensors() {
         StringBuilder sb = new StringBuilder();
         String arrayOfSensors = "";
@@ -2065,7 +2111,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             arrayOfSensors += usedSensor.generateRegenerate();
             arrayOfSensors += ", ";
         }
-    
+
         sb.append("private Set<UsedSensor> usedSensors = " + "new LinkedHashSet<UsedSensor>(");
         if ( this.usedSensors.size() > 0 ) {
             sb.append("Arrays.asList(" + arrayOfSensors.substring(0, arrayOfSensors.length() - 2) + ")");
@@ -2085,14 +2131,14 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         sb.append(", ").append(getEnumCode(ev3Actor.getRotationDirection())).append(", ").append(getEnumCode(ev3Actor.getMotorSide())).append(")");
         return sb.toString();
     }
-    
+
     private static String generateRegenerateEV3Sensor(HardwareComponent sensor) {
         StringBuilder sb = new StringBuilder();
         sb.append("new EV3Sensor(").append(getHardwareComponentTypeCode(sensor.getComponentType()));
         sb.append(")");
         return sb.toString();
     }
-    
+
     private static String getHardwareComponentTypeCode(HardwareComponentType type) {
         return type.getClass().getSimpleName() + "." + type.getTypeName();
     }
@@ -2102,7 +2148,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         try {
             Integer.parseInt(str);
             return true;
-        } catch ( NumberFormatException e ) {
+        } catch ( final NumberFormatException e ) {
             return false;
         }
     }

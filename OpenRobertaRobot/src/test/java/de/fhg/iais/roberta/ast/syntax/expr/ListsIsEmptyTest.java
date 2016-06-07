@@ -7,7 +7,7 @@ import de.fhg.iais.roberta.testutil.Helper;
 public class ListsIsEmptyTest {
     @Test
     public void Test() throws Exception {
-        String a = "BlocklyMethods.isEmpty({0, 0, 0})";
+        final String a = "0";
 
         Helper.assertCodeIsOk(a, "/syntax/lists/lists_is_empty.xml");
     }
