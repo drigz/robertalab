@@ -14,6 +14,7 @@ import de.fhg.iais.roberta.syntax.action.ev3.MotorStopAction;
 import de.fhg.iais.roberta.syntax.action.ev3.TurnAction;
 import de.fhg.iais.roberta.syntax.expr.Expr;
 import de.fhg.iais.roberta.syntax.functions.FunctionNames;
+import de.fhg.iais.roberta.syntax.functions.IndexOfFunct;
 import de.fhg.iais.roberta.syntax.functions.MathConstrainFunct;
 import de.fhg.iais.roberta.syntax.functions.MathNumPropFunct;
 import de.fhg.iais.roberta.syntax.functions.MathOnListFunct;
@@ -67,6 +68,12 @@ public class CustomFunctionsVisitor extends CheckVisitor {
 
     @Override
     public Void visitMathOnListFunct(MathOnListFunct<Void> mathOnListFunct) {
+        for ( Expr<Void> expr : mathOnListFunct.getParam() ) {
+            this.functionWasMet.add(mathOnListFunct.getFunctName());
+            expr.visit(this);
+        }
+
+        /*
         switch ( mathOnListFunct.getFunctName() ) {
             case SUM:
                 this.functionWasMet.add(mathOnListFunct.getFunctName());
@@ -94,35 +101,49 @@ public class CustomFunctionsVisitor extends CheckVisitor {
                 break;
             default:
                 break;
-        }
+        }*/
 
         return null;
     }
 
     @Override
     public Void visitMathSingleFunct(MathSingleFunct<Void> mathSingleFunct) {
-        switch ( mathSingleFunct.getFunctName() ) {
 
-            case EXP:
-                this.functionWasMet.add(mathSingleFunct.getFunctName());
-                break;
-            case POW10:
-                this.functionWasMet.add(mathSingleFunct.getFunctName());
-                break;
-
-            case ROUND:
-                this.functionWasMet.add(mathSingleFunct.getFunctName());
-                break;
-            case ROUNDUP:
-                this.functionWasMet.add(mathSingleFunct.getFunctName());
-                break;
-            case ROUNDDOWN:
-                this.functionWasMet.add(mathSingleFunct.getFunctName());
-                break;
-            default:
-                break;
+        for ( Expr<Void> expr : mathSingleFunct.getParam() ) {
+            this.functionWasMet.add(mathSingleFunct.getFunctName());
+            expr.visit(this);
         }
-        mathSingleFunct.getParam().get(0).visit(this);
+
+        /*
+        switch ( mathSingleFunct.getFunctName() ) {
+        case EXP:
+            this.functionWasMet.add(mathSingleFunct.getFunctName());
+            break;
+        case POW10:
+            this.functionWasMet.add(mathSingleFunct.getFunctName());
+            break;
+
+        case ROUND:
+            this.functionWasMet.add(mathSingleFunct.getFunctName());
+            break;
+        case ROUNDUP:
+            this.functionWasMet.add(mathSingleFunct.getFunctName());
+            break;
+        case ROUNDDOWN:
+            this.functionWasMet.add(mathSingleFunct.getFunctName());
+            break;
+        default:
+            break;
+        } */
+
+        return null;
+    }
+
+    @Override
+    public Void visitIndexOfFunct(IndexOfFunct<Void> indexOfFunct) {
+        this.functionWasMet.add(FunctionNames.FIRSTARR);
+        indexOfFunct.getParam().get(0).visit(this);
+        indexOfFunct.getParam().get(1).visit(this);
         return null;
     }
 

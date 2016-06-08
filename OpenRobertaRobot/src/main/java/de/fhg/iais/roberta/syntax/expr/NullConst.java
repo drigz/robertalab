@@ -7,6 +7,7 @@ import de.fhg.iais.roberta.syntax.BlocklyComment;
 import de.fhg.iais.roberta.syntax.Phrase;
 import de.fhg.iais.roberta.transformer.Jaxb2AstTransformer;
 import de.fhg.iais.roberta.transformer.JaxbTransformerHelper;
+import de.fhg.iais.roberta.typecheck.BlocklyType;
 import de.fhg.iais.roberta.visitor.AstVisitor;
 
 /**
@@ -76,6 +77,11 @@ public class NullConst<V> extends Expr<V> {
         Block jaxbDestination = new Block();
         JaxbTransformerHelper.setBasicProperties(this, jaxbDestination);
         return jaxbDestination;
+    }
+
+    @Override
+    public BlocklyType getVariableType() {
+        return BlocklyType.NULL;
     }
 
 }

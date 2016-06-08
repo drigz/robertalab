@@ -886,7 +886,7 @@ public class AstToTextlyVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitVarDeclaration(VarDeclaration<Void> var) {
-        this.sb.append(getBlocklyTypeCode(var.getTypeVar())).append(" ");
+        this.sb.append(getBlocklyTypeCode(var.getVariableType())).append(" ");
         this.sb.append(var.getName()).append(" = ");
         var.getValue().visit(this);
         return null;

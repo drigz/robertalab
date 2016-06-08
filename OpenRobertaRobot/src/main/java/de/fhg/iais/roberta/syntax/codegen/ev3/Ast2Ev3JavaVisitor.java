@@ -331,9 +331,9 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitVarDeclaration(VarDeclaration<Void> var) {
-        this.sb.append(getBlocklyTypeCode(var.getTypeVar())).append(" ");
+        this.sb.append(getBlocklyTypeCode(var.getVariableType())).append(" ");
         this.sb.append(var.getName());
-        if ( var.getTypeVar().isArray() ) {
+        if ( var.getVariableType().isArray() ) {
             this.sb.append("[]");
         }
         if ( var.getValue().getKind() != BlockType.EMPTY_EXPR ) {
@@ -1049,17 +1049,54 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     }
 
+    String arrType;
+    String varType;
+
+    //TODO: test
     @Override
     public Void visitIndexOfFunct(IndexOfFunct<Void> indexOfFunct) {
-        String methodName = "BlocklyMethods.findFirst( ";
-        if ( indexOfFunct.getLocation() == IndexLocation.LAST ) {
-            methodName = "BlocklyMethods.findLast( ";
+
+        BlocklyType typeArr = indexOfFunct.getParam().get(0).getVariableType();
+
+        BlocklyType typeVar = indexOfFunct.getParam().get(1).getVariableType();
+
+        switch ( typeArr ) {
+            case ARRAY_NUMBER:
+                this.arrType = "float";
+                break;
+            case ARRAY_STRING:
+                this.arrType = "string ";
+                break;
+            case ARRAY_BOOLEAN:
+                this.arrType = "bool ";
+                break;
         }
-        this.sb.append(methodName);
-        indexOfFunct.getParam().get(0).visit(this);
-        this.sb.append(", ");
-        indexOfFunct.getParam().get(1).visit(this);
-        this.sb.append(")");
+
+        switch ( typeVar ) {
+            case NUMBER:
+                this.varType = "float ";
+                break;
+            case STRING:
+                this.varType = "string ";
+                break;
+            case BOOLEAN:
+                this.varType = "bool ";
+                break;
+        }
+
+        if ( indexOfFunct.getLocation() == IndexLocation.LAST ) {
+            this.sb.append("arrayFindLast(");
+            indexOfFunct.getParam().get(0).visit(this);
+            this.sb.append(", ");
+            indexOfFunct.getParam().get(1).visit(this);
+            this.sb.append(")");
+        } else {
+            this.sb.append("arrayFindFirst(");
+            indexOfFunct.getParam().get(0).visit(this);
+            this.sb.append(", ");
+            indexOfFunct.getParam().get(1).visit(this);
+            this.sb.append(")");
+        }
         return null;
     }
 
@@ -1069,8 +1106,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         if ( lengthOfIsEmptyFunct.getFunctName() == FunctionNames.LIST_IS_EMPTY ) {
             this.sb.append("0");
         } else {
-            final String methodName = "ArrayLen(";
-            this.sb.append(methodName);
+            this.sb.append("ArrayLen(");
             lengthOfIsEmptyFunct.getParam().get(0).visit(this);
             this.sb.append(")");
         }
@@ -1491,7 +1527,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             case STRING_CONST:
                 return true;
             case VAR:
-                return ((Var<?>) e).getTypeVar() == BlocklyType.STRING;
+                return ((Var<?>) e).getVariableType() == BlocklyType.STRING;
             case FUNCTION_EXPR:
                 final BlockType functionKind = ((FunctionExpr<?>) e).getFunction().getKind();
                 return functionKind == BlockType.TEXT_JOIN_FUNCT || functionKind == BlockType.LIST_INDEX_OF;
@@ -1903,6 +1939,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     this.sb.append("arrayInsertionSort(arr);");
                     nlIndent();
                     this.sb.append("float median;");
+                    nlIndent();
                     this.sb.append("if ( n % 2 == 0 ) {");
                     this.incrIndentation();
                     nlIndent();
@@ -2078,6 +2115,80 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     this.decrIndentation();
                     nlIndent();
                     this.sb.append("}  \n");
+                    this.incrIndentation();
+                    break;
+                case FIRSTARR:
+                    this.sb.append("inline int arrayFindFirst( item) {");
+                    this.sb.append(this.arrType);
+                    this.sb.append(" arr[], ");
+                    this.sb.append(this.varType);
+                    this.sb.append(" item) {");
+                    nlIndent();
+                    this.sb.append("int i = 0;");
+                    nlIndent();
+                    this.sb.append("if (arr[0] == item){");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("return i;");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    nlIndent();
+                    this.sb.append("else{");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("do{");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("i++;");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("} while((arr[i] != item) && (i != ArrayLen(arr)));");
+                    nlIndent();
+                    this.sb.append("return i;");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("} \n");
+                    this.incrIndentation();
+
+                    //TODO: may be put into another function
+                    this.sb.append("inline int arrayFindLast( item) {");
+                    this.sb.append(this.arrType);
+                    this.sb.append(" arr[], ");
+                    this.sb.append(this.varType);
+                    this.sb.append(" item) {");
+                    nlIndent();
+                    this.sb.append("int i = 0;");
+                    nlIndent();
+                    this.sb.append("if (arr[ArrayLen(arr) - 1] == item){");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("return ArrayLen(arr) - 1 - i;");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    nlIndent();
+                    this.sb.append("else{");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("do{");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("i++;");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("while((arr[ArrayLen(arr) - 1 - i] != item)&&(i != 0));");
+                    nlIndent();
+                    this.sb.append("return ArrayLen(arr) - 1 - i;");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("} \n");
                     this.incrIndentation();
                     break;
 
