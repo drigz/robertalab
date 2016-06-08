@@ -92,11 +92,8 @@ public class AssignStmt<V> extends Stmt<V> {
         List<Value> values = helper.extractValues(block, (short) 1);
         Phrase<V> p = helper.extractValue(values, new ExprParam(BlocklyConstants.VALUE, EmptyExpr.class));
         Expr<V> exprr = helper.convertPhraseToExpr(p);
-        return AssignStmt.make(
-            (Var<V>) helper.extractVar(block),
-            helper.convertPhraseToExpr(exprr),
-            helper.extractBlockProperties(block),
-            helper.extractComment(block));
+        return AssignStmt
+            .make((Var<V>) helper.extractVar(block), helper.convertPhraseToExpr(exprr), helper.extractBlockProperties(block), helper.extractComment(block));
     }
 
     @Override
@@ -104,7 +101,8 @@ public class AssignStmt<V> extends Stmt<V> {
         Block jaxbDestination = new Block();
         JaxbTransformerHelper.setBasicProperties(this, jaxbDestination);
         String varType =
-            getName().getTypeVar().getBlocklyName().substring(0, 1).toUpperCase() + getName().getTypeVar().getBlocklyName().substring(1).toLowerCase();
+            getName().getVariableType().getBlocklyName().substring(0, 1).toUpperCase()
+                + getName().getVariableType().getBlocklyName().substring(1).toLowerCase();
 
         Mutation mutation = new Mutation();
         mutation.setDatatype(varType);

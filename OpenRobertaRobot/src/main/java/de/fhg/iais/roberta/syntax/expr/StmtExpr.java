@@ -4,6 +4,7 @@ import de.fhg.iais.roberta.blockly.generated.Block;
 import de.fhg.iais.roberta.syntax.BlockType;
 import de.fhg.iais.roberta.syntax.Phrase;
 import de.fhg.iais.roberta.syntax.stmt.Stmt;
+import de.fhg.iais.roberta.typecheck.BlocklyType;
 import de.fhg.iais.roberta.util.dbc.Assert;
 import de.fhg.iais.roberta.visitor.AstVisitor;
 
@@ -61,5 +62,10 @@ public class StmtExpr<V> extends Expr<V> {
     public Block astToBlock() {
         Phrase<V> p = getStmt();
         return p.astToBlock();
+    }
+
+    @Override
+    public BlocklyType getVariableType() {
+        return BlocklyType.NULL;
     }
 }

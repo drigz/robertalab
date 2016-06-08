@@ -242,10 +242,8 @@ public class RepeatStmt<V> extends Stmt<V> {
 
             case FOR_EACH:
                 Binary<?> exprBinary = (Binary<?>) getExpr();
-                JaxbTransformerHelper.addField(
-                    jaxbDestination,
-                    BlocklyConstants.TYPE,
-                    ((VarDeclaration<?>) exprBinary.getLeft()).getTypeVar().getBlocklyName());
+                JaxbTransformerHelper
+                    .addField(jaxbDestination, BlocklyConstants.TYPE, ((VarDeclaration<?>) exprBinary.getLeft()).getVariableType().getBlocklyName());
                 JaxbTransformerHelper.addField(jaxbDestination, BlocklyConstants.VAR, ((VarDeclaration<?>) exprBinary.getLeft()).getName());
                 JaxbTransformerHelper.addValue(jaxbDestination, BlocklyConstants.LIST_, exprBinary.getRight());
                 break;

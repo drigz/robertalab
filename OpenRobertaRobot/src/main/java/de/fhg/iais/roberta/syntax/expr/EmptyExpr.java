@@ -3,6 +3,7 @@ package de.fhg.iais.roberta.syntax.expr;
 import de.fhg.iais.roberta.blockly.generated.Block;
 import de.fhg.iais.roberta.syntax.BlockType;
 import de.fhg.iais.roberta.syntax.BlocklyBlockProperties;
+import de.fhg.iais.roberta.typecheck.BlocklyType;
 import de.fhg.iais.roberta.util.dbc.Assert;
 import de.fhg.iais.roberta.visitor.AstVisitor;
 
@@ -61,6 +62,11 @@ public class EmptyExpr<V> extends Expr<V> {
     @Override
     public Block astToBlock() {
         return null;
+    }
+
+    @Override
+    public BlocklyType getVariableType() {
+        return BlocklyType.NULL;
     }
 
 }

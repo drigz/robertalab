@@ -94,4 +94,9 @@ public class EmptyList<V> extends Expr<V> {
         return jaxbDestination;
     }
 
+    @Override
+    public BlocklyType getVariableType() {
+        return BlocklyType.NULL;
+    }
+
 }

@@ -72,13 +72,6 @@ public class VarDeclaration<V> extends Expr<V> {
     }
 
     /**
-     * @return type of the variable
-     */
-    public BlocklyType getTypeVar() {
-        return this.typeVar;
-    }
-
-    /**
      * @return name of the variable
      */
     public String getName() {
@@ -153,12 +146,17 @@ public class VarDeclaration<V> extends Expr<V> {
         JaxbTransformerHelper.setBasicProperties(this, jaxbDestination);
         Mutation mutation = new Mutation();
         mutation.setNext(this.next);
-        mutation.setDeclarationType(getTypeVar().getBlocklyName());
+        mutation.setDeclarationType(getVariableType().getBlocklyName());
         jaxbDestination.setMutation(mutation);
         JaxbTransformerHelper.addField(jaxbDestination, BlocklyConstants.VAR, getName());
-        JaxbTransformerHelper.addField(jaxbDestination, BlocklyConstants.TYPE, getTypeVar().getBlocklyName());
+        JaxbTransformerHelper.addField(jaxbDestination, BlocklyConstants.TYPE, getVariableType().getBlocklyName());
         JaxbTransformerHelper.addValue(jaxbDestination, BlocklyConstants.VALUE, this.value);
 
         return jaxbDestination;
+    }
+
+    @Override
+    public BlocklyType getVariableType() {
+        return this.typeVar;
     }
 }

@@ -168,13 +168,13 @@ public class Ast2Ev3JavaScriptVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitVar(Var<Void> var) {
-        this.sb.append("createVarReference(CONST." + var.getTypeVar() + ", \"" + var.getValue() + "\")");
+        this.sb.append("createVarReference(CONST." + var.getVariableType() + ", \"" + var.getValue() + "\")");
         return null;
     }
 
     @Override
     public Void visitVarDeclaration(VarDeclaration<Void> var) {
-        this.sb.append("createVarDeclaration(CONST." + var.getTypeVar() + ", \"" + var.getName() + "\", ");
+        this.sb.append("createVarDeclaration(CONST." + var.getVariableType() + ", \"" + var.getName() + "\", ");
         if ( var.getValue().getKind() == BlockType.EXPR_LIST ) {
             ExprList<Void> list = (ExprList<Void>) var.getValue();
             if ( list.get().size() == 2 ) {
@@ -742,7 +742,7 @@ public class Ast2Ev3JavaScriptVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitListCreate(ListCreate<Void> listCreate) {
-        this.sb.append("createCreateListWith(CONST.ARRAY_" + listCreate.getTypeVar() + ", [");
+        this.sb.append("createCreateListWith(CONST.ARRAY_" + listCreate.getVariableType() + ", [");
         listCreate.getValue().visit(this);
         this.sb.append("])");
         return null;
