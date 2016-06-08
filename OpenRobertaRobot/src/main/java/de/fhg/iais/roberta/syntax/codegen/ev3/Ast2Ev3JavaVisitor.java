@@ -1125,15 +1125,16 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                 this.sb.append(" % 2 == 1)");
                 break;
             case PRIME:
-
                 this.sb.append("mathPrime(");
                 mathNumPropFunct.getParam().get(0).visit(this);
                 this.sb.append(")");
                 break;
+            // % in nxc doesn't leave a a fractional residual, e.g. 5.2%1 = 0, so it is not possible to cheack the wholeness by "%1", that is why
+            //an additional function is used
             case WHOLE:
-                this.sb.append("(");
+                this.sb.append("isWhole(");
                 mathNumPropFunct.getParam().get(0).visit(this);
-                this.sb.append(" % 1 == 0)");
+                this.sb.append(")");
                 break;
             case POSITIVE:
                 this.sb.append("(");
@@ -1145,6 +1146,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                 mathNumPropFunct.getParam().get(0).visit(this);
                 this.sb.append(" < 0)");
                 break;
+            //it would work only for whole numbers, however, I think that it makes sense to talk about being divisible only for the whole numbers
             case DIVISIBLE_BY:
                 this.sb.append("(");
                 mathNumPropFunct.getParam().get(0).visit(this);
@@ -1158,7 +1160,6 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    //TODO: change to standard functions
     @Override
     public Void visitMathOnListFunct(MathOnListFunct<Void> mathOnListFunct) {
         switch ( mathOnListFunct.getFunctName() ) {
@@ -1187,11 +1188,11 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                 mathOnListFunct.getParam().get(0).visit(this);
                 break;
             case RANDOM:
-                this.sb.append("BlocklyMethods.randOnList(");
+                this.sb.append("arrayRand(");
                 mathOnListFunct.getParam().get(0).visit(this);
                 break;
             case MODE:
-                this.sb.append("BlocklyMethods.modeOnList(");
+                this.sb.append("arrayMode(");
                 mathOnListFunct.getParam().get(0).visit(this);
                 break;
             default:
@@ -1638,7 +1639,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                 case RINT:
                     this.sb.append("inline float mathMin(float firstValue, float secondValue) {");
                     nlIndent();
-                    this.sb.append("if (firstValue < SecondValue){");
+                    this.sb.append("if (firstValue < secondValue){");
                     this.incrIndentation();
                     nlIndent();
                     this.sb.append("return firstValue;");
@@ -1938,6 +1939,99 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     this.decrIndentation();
                     nlIndent();
                     this.sb.append("} \n");
+                    this.incrIndentation();
+                    break;
+                case WHOLE:
+                    this.sb.append("inline bool isWhole(float val){");
+                    nlIndent();
+                    this.sb.append("int intPart = val;");
+                    nlIndent();
+                    this.sb.append("return ((val - intPart) == 0);  \n");
+                    this.sb.append("} \n");
+                case RANDOM:
+                    this.sb.append("inline float arrayRand(float arr[]) {");
+                    nlIndent();
+                    this.sb.append("int arrayInd = ArrayLen(arr) * Random(100) / 100;");
+                    nlIndent();
+                    this.sb.append("return arr[arrayInd - 1];  \n");
+                    this.sb.append("} \n");
+                case MODE:
+                    //mode search is much easier for a sorted array
+                    this.sb.append("inline void arrayInsertionSort(float &arr[]) {");
+                    nlIndent();
+                    this.sb.append("for (int i=1; i < ArrayLen(arr); i++){");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("int index = arr[i];");
+                    nlIndent();
+                    this.sb.append("int j = i;");
+                    nlIndent();
+                    this.sb.append("while (j > 0 && arr[j-1] > index){");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("arr[j] = arr[j-1];");
+                    nlIndent();
+                    this.sb.append("j--;");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    nlIndent();
+                    this.sb.append("arr[j] = index;");
+                    nlIndent();
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}  \n");
+                    this.incrIndentation();
+
+                    this.sb.append("inline float arrayMode(float arr[]){");
+                    nlIndent();
+                    this.sb.append("arrayInsertionSort(arr);");
+                    nlIndent();
+                    this.sb.append("float element = arr[0];");
+                    nlIndent();
+                    this.sb.append("float maxSeen = element;");
+                    nlIndent();
+                    this.sb.append("int count = 1;");
+                    nlIndent();
+                    this.sb.append("int modeCount = 1;");
+                    nlIndent();
+                    this.sb.append("for (int i = 1; i < ArrayLen(arr); i++){");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("if (arr[i] == element){");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("count++;");
+                    nlIndent();
+                    this.sb.append("if (count > modeCount){");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("modeCount = count;");
+                    nlIndent();
+                    this.sb.append("maxSeen = element;");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    this.sb.append("else{");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("element = arr[i];");
+                    nlIndent();
+                    this.sb.append("count = 1;");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    nlIndent();
+                    this.sb.append("return maxSeen;");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}  \n");
                     this.incrIndentation();
                     break;
 
