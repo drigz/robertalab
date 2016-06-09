@@ -130,7 +130,7 @@ public class AstToLejosJavaVisitorTest {
         assertCodeIsOk(a, "/syntax/code_generator/java/java_code_generator3.xml");
     }
 
-    // ignore
+    @Test
     public void test4() throws Exception {
 
         final String a = "" //
@@ -160,7 +160,7 @@ public class AstToLejosJavaVisitorTest {
         assertCodeIsOk(a, "/syntax/code_generator/java/java_code_generator4.xml");
     }
 
-    // ignore
+    @Test
     public void test5() throws Exception {
 
         final String a = "" //

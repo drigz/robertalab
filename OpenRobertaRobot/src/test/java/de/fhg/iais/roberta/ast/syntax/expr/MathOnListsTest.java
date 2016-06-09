@@ -49,14 +49,14 @@ public class MathOnListsTest {
 
     @Test
     public void mathOnListRandom() throws Exception {
-        final String a = "BlocklyMethods.randOnList({5,3,2})";
+        final String a = "arrayRand({5,3,2})";
 
         Helper.assertCodeIsOk(a, "/syntax/math/math_on_list_random.xml");
     }
 
     @Test
     public void mathOnListMode() throws Exception {
-        final String a = "BlocklyMethods.modeOnList({5,3,2})";
+        final String a = "arrayMode({5,3,2})";
 
         Helper.assertCodeIsOk(a, "/syntax/math/math_on_list_mode.xml");
     }

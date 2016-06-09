@@ -7,14 +7,14 @@ import de.fhg.iais.roberta.testutil.Helper;
 public class ListsOccurrenceTest {
     @Test
     public void Test() throws Exception {
-        String a = "BlocklyMethods.findFirst({5, 1, 2},2)";
+        final String a = "arrayFindFirst({5, 1, 2},2)";
 
         Helper.assertCodeIsOk(a, "/syntax/lists/lists_occurrence.xml");
     }
 
     @Test
     public void Test1() throws Exception {
-        String a = "BlocklyMethods.findLast({5, 1, 2},2)";
+        final String a = "arrayFindLast({5, 1, 2},2)";
 
         Helper.assertCodeIsOk(a, "/syntax/lists/lists_occurrence1.xml");
     }

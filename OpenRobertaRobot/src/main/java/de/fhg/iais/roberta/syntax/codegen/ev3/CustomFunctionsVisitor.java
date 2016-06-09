@@ -68,7 +68,7 @@ public class CustomFunctionsVisitor extends CheckVisitor {
 
     @Override
     public Void visitMathOnListFunct(MathOnListFunct<Void> mathOnListFunct) {
-        for ( Expr<Void> expr : mathOnListFunct.getParam() ) {
+        for ( final Expr<Void> expr : mathOnListFunct.getParam() ) {
             this.functionWasMet.add(mathOnListFunct.getFunctName());
             expr.visit(this);
         }
@@ -109,7 +109,7 @@ public class CustomFunctionsVisitor extends CheckVisitor {
     @Override
     public Void visitMathSingleFunct(MathSingleFunct<Void> mathSingleFunct) {
 
-        for ( Expr<Void> expr : mathSingleFunct.getParam() ) {
+        for ( final Expr<Void> expr : mathSingleFunct.getParam() ) {
             this.functionWasMet.add(mathSingleFunct.getFunctName());
             expr.visit(this);
         }
@@ -186,9 +186,10 @@ public class CustomFunctionsVisitor extends CheckVisitor {
     @Override
     public Void visitTurnAction(TurnAction<Void> turnAction) {
         this.functionWasMet.add(FunctionNames.TURN_RIGHT);
-        this.functionWasMet.add(FunctionNames.TURN_LEFT);
+
         final boolean isDuration = turnAction.getParam().getDuration() != null;
         if ( isDuration == true ) {
+            this.functionWasMet.add(FunctionNames.TURN_LEFT);
             turnAction.getParam().getDuration().getValue().visit(this);
         }
         turnAction.getParam().getSpeed().visit(this);

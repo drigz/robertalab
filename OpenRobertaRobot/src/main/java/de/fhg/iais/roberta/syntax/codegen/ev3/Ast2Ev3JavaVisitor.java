@@ -772,6 +772,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         this.sb.append(methodName + "(OUT_");
         this.sb.append(this.brickConfiguration.getLeftMotorPort());
         this.sb.append(this.brickConfiguration.getRightMotorPort());
+
         this.sb.append(", ");
         driveAction.getParam().getSpeed().visit(this);
 
@@ -1075,9 +1076,9 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     @Override
     public Void visitIndexOfFunct(IndexOfFunct<Void> indexOfFunct) {
 
-        BlocklyType typeArr = indexOfFunct.getParam().get(0).getVariableType();
+        final BlocklyType typeArr = indexOfFunct.getParam().get(0).getVariableType();
 
-        BlocklyType typeVar = indexOfFunct.getParam().get(1).getVariableType();
+        final BlocklyType typeVar = indexOfFunct.getParam().get(1).getVariableType();
 
         switch ( typeArr ) {
             case ARRAY_NUMBER:
@@ -2210,8 +2211,9 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     this.sb.append("} \n");
                     this.incrIndentation();
                     break;
-                case TURN_LEFT:
-                    this.sb.append("#define turn_left(s, t)");
+                case TURN_RIGHT:
+                    this.sb.append("#define turn_right(s, t)");
+                    this.sb.append(",#define turn_left(s, t)");
                     break;
 
                 /*
