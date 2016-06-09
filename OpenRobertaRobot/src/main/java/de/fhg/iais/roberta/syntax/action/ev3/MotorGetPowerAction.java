@@ -5,6 +5,7 @@ import java.util.List;
 import de.fhg.iais.roberta.blockly.generated.Block;
 import de.fhg.iais.roberta.blockly.generated.Field;
 import de.fhg.iais.roberta.shared.action.ev3.ActorPort;
+import de.fhg.iais.roberta.shared.action.ev3.DriveDirection;
 import de.fhg.iais.roberta.syntax.BlockType;
 import de.fhg.iais.roberta.syntax.BlocklyBlockProperties;
 import de.fhg.iais.roberta.syntax.BlocklyComment;
@@ -61,18 +62,28 @@ public class MotorGetPowerAction<V> extends MoveAction<V> {
      * @return corresponding AST object
      */
     public static <V> Phrase<V> jaxbToAst(Block block, Jaxb2AstTransformer<V> helper) {
-        List<Field> fields = helper.extractFields(block, (short) 1);
-        String portName = helper.extractField(fields, BlocklyConstants.MOTORPORT);
+        final List<Field> fields = helper.extractFields(block, (short) 1);
+        final String portName = helper.extractField(fields, BlocklyConstants.MOTORPORT);
         return MotorGetPowerAction.make(ActorPort.get(portName), helper.extractBlockProperties(block), helper.extractComment(block));
     }
 
     @Override
     public Block astToBlock() {
-        Block jaxbDestination = new Block();
+        final Block jaxbDestination = new Block();
         JaxbTransformerHelper.setBasicProperties(this, jaxbDestination);
 
         JaxbTransformerHelper.addField(jaxbDestination, BlocklyConstants.MOTORPORT, getPort().name());
 
         return jaxbDestination;
+    }
+
+    public DriveDirection getDirection() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public Phrase<V> getPower() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

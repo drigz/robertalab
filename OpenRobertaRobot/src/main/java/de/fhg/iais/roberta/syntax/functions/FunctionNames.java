@@ -50,7 +50,9 @@ public enum FunctionNames {
     TEXT( 10, Assoc.LEFT, "TEXT" ),
     NUMBER( 10, Assoc.LEFT, "NUMBER" ),
     LISTS_LENGTH( 10, Assoc.LEFT, BlocklyConstants.LISTS_LENGTH, BlocklyConstants.ROB_LISTS_LENGTH ),
-    GET_SUBLIST( 10, Assoc.LEFT );
+    GET_SUBLIST( 10, Assoc.LEFT ),
+    TURN_RIGHT( 10, Assoc.NONE ),
+    TURN_LEFT( 10, Assoc.NONE );
 
     private final String[] values;
     private final int precedence;
@@ -98,12 +100,12 @@ public enum FunctionNames {
         if ( s == null || s.isEmpty() ) {
             throw new DbcException("Invalid function name: " + s);
         }
-        String sUpper = s.trim().toUpperCase(Locale.GERMAN);
-        for ( FunctionNames funct : FunctionNames.values() ) {
+        final String sUpper = s.trim().toUpperCase(Locale.GERMAN);
+        for ( final FunctionNames funct : FunctionNames.values() ) {
             if ( funct.toString().equals(sUpper) ) {
                 return funct;
             }
-            for ( String value : funct.values ) {
+            for ( final String value : funct.values ) {
                 if ( sUpper.equals(value.toUpperCase()) ) {
                     return funct;
                 }

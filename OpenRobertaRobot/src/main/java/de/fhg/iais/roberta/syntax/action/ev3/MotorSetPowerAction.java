@@ -73,25 +73,27 @@ public class MotorSetPowerAction<V> extends MoveAction<V> {
      * @return corresponding AST object
      */
     public static <V> Phrase<V> jaxbToAst(Block block, Jaxb2AstTransformer<V> helper) {
-        List<Field> fields = helper.extractFields(block, (short) 1);
-        List<Value> values = helper.extractValues(block, (short) 1);
-        String portName = helper.extractField(fields, BlocklyConstants.MOTORPORT);
-        Phrase<V> left = helper.extractValue(values, new ExprParam(BlocklyConstants.POWER, Integer.class));
-        return MotorSetPowerAction.make(
-            ActorPort.get(portName),
-            helper.convertPhraseToExpr(left),
-            helper.extractBlockProperties(block),
-            helper.extractComment(block));
+        final List<Field> fields = helper.extractFields(block, (short) 1);
+        final List<Value> values = helper.extractValues(block, (short) 1);
+        final String portName = helper.extractField(fields, BlocklyConstants.MOTORPORT);
+        final Phrase<V> left = helper.extractValue(values, new ExprParam(BlocklyConstants.POWER, Integer.class));
+        return MotorSetPowerAction
+            .make(ActorPort.get(portName), helper.convertPhraseToExpr(left), helper.extractBlockProperties(block), helper.extractComment(block));
     }
 
     @Override
     public Block astToBlock() {
-        Block jaxbDestination = new Block();
+        final Block jaxbDestination = new Block();
         JaxbTransformerHelper.setBasicProperties(this, jaxbDestination);
 
         JaxbTransformerHelper.addField(jaxbDestination, BlocklyConstants.MOTORPORT, getPort().name());
         JaxbTransformerHelper.addValue(jaxbDestination, BlocklyConstants.POWER, getPower());
 
         return jaxbDestination;
+    }
+
+    public Object getSpeed() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

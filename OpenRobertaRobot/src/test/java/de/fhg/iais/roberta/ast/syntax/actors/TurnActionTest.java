@@ -8,14 +8,14 @@ public class TurnActionTest {
 
     @Test
     public void turn() throws Exception {
-        String a = "\nturn_right(50);";
+        final String a = "\nturn_right(50);";
 
         Helper.assertCodeIsOk(a, "/ast/actions/action_MotorDiffTurn.xml");
     }
 
     @Test
     public void turnFor() throws Exception {
-        String a = "\nturn_right(50, 360.0*20);";
+        final String a = "\nturn_right(50, 0.0028*20);";
 
         Helper.assertCodeIsOk(a, "/ast/actions/action_MotorDiffTurnFor.xml");
     }

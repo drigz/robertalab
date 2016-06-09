@@ -8,15 +8,14 @@ public class MotorTachoTest {
 
     @Test
     public void setMotorTacho() throws Exception {
-        String a =
-            "\nhal.getRegulatedMotorTachoValue(ActorPort.A, MotorTachoMode.ROTATION)" + "hal.getUnregulatedMotorTachoValue(ActorPort.D, MotorTachoMode.DEGREE)";
+        final String a = "\nMotorTachoCount(OUT_A);" + "MotorTachoCount(OUT_D);";
 
         Helper.assertCodeIsOk(a, "/ast/sensors/sensor_setEncoder.xml");
     }
 
     @Test
     public void resetMotorTacho() throws Exception {
-        String a = "\nhal.resetRegulatedMotorTacho(ActorPort.A);";
+        final String a = "\nResetTachoCount(OUT_A);";
 
         Helper.assertCodeIsOk(a, "/ast/sensors/sensor_resetEncoder.xml");
     }

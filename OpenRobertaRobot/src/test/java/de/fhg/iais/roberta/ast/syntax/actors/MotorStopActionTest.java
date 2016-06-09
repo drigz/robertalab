@@ -8,7 +8,7 @@ public class MotorStopActionTest {
 
     @Test
     public void stopMotor() throws Exception {
-        String a = "\nOff(ActorPort.A, MotorStopMode.FLOAT);";
+        final String a = "\nOff(OUT_BC);";
 
         Helper.assertCodeIsOk(a, "/ast/actions/action_MotorStop.xml");
     }

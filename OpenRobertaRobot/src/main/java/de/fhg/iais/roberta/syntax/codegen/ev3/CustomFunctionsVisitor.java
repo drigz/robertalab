@@ -33,13 +33,13 @@ import de.fhg.iais.roberta.util.dbc.Assert;
 
 public class CustomFunctionsVisitor extends CheckVisitor {
 
-    private Set<FunctionNames> functionWasMet = new HashSet<>();
+    private final Set<FunctionNames> functionWasMet = new HashSet<>();
 
     public static Set<FunctionNames> check(ArrayList<ArrayList<Phrase<Void>>> phrasesSet) {
         Assert.isTrue(phrasesSet.size() >= 1);
-        CustomFunctionsVisitor checkVisitor = new CustomFunctionsVisitor();
-        for ( ArrayList<Phrase<Void>> phrases : phrasesSet ) {
-            for ( Phrase<Void> phrase : phrases ) {
+        final CustomFunctionsVisitor checkVisitor = new CustomFunctionsVisitor();
+        for ( final ArrayList<Phrase<Void>> phrases : phrasesSet ) {
+            for ( final Phrase<Void> phrase : phrases ) {
                 phrase.visit(checkVisitor);
             }
         }
@@ -52,7 +52,7 @@ public class CustomFunctionsVisitor extends CheckVisitor {
 
     @Override
     public Void visitMathNumPropFunct(MathNumPropFunct<Void> mathNumPropFunct) {
-        for ( Expr<Void> expr : mathNumPropFunct.getParam() ) {
+        for ( final Expr<Void> expr : mathNumPropFunct.getParam() ) {
             this.functionWasMet.add(mathNumPropFunct.getFunctName());
             expr.visit(this);
         }
@@ -185,6 +185,8 @@ public class CustomFunctionsVisitor extends CheckVisitor {
 
     @Override
     public Void visitTurnAction(TurnAction<Void> turnAction) {
+        this.functionWasMet.add(FunctionNames.TURN_RIGHT);
+        this.functionWasMet.add(FunctionNames.TURN_LEFT);
         final boolean isDuration = turnAction.getParam().getDuration() != null;
         if ( isDuration == true ) {
             turnAction.getParam().getDuration().getValue().visit(this);
