@@ -20,9 +20,9 @@ public class AstToLejosJavaVisitorTest {
     //TODO: change diameter and trackwidth to changeable
     // when sensors are added to nxt, fix the sensors description here
 
+    private static final String CONSTANTS = "" + "#define WHEELDIAMETER 5.6\n" + "#define TRACKWIDTH 17.0\n";
+
     private static final String MAIN_METHOD = ""
-        + "#define WHEELDIAMETER 5.6\n"
-        + "#define TRACKWIDTH 17.0\n"
 
         + "task main(){"
         + "    SetSensorTouch(IN_1);\n"
@@ -48,6 +48,7 @@ public class AstToLejosJavaVisitorTest {
     public void test() throws Exception {
 
         final String a = "" //
+            + CONSTANTS
             + MAIN_METHOD
             + "        TextOut(0,LCD_LINE3,\n"
             + SUFFIX
@@ -61,6 +62,7 @@ public class AstToLejosJavaVisitorTest {
     public void test1() throws Exception {
 
         final String a = "" //
+            + CONSTANTS
             + MAIN_METHOD
 
             + "        for ( float k0 = 0; k0 < 10; k0+=1 ) {\n"
@@ -77,6 +79,7 @@ public class AstToLejosJavaVisitorTest {
     public void test2() throws Exception {
 
         final String a = "" //
+            + CONSTANTS
             + MAIN_METHOD
 
             + "        if (,1pressed) {\n"
@@ -106,6 +109,7 @@ public class AstToLejosJavaVisitorTest {
 
         final String a = "" //
 
+            + CONSTANTS
             + MAIN_METHOD
 
             + "        if (,1pressed) {\n"
@@ -134,6 +138,8 @@ public class AstToLejosJavaVisitorTest {
     public void test4() throws Exception {
 
         final String a = "" //
+            + CONSTANTS
+            + "#defineturn_right(s,t)"
             + MAIN_METHOD
 
             + "        if ( 5 < MotorPower(OUT_B); ) {\n\n\n"
@@ -164,6 +170,9 @@ public class AstToLejosJavaVisitorTest {
     public void test5() throws Exception {
 
         final String a = "" //
+
+            + CONSTANTS
+            + "#defineturn_right(s,t)"
             + MAIN_METHOD
 
             + "          RotateMotor(OUT_B,0);"
@@ -182,6 +191,7 @@ public class AstToLejosJavaVisitorTest {
     public void test6() throws Exception {
 
         final String a = "" //
+            + CONSTANTS
             + MAIN_METHOD
 
             + "        TextOut(0,LCD_LINE0,\n"
@@ -196,6 +206,7 @@ public class AstToLejosJavaVisitorTest {
     @Test
     public void test7() throws Exception {
         final String a = "" //
+            + CONSTANTS
             + MAIN_METHOD
 
             + "          RotateMotor(OUT_B,30);\n"
@@ -211,6 +222,7 @@ public class AstToLejosJavaVisitorTest {
     public void test8() throws Exception {
 
         final String a = "" //
+            + CONSTANTS
             + MAIN_METHOD
             + "        float item = 10;\n"
             + "        string item2 = \"TTTT\";\n"
@@ -230,6 +242,7 @@ public class AstToLejosJavaVisitorTest {
     public void test19() throws Exception {
 
         final String a = "" //
+            + CONSTANTS
             + MAIN_METHOD
             + "        float variablenName = 0;\n"
 
@@ -268,6 +281,7 @@ public class AstToLejosJavaVisitorTest {
     public void test10() throws Exception {
 
         final String a = "" //
+            + CONSTANTS
             + MAIN_METHOD
 
             + "       RotateMotor(OUT_B,30,360.0*1);"
@@ -285,6 +299,7 @@ public class AstToLejosJavaVisitorTest {
     public void test11() throws Exception {
 
         final String a = "" //
+            + CONSTANTS
             + MAIN_METHOD
 
             + "        test();"
@@ -301,6 +316,7 @@ public class AstToLejosJavaVisitorTest {
     public void test12() throws Exception {
 
         final String a = "" //
+            + CONSTANTS
             + MAIN_METHOD
 
             + "        test(true);"
@@ -318,6 +334,7 @@ public class AstToLejosJavaVisitorTest {
     public void test13() throws Exception {
 
         final String a = "" //
+            + CONSTANTS
             + MAIN_METHOD
             + "    float variablenName=0;\n"
             + "    bool variablenName2=true;\n"
@@ -341,6 +358,7 @@ public class AstToLejosJavaVisitorTest {
     public void test14() throws Exception {
 
         final String a = "" //
+            + CONSTANTS
             + MAIN_METHOD
             + "    string variablenName[]={\"a\",\"b\",\"c\"};\n"
 
@@ -394,6 +412,7 @@ public class AstToLejosJavaVisitorTest {
     public void test17() throws Exception {
         // regression test for https://mp-devel.iais.fraunhofer.de/jira/browse/ORA-610
         final String a = "" //
+            + CONSTANTS
             + MAIN_METHOD
             + "    string message=\"exit\";\n"
 
@@ -409,6 +428,7 @@ public class AstToLejosJavaVisitorTest {
     @Test
     public void test18() throws Exception {
         final String a = "" //
+            + CONSTANTS
             + MAIN_METHOD
             + "    float item=0;\n"
             + "    string item2=\"cc\";\n"
@@ -421,6 +441,7 @@ public class AstToLejosJavaVisitorTest {
     @Ignore
     public void testStmtForEach() throws Exception {
         final String a = "" //
+            + CONSTANTS
             + MAIN_METHOD
             + "ArrayList<Pickcolor>variablenName=BlocklyMethods.createListWithColour(Pickcolor.NONE,Pickcolor.RED,Pickcolor.BLUE);\n"
             + "    public void run() throwsException {\n"
