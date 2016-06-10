@@ -51,8 +51,7 @@ public enum FunctionNames {
     NUMBER( 10, Assoc.LEFT, "NUMBER" ),
     LISTS_LENGTH( 10, Assoc.LEFT, BlocklyConstants.LISTS_LENGTH, BlocklyConstants.ROB_LISTS_LENGTH ),
     GET_SUBLIST( 10, Assoc.LEFT ),
-    TURN_RIGHT( 10, Assoc.NONE ),
-    TURN_LEFT( 10, Assoc.NONE );
+    TURN_RIGHT( 10, Assoc.NONE );
 
     private final String[] values;
     private final int precedence;

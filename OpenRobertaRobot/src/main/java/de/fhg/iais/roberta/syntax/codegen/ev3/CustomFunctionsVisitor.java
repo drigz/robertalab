@@ -122,7 +122,7 @@ public class CustomFunctionsVisitor extends CheckVisitor {
         case POW10:
             this.functionWasMet.add(mathSingleFunct.getFunctName());
             break;
-
+        
         case ROUND:
             this.functionWasMet.add(mathSingleFunct.getFunctName());
             break;
@@ -189,7 +189,7 @@ public class CustomFunctionsVisitor extends CheckVisitor {
 
         final boolean isDuration = turnAction.getParam().getDuration() != null;
         if ( isDuration == true ) {
-            this.functionWasMet.add(FunctionNames.TURN_LEFT);
+
             turnAction.getParam().getDuration().getValue().visit(this);
         }
         turnAction.getParam().getSpeed().visit(this);
