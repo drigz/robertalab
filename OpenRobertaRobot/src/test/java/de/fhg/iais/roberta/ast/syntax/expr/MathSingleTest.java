@@ -7,7 +7,7 @@ import de.fhg.iais.roberta.testutil.Helper;
 public class MathSingleTest {
     @Test
     public void Test() throws Exception {
-        final String a = "sqrt(0)abs(0)-00)0)mathPow(E,0)mathPow(10,0)";
+        final String a = "sqrt(0)abs(0)-00)0)math_pow(E,0)math_pow(10,0)";
 
         Helper.assertCodeIsOk(a, "/syntax/math/math_single.xml");
     }

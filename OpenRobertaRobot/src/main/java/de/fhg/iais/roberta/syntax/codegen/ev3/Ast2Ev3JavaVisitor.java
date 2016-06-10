@@ -1070,9 +1070,9 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     }
 
     public String arrType;
-    public String varType;
+    //public String varType;
 
-    //TODO: test
+    //TODO: test, NB: fix the types!
     @Override
     public Void visitIndexOfFunct(IndexOfFunct<Void> indexOfFunct) {
 
@@ -1080,49 +1080,63 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
         final BlocklyType typeVar = indexOfFunct.getParam().get(1).getVariableType();
 
-        switch ( typeArr ) {
-            case ARRAY_NUMBER:
-                this.arrType = "float";
-                break;
-            case ARRAY_STRING:
-                this.arrType = "string ";
-                break;
-            case ARRAY_BOOLEAN:
-                this.arrType = "bool ";
-                break;
-        }
-
-        switch ( typeVar ) {
-            case NUMBER:
-                this.varType = "float ";
-                break;
-            case STRING:
-                this.varType = "string ";
-                break;
-            case BOOLEAN:
-                this.varType = "bool ";
-                break;
-        }
-
         if ( indexOfFunct.getLocation() == IndexLocation.LAST ) {
-            this.sb.append("arrayFindLast(");
-            indexOfFunct.getParam().get(0).visit(this);
-            this.sb.append(", ");
-            indexOfFunct.getParam().get(1).visit(this);
-            this.sb.append(")");
+            switch ( typeArr ) {
+                case ARRAY_NUMBER:
+                    this.sb.append("array_find_last_num(");
+                    indexOfFunct.getParam().get(0).visit(this);
+                    this.sb.append(", ");
+                    indexOfFunct.getParam().get(1).visit(this);
+                    this.sb.append(")");
+                    break;
+                case ARRAY_STRING:
+                    this.sb.append("array_find_last_str(");
+                    indexOfFunct.getParam().get(0).visit(this);
+                    this.sb.append(", ");
+                    indexOfFunct.getParam().get(1).visit(this);
+                    this.sb.append(")");
+                    break;
+                case ARRAY_BOOLEAN:
+                    this.sb.append("array_find_last_bool(");
+                    indexOfFunct.getParam().get(0).visit(this);
+                    this.sb.append(", ");
+                    indexOfFunct.getParam().get(1).visit(this);
+                    this.sb.append(")");
+                    break;
+            }
+
         } else {
-            this.sb.append("arrayFindFirst(");
-            indexOfFunct.getParam().get(0).visit(this);
-            this.sb.append(", ");
-            indexOfFunct.getParam().get(1).visit(this);
-            this.sb.append(")");
+            switch ( typeArr ) {
+                case ARRAY_NUMBER:
+                    this.sb.append("array_find_first_num(");
+                    indexOfFunct.getParam().get(0).visit(this);
+                    this.sb.append(", ");
+                    indexOfFunct.getParam().get(1).visit(this);
+                    this.sb.append(")");
+                    break;
+                case ARRAY_STRING:
+                    this.sb.append("array_find_first_str(");
+                    indexOfFunct.getParam().get(0).visit(this);
+                    this.sb.append(", ");
+                    indexOfFunct.getParam().get(1).visit(this);
+                    this.sb.append(")");
+                    break;
+                case ARRAY_BOOLEAN:
+                    this.sb.append("array_find_first_bool(");
+                    indexOfFunct.getParam().get(0).visit(this);
+                    this.sb.append(", ");
+                    indexOfFunct.getParam().get(1).visit(this);
+                    this.sb.append(")");
+                    break;
+            }
         }
         return null;
     }
 
+    //TODO: deal with empty lists
     @Override
     public Void visitLengthOfIsEmptyFunct(LengthOfIsEmptyFunct<Void> lengthOfIsEmptyFunct) {
-        //TODO: deal with empty lists
+
         if ( lengthOfIsEmptyFunct.getFunctName() == FunctionNames.LIST_IS_EMPTY ) {
             this.sb.append("0");
         } else {
@@ -1203,7 +1217,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitMathConstrainFunct(MathConstrainFunct<Void> mathConstrainFunct) {
-        this.sb.append("mathMin(mathMax(");
+        this.sb.append("math_min(math_max(");
         mathConstrainFunct.getParam().get(0).visit(this);
         this.sb.append(", ");
         mathConstrainFunct.getParam().get(1).visit(this);
@@ -1227,14 +1241,14 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                 this.sb.append(" % 2 == 1)");
                 break;
             case PRIME:
-                this.sb.append("mathPrime(");
+                this.sb.append("math_prime(");
                 mathNumPropFunct.getParam().get(0).visit(this);
                 this.sb.append(")");
                 break;
             // % in nxc doesn't leave a a fractional residual, e.g. 5.2%1 = 0, so it is not possible to cheack the wholeness by "%1", that is why
             //an additional function is used
             case WHOLE:
-                this.sb.append("isWhole(");
+                this.sb.append("is_whole(");
                 mathNumPropFunct.getParam().get(0).visit(this);
                 this.sb.append(")");
                 break;
@@ -1266,35 +1280,35 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     public Void visitMathOnListFunct(MathOnListFunct<Void> mathOnListFunct) {
         switch ( mathOnListFunct.getFunctName() ) {
             case SUM:
-                this.sb.append("arraySum(");
+                this.sb.append("array_sum(");
                 mathOnListFunct.getParam().get(0).visit(this);
                 break;
             case MIN:
-                this.sb.append("arrayMin(");
+                this.sb.append("array_min(");
                 mathOnListFunct.getParam().get(0).visit(this);
                 break;
             case MAX:
-                this.sb.append("arrayMax(");
+                this.sb.append("array_max(");
                 mathOnListFunct.getParam().get(0).visit(this);
                 break;
             case AVERAGE:
-                this.sb.append("arrayMean(");
+                this.sb.append("array_mean(");
                 mathOnListFunct.getParam().get(0).visit(this);
                 break;
             case MEDIAN:
-                this.sb.append("arrayMedian(");
+                this.sb.append("array_median(");
                 mathOnListFunct.getParam().get(0).visit(this);
                 break;
             case STD_DEV:
-                this.sb.append("arrayStandardDeviatioin(");
+                this.sb.append("array_standard_deviatioin(");
                 mathOnListFunct.getParam().get(0).visit(this);
                 break;
             case RANDOM:
-                this.sb.append("arrayRand(");
+                this.sb.append("array_rand(");
                 mathOnListFunct.getParam().get(0).visit(this);
                 break;
             case MODE:
-                this.sb.append("arrayMode(");
+                this.sb.append("array_mode(");
                 mathOnListFunct.getParam().get(0).visit(this);
                 break;
             default:
@@ -1316,7 +1330,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         mathRandomIntFunct.getParam().get(0).visit(this);
         this.sb.append(" - ");
         mathRandomIntFunct.getParam().get(1).visit(this);
-        this.sb.append(") * Random(100) / 100 + mathMin(");
+        this.sb.append(") * Random(100) / 100 + math_min(");
         mathRandomIntFunct.getParam().get(0).visit(this);
         this.sb.append(", ");
         mathRandomIntFunct.getParam().get(1).visit(this);
@@ -1341,11 +1355,12 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                 this.sb.append("log10(");
                 break;
             */
+            //TODO: change constants calling?
             case EXP:
-                this.sb.append("mathPow(E, ");
+                this.sb.append("math_pow(E, ");
                 break;
             case POW10:
-                this.sb.append("mathPow(10, ");
+                this.sb.append("math_pow(10, ");
                 break;
             /*
             case SIN:
@@ -1368,14 +1383,14 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             break;
             */
             case ROUND:
-                this.sb.append("mathFloor(0.5 + ");
+                this.sb.append("math_floor(0.5 + ");
                 break;
             case ROUNDUP:
-                this.sb.append("1 + mathFloor(");
+                this.sb.append("1 + math_floor(");
                 break;
             //check why there are double brackets
             case ROUNDDOWN:
-                this.sb.append("mathFloor(");
+                this.sb.append("math_floor(");
                 break;
             default:
                 break;
@@ -1388,22 +1403,12 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitMathPowerFunct(MathPowerFunct<Void> mathPowerFunct) {
-        this.sb.append("mathPow(");
+        this.sb.append("math_pow(");
         mathPowerFunct.getParam().get(0).visit(this);
         this.sb.append(", ");
         mathPowerFunct.getParam().get(1).visit(this);
         this.sb.append(")");
         return null;
-    }
-
-    //modified method "textJoin"
-    public static String smthToString(Object... items) {
-        String temp = "";
-
-        for ( final Object string : items ) {
-            temp = temp + string;
-        }
-        return temp;
     }
 
     @Override
@@ -1412,7 +1417,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         // using java methods just receive a string. So far it is not clear how to implement it in nxc directly
         // TBD: at leat how to deal with equations
 
-        smthToString(textJoinFunct.getParam());
+        //smthToString(textJoinFunct.getParam());
         //this.sb.append(")");
         return null;
     }
@@ -1659,7 +1664,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         }
     }
 
-    private void addFunctions() {
+    /*private void addFunctions() {
 
         for ( final FunctionNames customFunction : this.usedFunctions ) {
             switch ( customFunction ) {
@@ -1738,7 +1743,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     this.sb.append("} \n");
                     this.incrIndentation();
                     break;
-                case RINT:
+                    case RINT:
                     this.sb.append("inline float mathMin(float firstValue, float secondValue) {");
                     nlIndent();
                     this.sb.append("if (firstValue < secondValue){");
@@ -2044,6 +2049,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     this.sb.append("} \n");
                     this.incrIndentation();
                     break;
+    
+    
                 case WHOLE:
                     this.sb.append("inline bool isWhole(float val){");
                     nlIndent();
@@ -2051,14 +2058,14 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     nlIndent();
                     this.sb.append("return ((val - intPart) == 0);  \n");
                     this.sb.append("} \n");
-                case RANDOM:
+                    case RANDOM:
                     this.sb.append("inline float arrayRand(float arr[]) {");
                     nlIndent();
                     this.sb.append("int arrayInd = ArrayLen(arr) * Random(100) / 100;");
                     nlIndent();
                     this.sb.append("return arr[arrayInd - 1];  \n");
                     this.sb.append("} \n");
-                case MODE:
+                    case MODE:
                     //mode search is much easier for a sorted array
                     this.sb.append("inline void arrayInsertionSort(float &arr[]) {");
                     nlIndent();
@@ -2137,7 +2144,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     this.sb.append("}  \n");
                     this.incrIndentation();
                     break;
-                case FIRSTARR:
+
+                    case FIRSTARR:
                     this.sb.append("inline int arrayFindFirst( item) {");
                     this.sb.append(this.arrType);
                     this.sb.append(" arr[], ");
@@ -2212,33 +2220,34 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     this.incrIndentation();
                     break;
 
-                /*
-                case JTEXT:
-                this.sb.append("inline string textJoin (string arr[]) {");
-                nlIndent();
-                this.sb.append("string temp;");
-                nlIndent();
-                this.sb.append("for (int i=0; i < ArrayLen(arr); i++)  {");
-                this.incrIndentation();
-                nlIndent();
-                this.sb.append("temp = temp + arr[i];");
-                this.decrIndentation();
-                nlIndent();
-                this.sb.append("}");
-                nlIndent();
-                this.sb.append("return temp; \n");
-                this.sb.append("}\n");
-                break;
-                */
+
+                    case JTEXT:
+                    this.sb.append("inline string textJoin (string arr[]) {");
+                    nlIndent();
+                    this.sb.append("string temp;");
+                    nlIndent();
+                    this.sb.append("for (int i=0; i < ArrayLen(arr); i++)  {");
+                    this.incrIndentation();
+                    nlIndent();
+                    this.sb.append("temp = temp + arr[i];");
+                    this.decrIndentation();
+                    nlIndent();
+                    this.sb.append("}");
+                    nlIndent();
+                    this.sb.append("return temp; \n");
+                    this.sb.append("}\n");
+                    break;
+    
             }
         }
-    }
+    }*/
 
     private void addConstants() {
 
         this.sb.append("#define WHEELDIAMETER " + this.brickConfiguration.getWheelDiameterCM() + "\n");
         this.sb.append("#define TRACKWIDTH " + this.brickConfiguration.getTrackWidthCM() + "\n");
-
+        this.sb.append("#include \"hal.h\"");
+        //TODO: change it to remove custom function visitor
         for ( final FunctionNames customFunction : this.usedFunctions ) {
             switch ( customFunction ) {
                 case EXP:
@@ -2255,7 +2264,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         }
 
         this.addConstants();
-        this.addFunctions();
+        //this.addFunctions();
 
         this.sb.append("task main(){");
 

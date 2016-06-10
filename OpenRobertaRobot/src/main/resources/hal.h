@@ -1,14 +1,57 @@
+//math Functions
 
-inline float arraySum(float arr[]) {
+inline int math_floor(float val) {
+  int temp = val;
+  return temp;
+}                    
+inline bool is_whole(float val){
+  int intPart = val;
+  return ((val - intPart) == 0);
+}                    
+inline float math_pow(float first_value, float second_value) {
+  float result = 1;
+  for (int i = 0; i < second_value; i++) {
+    result = result * first_value;
+  }
+  return result;
+}
+inline float math_min(float first_value, float second_value) {
+  if (first_value < second_value){
+    return first_value;
+  }
+  else{
+    return second_value;
+  }
+}
+inline float math_max(float first_value, float second_value) {
+  if (first_value > second_value){
+    return first_value;
+  }
+  else{
+    return second_value;
+  }
+}
+inline bool math_prime(float number){
+  for ( int i = 2; i <= sqrt(number); i++ ) {
+    if ((number % i) == 0 ) {
+      return false;
+    }
+    else{
+      return true;
+    }
+  }
+}
+
+//numerical array functions
+
+inline float array_sum(float arr[]) {
   float sum = 0;
   for(int i = 0; i < ArrayLen(arr); i++) {
     sum += arr[i];
   }
   return sum;
 }
-
-
-inline float arrayMin(float arr[]) {
+inline float array_min(float arr[]) {
   float min = arr[0];
   for(int i = 1; i < ArrayLen(arr); i++) {
     if (arr[i] < min){
@@ -17,8 +60,7 @@ inline float arrayMin(float arr[]) {
   }
   return min;
 }
-
-inline float arrayMax(float arr[]) {
+inline float array_max(float arr[]) {
   float max = arr[0];
   for(int i = 1; i < ArrayLen(arr); i++) {
     if (arr[i] > max){
@@ -27,16 +69,14 @@ inline float arrayMax(float arr[]) {
   }
   return max;
 }
-float arrayMean(float arr[]) {
+float array_mean(float arr[]) {
   float sum = 0;
   for(int i = 0; i < ArrayLen(arr); i++) {
     sum += arr[i];
   }
   return sum/ArrayLen(arr);
 }
-
-
-inline void arrayInsertionSort(float &arr[]) {
+inline void array_insertion_sort(float &arr[]) {
   for (int i=1; i < ArrayLen(arr); i++) {
       int index = arr[i];
       int j = i;
@@ -47,13 +87,12 @@ inline void arrayInsertionSort(float &arr[]) {
       arr[j] = index;
   }
 }
-
-inline float arrayMedian(float arr[]) {
+inline float array_median(float arr[]) {
    int n = ArrayLen(arr);
    if ( n == 0 ) {
      return 0;
    }
-   arrayInsertionSort(arr);
+   array_insertion_sort(arr);
    float median;
    if ( n % 2 == 0 ) {
       median = (arr[n/2] + arr[n / 2 - 1]) / 2;
@@ -63,58 +102,36 @@ inline float arrayMedian(float arr[]) {
    }
    return median;
 }
-
-inline float mathPow(float firstValue, float secondValue) {
-  float result = 1;
-  for (int i = 0; i < secondValue; i++) {
-    result = result * firstValue;
-  }
-  return result;
-}
-
-inline float arrayStandardDeviatioin(float arr[]) {
+inline float array_standard_deviatioin(float arr[]) {
         int n = ArrayLen(arr);
         if ( n == 0 ) {
             return 0;
         }
         float variance = 0;
-        float mean = arrayMean(arr);
+        float mean = array_mean(arr);
         for ( int i = 0; i < ArrayLen(arr); i++) {
-            variance += mathPow(arr[i] - mean, 2);
+            variance += math_pow(arr[i] - mean, 2);
         }
         variance /= n;
         return sqrt(variance);
 }
-
-inline float mathMin(float firstValue, float secondValue) {
-  if (firstValue < secondValue){
-    return firstValue;
-  }
-  else{
-    return secondValue;
-  }
-}
-
-inline float arrayRand(float arr[]) {
+inline float array_rand(float arr[]) {
   int arrayInd = ArrayLen(arr) * Random(100) / 100;
   return arr[arrayInd - 1];
 }
-
-inline float arrayMode(float arr[]){
-  arrayInsertionSort(arr);
+inline float array_mode(float arr[]){
+  array_insertion_sort(arr);
   float element = arr[0];
-  float maxSeen = element;
+  float max_seen = element;
   int count = 1;
-  int modeCount = 1;
-
+  int mode_count = 1;
   for (int i = 1; i < ArrayLen(arr); i++){
-
       if (arr[i] == element){
          count++;
-         if (count > modeCount)
+         if (count > mode_count)
             {
-            modeCount = count;
-            maxSeen = element;
+            mode_count = count;
+            max_seen = element;
         }
       }
       else {
@@ -122,21 +139,82 @@ inline float arrayMode(float arr[]){
         count = 1;
     }
   }
-  return maxSeen;
+  return max_seen;
 }
 
+// functions for unknown type arrays
 
-inline int arrayFindLast(float arr[], float item) {
+inline int array_find_first_num(float arr[], float item) {
+  int i = 0;
+  if (arr[0] == item){
+    return i;
+  }
+  else{
+    do{
+      i++;
+    } while((arr[i] != item) && (i != ArrayLen(arr)));
+    return i;
+  }
+}
+inline int array_find_last_num(float arr[], float item) {
+  int i = 0;
+  if (arr[ArrayLen(arr) - 1] == item){
+    return ArrayLen(arr) - 1 - i;
+  }
+  else{
+    do{
+      i++;
+    } while((arr[ArrayLen(arr) - 1 - i] != item)&&(i != 0));
+      return ArrayLen(arr) - 1 - i;
+  }
+}
 
-        int i = 0;
-        if (arr[ArrayLen(arr) - 1] == item){
-          return ArrayLen(arr) - 1 - i;
-        }
-        else{
-           do{
-             i++;
-           } while((arr[ArrayLen(arr) - 1 - i] != item)&&(i != 0));
+inline int array_find_first_str(string arr[], string item) {
+  int i = 0;
+  if (arr[0] == item){
+    return i;
+  }
+  else{
+    do{
+      i++;
+    } while((arr[i] != item) && (i != ArrayLen(arr)));
+    return i;
+  }
+}
+inline int array_find_last_str(string arr[], string item) {
+  int i = 0;
+  if (arr[ArrayLen(arr) - 1] == item){
+    return ArrayLen(arr) - 1 - i;
+  }
+  else{
+    do{
+      i++;
+    } while((arr[ArrayLen(arr) - 1 - i] != item)&&(i != 0));
+      return ArrayLen(arr) - 1 - i;
+  }
+}
 
-           return ArrayLen(arr) - 1 - i;
-        }
+inline int array_find_first_bool(bool arr[], bool item) {
+  int i = 0;
+  if (arr[0] == item){
+    return i;
+  }
+  else{
+    do{
+      i++;
+    } while((arr[i] != item) && (i != ArrayLen(arr)));
+    return i;
+  }
+}
+inline int array_find_last_bool(bool arr[], bool item) {
+  int i = 0;
+  if (arr[ArrayLen(arr) - 1] == item){
+    return ArrayLen(arr) - 1 - i;
+  }
+  else{
+    do{
+      i++;
+    } while((arr[ArrayLen(arr) - 1 - i] != item)&&(i != 0));
+      return ArrayLen(arr) - 1 - i;
+  }
 }

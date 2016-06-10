@@ -20,7 +20,7 @@ public class AstToLejosJavaVisitorTest {
     //TODO: change diameter and trackwidth to changeable
     // when sensors are added to nxt, fix the sensors description here
 
-    private static final String CONSTANTS = "" + "#define WHEELDIAMETER 5.6\n" + "#define TRACKWIDTH 17.0\n";
+    private static final String CONSTANTS = "" + "#define WHEELDIAMETER 5.6\n" + "#define TRACKWIDTH 17.0\n" + "#include\"hal.h\"";
 
     private static final String MAIN_METHOD = ""
 
