@@ -139,7 +139,7 @@ public class AstToLejosJavaVisitorTest {
 
         final String a = "" //
             + CONSTANTS
-            + "#defineturn_right(s,t)"
+            //+ "#defineturn_right(s,t)"
             + MAIN_METHOD
 
             + "        if ( 5 < MotorPower(OUT_B); ) {\n\n\n"
@@ -172,7 +172,7 @@ public class AstToLejosJavaVisitorTest {
         final String a = "" //
 
             + CONSTANTS
-            + "#defineturn_right(s,t)"
+            //+ "#defineturn_right(s,t)"
             + MAIN_METHOD
 
             + "          RotateMotor(OUT_B,0);"
