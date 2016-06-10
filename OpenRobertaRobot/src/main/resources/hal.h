@@ -3,11 +3,11 @@
 inline int math_floor(float val) {
   int temp = val;
   return temp;
-}                    
+}
 inline bool is_whole(float val){
   int intPart = val;
   return ((val - intPart) == 0);
-}                    
+}
 inline float math_pow(float first_value, float second_value) {
   float result = 1;
   for (int i = 0; i < second_value; i++) {
@@ -40,6 +40,92 @@ inline bool math_prime(float number){
       return true;
     }
   }
+}
+inline float math_ln(float val) {
+  if (val > 0){
+    float summ = 0;
+    for (int n = 1; n < 1000; n++){
+      summ += math_pow(-1, (n + 1)) * math_pow((val - 1), n)/n;
+      //NumOut(0, LCD_LINE2, summ);
+      //Wait(1000);
+      //ClearScreen();
+    }
+    return summ;
+  }
+  else{
+    return NULL;
+  }
+}
+inline float math_log(float val) {
+  return math_ln(val)/math_ln(2.71828);
+}
+
+inline float math_factorial(float val){
+  float result = val;
+  for (int i = 1; i < val; i++){
+    result = result*(val - i);
+  }
+  return result;
+}
+
+inline float math_sin(float val) {
+  float summ = 0;
+  float angle = val%360;
+  float results[] = {0, (-1 + sqrt(3))/2/sqrt(2), 1/2, 1/sqrt(2), sqrt(3)/2, (1 + sqrt(3))/2/sqrt(2), 1};
+  float angles[] = {0, 15, 30, 45, 60, 75, 90};
+  
+  if (angle < 1){
+    return 0;
+  }
+  else{
+    int i = 1;
+    while (angle%angles[i] == 0){
+      i++;
+    }
+    if(angle < 90){
+      return (angle%90)*(results[i] - results[i-1])/(angles[i] - angles[i-1]);
+    }
+    else if((angle < 180)&&(angle >= 90)){
+      return (90 - angle%90)*(results[i] - results[i-1])/(angles[i] - angles[i-1]);
+    }
+    else if((angle >= 180)&&(angle < 270)){
+      return -(angle%90)*(results[i] - results[i-1])/(angles[i] - angles[i-1]);
+    }
+    else{
+     return -(90 - angle%90)*(results[i] - results[i-1])/(angles[i] - angles[i-1]);
+    }
+  }
+
+}
+
+inline float math_cos(float val) {
+  float summ = 0;
+  float angle = val%360;
+  float results[] = {0, (1 + sqrt(3))/2/sqrt(2), sqrt(3)/2, 1/sqrt(2), 1/2, (-1 + sqrt(3))/2/sqrt(2), 0};
+  float angles[] = {0, 15, 30, 45, 60, 75, 90};
+
+  if (angle < 1){
+    return 1;
+  }
+  else{
+    int i = 1;
+    while (angle%angles[i] == 0){
+      i++;
+    }
+    if(angle < 90){
+      return -(angle%90)*(results[i] - results[i-1])/(angles[i] - angles[i-1]);
+    }
+    else if((angle < 180)&&(angle >= 90)){
+      return (90 - angle%90)*(results[i] - results[i-1])/(angles[i] - angles[i-1]);
+    }
+    else if((angle >= 180)&&(angle < 270)){
+      return (angle%90)*(results[i] - results[i-1])/(angles[i] - angles[i-1]);
+    }
+    else{
+     return -(90 - angle%90)*(results[i] - results[i-1])/(angles[i] - angles[i-1]);
+    }
+  }
+
 }
 
 //numerical array functions
