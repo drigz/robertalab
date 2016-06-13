@@ -4,7 +4,7 @@ inline int math_floor(float val) {
   int temp = val;
   return temp;
 }
-inline bool is_whole(float val){
+inline bool math_is_whole(float val){
   int intPart = val;
   return ((val - intPart) == 0);
 }
@@ -42,17 +42,32 @@ inline bool math_prime(float number){
   }
 }
 inline float math_ln(float val) {
-  if (val > 0){
+  if (val > 1){
+    float values[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 10000};
+    float results[] = {0, 0.693147, 1.098612, 1.386294, 1.609438, 1.791759, 1.945910, 2.079442, 2.197225, 2.302585, 2.995732, 3.401197, 3.688879, 3.912023, 4.094345, 4.248495, 4.382027, 4.499810, 4.605170, 5.298317, 5.703782, 5.991465, 6.214608, 6.396930, 6.551080, 6.684612, 6.802395, 6.907755, 9.210340};
+    int i = 1;
+    while(values[i] < abs(val)){
+      i++;
+    }
+    float result =  results[i - 1] + (abs(val) - values[i - 1]) * (results[i] - results[i - 1]) / (values[i] - values[i - 1]);
+    if (val <= 100000){
+      return result;
+    }
+    else{
+      return 9.22;
+    }
+  }
+  else if ((val > 0) && (val <= 1)){
     float summ = 0;
-    for (int n = 1; n < 1000; n++){
+    for (int n = 1; n < 10; n++){
       summ += math_pow(-1, (n + 1)) * math_pow((val - 1), n)/n;
-      //NumOut(0, LCD_LINE2, summ);
-      //Wait(1000);
-      //ClearScreen();
     }
     return summ;
   }
   else{
+    TextOut(0, LCD_LINE1, "invalid value");
+    Wait(1000);
+    ClearScreen();
     return NULL;
   }
 }
@@ -62,70 +77,91 @@ inline float math_log(float val) {
 
 inline float math_factorial(float val){
   float result = val;
-  for (int i = 1; i < val; i++){
-    result = result*(val - i);
-  }
-  return result;
-}
-
-inline float math_sin(float val) {
-  float summ = 0;
-  float angle = val%360;
-  float results[] = {0, (-1 + sqrt(3))/2/sqrt(2), 1/2, 1/sqrt(2), sqrt(3)/2, (1 + sqrt(3))/2/sqrt(2), 1};
-  float angles[] = {0, 15, 30, 45, 60, 75, 90};
-  
-  if (angle < 1){
-    return 0;
-  }
-  else{
-    int i = 1;
-    while (angle%angles[i] == 0){
-      i++;
-    }
-    if(angle < 90){
-      return (angle%90)*(results[i] - results[i-1])/(angles[i] - angles[i-1]);
-    }
-    else if((angle < 180)&&(angle >= 90)){
-      return (90 - angle%90)*(results[i] - results[i-1])/(angles[i] - angles[i-1]);
-    }
-    else if((angle >= 180)&&(angle < 270)){
-      return -(angle%90)*(results[i] - results[i-1])/(angles[i] - angles[i-1]);
-    }
-    else{
-     return -(90 - angle%90)*(results[i] - results[i-1])/(angles[i] - angles[i-1]);
-    }
-  }
-
-}
-
-inline float math_cos(float val) {
-  float summ = 0;
-  float angle = val%360;
-  float results[] = {0, (1 + sqrt(3))/2/sqrt(2), sqrt(3)/2, 1/sqrt(2), 1/2, (-1 + sqrt(3))/2/sqrt(2), 0};
-  float angles[] = {0, 15, 30, 45, 60, 75, 90};
-
-  if (angle < 1){
+  if (val == 0){
     return 1;
   }
   else{
+    for (int i = 1; i < val; i++){
+      result = result*(val - i);
+    }
+    return result;
+  }
+}
+
+inline float math_sin(float val) {
+  float angle = PI*val/180;
+  float summ = 0;
+  for (int n = 0; n < 10; n++){
+    summ += math_pow(-1, n) * math_pow(angle, (2 * n + 1))/math_factorial(2 * n + 1);
+  }
+  return summ;
+}
+
+inline float math_cos(float val) {
+  float angle = PI*val/180;
+  float summ = 0;
+  for (float n = 0; n < 10; n++){
+    summ += (math_pow(-1, n)/math_factorial(2 * n)) * math_pow(angle, (2 * n));
+  }
+  return summ;
+}
+
+inline float math_tan(float val) {
+  return math_sin(val)/math_cos(val);
+}
+
+inline float math_asin(float val) {
+  if (abs(val) > 1){
+    TextOut(0, LCD_LINE1, "invalid value");
+    Wait(1000);
+    ClearScreen();
+    return NULL;
+  }
+  else{
+    float summ = 0;
+    for (float n = 0; n < 15; n++){
+      summ += math_factorial(2 * n) * math_pow(val, (2 * n + 1)) / math_pow(4, n) / math_pow(math_factorial(n), 2)/(2* n + 1);
+    }
+    return summ * 180 / PI;
+  }
+}
+
+
+inline float math_acos(float val) {
+  if (abs(val) > 1){
+    TextOut(0, LCD_LINE1, "invalid value");
+    Wait(1000);
+    ClearScreen();
+    return NULL;
+  }
+  else{
+    return 90 - math_asin(val);
+  }
+}
+
+inline float math_atan(float val) {
+  if (abs(val) > 1){
+    float values[] = {1, sqrt(3), 2, 3, 0x7f800000};
+    float results[] = {45, 60, 63.435, 71.565, 90};
     int i = 1;
-    while (angle%angles[i] == 0){
+    while(values[i] < abs(val)){
       i++;
     }
-    if(angle < 90){
-      return -(angle%90)*(results[i] - results[i-1])/(angles[i] - angles[i-1]);
-    }
-    else if((angle < 180)&&(angle >= 90)){
-      return (90 - angle%90)*(results[i] - results[i-1])/(angles[i] - angles[i-1]);
-    }
-    else if((angle >= 180)&&(angle < 270)){
-      return (angle%90)*(results[i] - results[i-1])/(angles[i] - angles[i-1]);
+    float result =  results[i - 1] + (abs(val) - values[i - 1]) * (results[i] - results[i - 1]) / (values[i] - values[i - 1]);
+    if (val > 0){
+      return result;
     }
     else{
-     return -(90 - angle%90)*(results[i] - results[i-1])/(angles[i] - angles[i-1]);
+      return -result;
     }
   }
-
+  else{
+    float summ = 0;
+    for (float n = 1; n < 15; n++){
+      summ += math_pow(-1, (n - 1)) * math_pow(val, (2 * n - 1)) / (2 * n - 1);
+    }
+    return summ * 180 / PI;
+  }
 }
 
 //numerical array functions
