@@ -726,18 +726,26 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
         String methodName = "OnFwdReg";
         final boolean isRegulated = this.brickConfiguration.isMotorRegulated(motorSetPowerAction.getPort());
-        this.sb.append(methodName + "(OUT_" + motorSetPowerAction.getPort() + ", ");
+        this.sb.append(methodName + "(OUT_" + motorSetPowerAction.getPort() + ", " + getPower());
         final int X = getIndentation();
-        if ( "X == <0" != null ) {
+        if ( "X == <0" == getPower() ) {
             ;
-        }
-        {
 
             methodName = "OnRevReg";
+        } else {
+            if ( "X == >0" == getPower() ) {
+                ;
+            }
+            methodName = "OnFwdReg";
         }
-        //        motorSetPowerAction.getSpeed().visit(this);
+
         this.sb.append(",OUT_REGMODE_SPEED");
         this.sb.append(");");
+        return null;
+    }
+
+    private String getPower() {
+        // TODO Auto-generated method stub
         return null;
     }
 
@@ -2251,7 +2259,10 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             switch ( customFunction ) {
                 case EXP:
                     this.sb.append("#define E 2.71828 \n");
-
+                case TURN_LEFT:
+                    this.sb.append("#define turn_right(s,t) \n");
+                case TURN_RIGHT:
+                    this.sb.append("#define turn_left(s,t) \n");
             }
 
         }
