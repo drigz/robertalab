@@ -49,9 +49,9 @@ public class AstToLejosJavaVisitorTest {
     public void test() throws Exception {
 
         final String a = "" //
-            + CONSTANTS
+            //            + CONSTANTS
             + MAIN_METHOD
-            + "        TextOut(0,LCD_LINE3,\n"
+            + "        TextOut(0,LCD_LINE3,\"Hallo\");\n"
             + SUFFIX
 
             + "}\n";
@@ -62,7 +62,7 @@ public class AstToLejosJavaVisitorTest {
     @Test
     public void test1() throws Exception {
 
-        final String a = "" //
+        final String a = ""
             + MAIN_METHOD
 
             + "        for ( float k0 = 0; k0 < 10; k0+=1 ) {\n"
@@ -328,7 +328,7 @@ public class AstToLejosJavaVisitorTest {
             + "        test2();"
 
             + "     void test1(float x, float x2) {\n"
-            + "        TextOut(x,LCD_LINEx2,\n"
+            + "        TextOut(x,LCD_LINEx2,\"Hallo\");\n"
             + "    }\n\n"
             + "    void test2() {\n"
             + "        if (variablenName2) return;"
