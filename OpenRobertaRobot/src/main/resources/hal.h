@@ -62,7 +62,7 @@ inline string bluetooth_get_msg(){
         TextOut(5,LCD_LINE3,in);
         SendResponseNumber(OUT_MBOX,0xFF);
       }
-      Wait(10); //take breath (optional)
+      Wait(10);
     }
   }
 }
