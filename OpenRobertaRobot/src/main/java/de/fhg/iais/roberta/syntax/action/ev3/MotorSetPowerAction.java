@@ -96,4 +96,9 @@ public class MotorSetPowerAction<V> extends MoveAction<V> {
         // TODO Auto-generated method stub
         return null;
     }
+
+    public ToneAction<Void> getParam() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

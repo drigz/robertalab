@@ -131,6 +131,10 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     private String left;
 
+    private Expr<Void> TRUE;
+
+    private Object FALSE;
+
     /**
      * initialize the Java code generator visitor.
      *
@@ -678,7 +682,11 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         if ( showTextAction.getMsg().getKind() == BlockType.STRING_CONST ) {
 
             showTextAction.getMsg().visit(this);
-
+        } else if ( showTextAction.getMsg().getKind() == BlockType.BOOL_CONST ) {
+            showTextAction.equals(this.TRUE);
+            this.sb.append("\"" + ",true" + "\"");
+            showTextAction.equals(this.FALSE);
+            this.sb.append("\"" + ",false" + "\"");
         }
 
         this.sb.append(");");
@@ -723,20 +731,11 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     @Override
     public Void visitMotorSetPowerAction(MotorSetPowerAction<Void> motorSetPowerAction) {
 
-        String methodName = "OnFwdReg";
-        final boolean isRegulated = this.brickConfiguration.isMotorRegulated(motorSetPowerAction.getPort());
-        this.sb.append(methodName + "(OUT_" + motorSetPowerAction.getPort() + ", " + getPower());
-        final int X = getIndentation();
-        if ( "X == <0" == getPower() ) {
-            ;
+        final String methodName = "OnReg";
 
-            methodName = "OnRevReg";
-        } else {
-            if ( "X == >0" == getPower() ) {
-                ;
-            }
-            methodName = "OnFwdReg";
-        }
+        final boolean isRegulated = this.brickConfiguration.isMotorRegulated(motorSetPowerAction.getPort());
+        this.sb.append(methodName + "(OUT_" + motorSetPowerAction.getPort() + ",");
+        motorSetPowerAction.getPower().visit(this);
 
         this.sb.append(",OUT_REGMODE_SPEED");
         this.sb.append(");");
@@ -1669,7 +1668,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     }
 
     /*private void addFunctions() {
-
+    
         for ( final FunctionNames customFunction : this.usedFunctions ) {
             switch ( customFunction ) {
                 case PRIME:
@@ -1723,7 +1722,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     nlIndent();
                     this.sb.append("} \n");
                     this.incrIndentation();
-
+    
                     //max of two values
                     this.sb.append("inline float mathMax(float firstValue, float secondValue) {");
                     nlIndent();
@@ -1952,7 +1951,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     nlIndent();
                     this.sb.append("}  \n");
                     this.incrIndentation();
-
+    
                     this.sb.append("inline float arrayMedian(float arr[]) {");
                     nlIndent();
                     this.sb.append("int n = ArrayLen(arr);");
@@ -2006,7 +2005,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     nlIndent();
                     this.sb.append("return result; \n");
                     this.sb.append("} \n");
-
+    
                     this.sb.append("inline float arrayMean(float arr[]) {");
                     nlIndent();
                     this.sb.append("float sum = 0;");
@@ -2021,7 +2020,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     nlIndent();
                     this.sb.append("sum/ArrayLen(arr); \n");
                     this.sb.append("} \n");
-
+    
                     this.sb.append("inline float arrayStandardDeviatioin(float arr[]) {");
                     nlIndent();
                     this.sb.append("int n = ArrayLen(arr);");
@@ -2053,8 +2052,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     this.sb.append("} \n");
                     this.incrIndentation();
                     break;
-    
-    
+
+
                 case WHOLE:
                     this.sb.append("inline bool isWhole(float val){");
                     nlIndent();
@@ -2099,7 +2098,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     nlIndent();
                     this.sb.append("}  \n");
                     this.incrIndentation();
-
+    
                     this.sb.append("inline float arrayMode(float arr[]){");
                     nlIndent();
                     this.sb.append("arrayInsertionSort(arr);");
@@ -2148,7 +2147,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     this.sb.append("}  \n");
                     this.incrIndentation();
                     break;
-
+    
                     case FIRSTARR:
                     this.sb.append("inline int arrayFindFirst( item) {");
                     this.sb.append(this.arrType);
@@ -2185,7 +2184,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     nlIndent();
                     this.sb.append("} \n");
                     this.incrIndentation();
-
+    
                     //TODO: may be put into another function
                     this.sb.append("inline int arrayFindLast( item) {");
                     this.sb.append(this.arrType);
@@ -2223,8 +2222,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     this.sb.append("} \n");
                     this.incrIndentation();
                     break;
-
-
+    
+    
                     case JTEXT:
                     this.sb.append("inline string textJoin (string arr[]) {");
                     nlIndent();
@@ -2241,7 +2240,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     this.sb.append("return temp; \n");
                     this.sb.append("}\n");
                     break;
-    
+
             }
         }
     }*/
@@ -2256,9 +2255,10 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         /*for ( final FunctionNames customFunction : this.usedFunctions ) {
             switch ( customFunction ) {
                 case TURN_LEFT:
-                    this.sb.append("#define turn_right(s,t) \n");
+                    this.sb.append("#define turn_left(s,t)\n");
+
                 case TURN_RIGHT:
-                    this.sb.append("#define turn_left(s,t) \n");
+                    this.sb.append("#define turn_right(s,t) \n");
             }
         
         }*/
@@ -2315,15 +2315,15 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         sb.append(INDENT).append(INDENT).append(INDENT).append("    .build();");
         return sb.toString();
     }
-    
-    
+
+
     private void appendSensors(StringBuilder sb) {
         for ( Map.Entry<SensorPort, EV3Sensor> entry : this.brickConfiguration.getSensors().entrySet() ) {
             sb.append(INDENT).append(INDENT).append(INDENT);
             appendOptional(sb, "    .addSensor(", entry.getKey(), entry.getValue());
         }
     }
-    
+
     private void appendActors(StringBuilder sb) {
         for ( Map.Entry<ActorPort, EV3Actor> entry : this.brickConfiguration.getActors().entrySet() ) {
             sb.append(INDENT).append(INDENT).append(INDENT);
@@ -2344,8 +2344,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             sb.append(")\n");
         }
     }
-    
-    
+
+
     private String generateRegenerateUsedSensors() {
         StringBuilder sb = new StringBuilder();
         String arrayOfSensors = "";
@@ -2353,7 +2353,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             arrayOfSensors += usedSensor.generateRegenerate();
             arrayOfSensors += ", ";
         }
-    
+
         sb.append("private Set<UsedSensor> usedSensors = " + "new LinkedHashSet<UsedSensor>(");
         if ( this.usedSensors.size() > 0 ) {
             sb.append("Arrays.asList(" + arrayOfSensors.substring(0, arrayOfSensors.length() - 2) + ")");
@@ -2373,14 +2373,14 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         sb.append(", ").append(getEnumCode(ev3Actor.getRotationDirection())).append(", ").append(getEnumCode(ev3Actor.getMotorSide())).append(")");
         return sb.toString();
     }
-    
+
     private static String generateRegenerateEV3Sensor(HardwareComponent sensor) {
         StringBuilder sb = new StringBuilder();
         sb.append("new EV3Sensor(").append(getHardwareComponentTypeCode(sensor.getComponentType()));
         sb.append(")");
         return sb.toString();
     }
-    
+
     private static String getHardwareComponentTypeCode(HardwareComponentType type) {
         return type.getClass().getSimpleName() + "." + type.getTypeName();
     }

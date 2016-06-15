@@ -80,24 +80,26 @@ public class ToneAction<V> extends Action<V> {
      * @return corresponding AST object
      */
     public static <V> Phrase<V> jaxbToAst(Block block, Jaxb2AstTransformer<V> helper) {
-        List<Value> values = helper.extractValues(block, (short) 2);
-        Phrase<V> left = helper.extractValue(values, new ExprParam(BlocklyConstants.FREQUENCE, Integer.class));
-        Phrase<V> right = helper.extractValue(values, new ExprParam(BlocklyConstants.DURATION, Integer.class));
-        return ToneAction.make(
-            helper.convertPhraseToExpr(left),
-            helper.convertPhraseToExpr(right),
-            helper.extractBlockProperties(block),
-            helper.extractComment(block));
+        final List<Value> values = helper.extractValues(block, (short) 2);
+        final Phrase<V> left = helper.extractValue(values, new ExprParam(BlocklyConstants.FREQUENCE, Integer.class));
+        final Phrase<V> right = helper.extractValue(values, new ExprParam(BlocklyConstants.DURATION, Integer.class));
+        return ToneAction
+            .make(helper.convertPhraseToExpr(left), helper.convertPhraseToExpr(right), helper.extractBlockProperties(block), helper.extractComment(block));
     }
 
     @Override
     public Block astToBlock() {
-        Block jaxbDestination = new Block();
+        final Block jaxbDestination = new Block();
         JaxbTransformerHelper.setBasicProperties(this, jaxbDestination);
 
         JaxbTransformerHelper.addValue(jaxbDestination, BlocklyConstants.FREQUENCE, getFrequency());
         JaxbTransformerHelper.addValue(jaxbDestination, BlocklyConstants.DURATION, getDuration());
 
         return jaxbDestination;
+    }
+
+    public Phrase<V> getSpeed() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }
