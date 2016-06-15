@@ -24,6 +24,7 @@ public class AstToLejosJavaVisitorTest {
         + "#define WHEELDIAMETER 5.6\n"
         + "#define TRACKWIDTH 17.0\n"
         + "#include\"hal.h\""
+        + "#include\"NXCDefs.h\""
 
         + "task main(){"
         + "    SetSensorTouch(IN_1);\n"
@@ -136,6 +137,7 @@ public class AstToLejosJavaVisitorTest {
     public void test4() throws Exception {
 
         final String a = "" //
+
             + MAIN_METHOD
 
             + "        if ( 5 < MotorPower(OUT_B); ) {\n\n\n"
