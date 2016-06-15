@@ -1359,7 +1359,6 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             case LOG10:
                 this.sb.append("math_log(");
                 break;
-            //TODO: change constants calling?
             case EXP:
                 this.sb.append("math_pow(E, ");
                 break;
@@ -1483,8 +1482,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     // TODO: find out hoe to establish bluetooth connection using nxc
     @Override
     public Void visitBluetoothReceiveAction(BluetoothReceiveAction<Void> bluetoothReadAction) {
-        this.sb.append("hal.readMessage(");
-        bluetoothReadAction.getConnection().visit(this);
+        this.sb.append("bluetooth_get_msg(");
+        //bluetoothReadAction.getConnection().visit(this);
         this.sb.append(")");
         return null;
     }
@@ -1505,11 +1504,9 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitBluetoothSendAction(BluetoothSendAction<Void> bluetoothSendAction) {
-        this.sb.append("hal.sendMessage(");
+        this.sb.append("bluetooth_send_msg(");
         if ( bluetoothSendAction.getMsg().getKind() != BlockType.STRING_CONST ) {
-            this.sb.append("String.valueOf(");
-            bluetoothSendAction.getMsg().visit(this);
-            this.sb.append(")");
+            String.valueOf(bluetoothSendAction.getMsg().visit(this));
         } else {
             bluetoothSendAction.getMsg().visit(this);
         }
@@ -1521,7 +1518,9 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitBluetoothWaitForConnectionAction(BluetoothWaitForConnectionAction<Void> bluetoothWaitForConnection) {
-        this.sb.append("hal.waitForConnection()");
+        this.sb.append("int connection = ;");
+        //get the numer
+        this.sb.append("BTCheck(connection);");
         return null;
     }
 
@@ -2252,6 +2251,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         this.sb.append("#define WHEELDIAMETER " + this.brickConfiguration.getWheelDiameterCM() + "\n");
         this.sb.append("#define TRACKWIDTH " + this.brickConfiguration.getTrackWidthCM() + "\n");
         this.sb.append("#include \"hal.h\" \n");
+        this.sb.append("#include \"NXCDefs.h\" \n");
         //TODO: change it to remove custom function visitor
         for ( final FunctionNames customFunction : this.usedFunctions ) {
             switch ( customFunction ) {

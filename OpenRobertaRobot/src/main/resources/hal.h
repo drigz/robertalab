@@ -4,8 +4,45 @@
 #define E 2.718281828459045
 #endif
 
+#ifndef GOLDEN_RATIO
+#define GOLDEN_RATIO 1.61803398875
+#endif
 
-//Bluetooth functions
+
+#ifndef SQRT2
+#define SQRT2 1.41421356237
+#endif
+
+#ifndef SQRT1_2
+#define SQRT1_2 0.707106781187
+#endif
+
+#ifndef INFINITY
+#define INFINITY 0x7f800000
+#endif
+
+//Bluetooth functions and constants
+
+#ifndef BT_CONN
+#define BT_CONN 1
+#endif
+
+#ifndef OUTBOX
+#define OUTBOX 5
+#endif
+
+#ifndef INBOX
+#define INBOX 1
+#endif
+
+#ifndef OUT_MBOX
+#define OUT_MBOX 1
+#endif
+
+#ifndef IN_MBOX
+#define IN_MBOX 5
+#endif
+
 sub BTCheck(int conn){
   if (!BluetoothStatus(conn)==NO_ERR){
     TextOut(5,LCD_LINE2,"Error");
@@ -13,6 +50,35 @@ sub BTCheck(int conn){
     Stop(true);
   }
 }
+
+inline string bluetooth_get_msg(){
+  TextOut(5,LCD_LINE1,"Slave receiving");
+  string in = "NO MESSAGE";
+  if (BTCheck(0) == true){
+    SendResponseNumber(OUT_MBOX,0xFF); //unblock master
+    while(true){
+      if (ReceiveRemoteString(IN_MBOX,true,in) != STAT_MSG_EMPTY_MAILBOX) {
+        TextOut(0,LCD_LINE3," ");
+        TextOut(5,LCD_LINE3,in);
+        SendResponseNumber(OUT_MBOX,0xFF);
+      }
+      Wait(10); //take breath (optional)
+    }
+  }
+}
+
+inline void bluetooth_send_msg(string msg , int connection){
+  TextOut(10,LCD_LINE1,"Master sending");
+  int ack = 0;
+  TextOut(0,LCD_LINE3," ");
+  TextOut(5,LCD_LINE3,msg);
+  SendRemoteString(connection,OUTBOX,msg);
+  until(ack==0xFF) {
+    until(ReceiveRemoteNumber(INBOX,true,ack) == NO_ERR);
+  }
+  Wait(250);
+}
+
 
 //math Functions
 
