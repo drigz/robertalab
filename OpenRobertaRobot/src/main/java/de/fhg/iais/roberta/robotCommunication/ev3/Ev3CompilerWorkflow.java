@@ -1,12 +1,10 @@
 package de.fhg.iais.roberta.robotCommunication.ev3;
 
 import java.io.File;
+import java.lang.ProcessBuilder.Redirect;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.tools.ant.BuildEvent;
-import org.apache.tools.ant.BuildListener;
-import org.apache.tools.ant.ProjectHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,7 +87,7 @@ public class Ev3CompilerWorkflow {
 
         //Ev3CompilerWorkflow.LOG.info("generated code:\n{}", sourceCode); // only needed for EXTREME debugging
         try {
-            storeGeneratedProgram(token, programName, sourceCode, lang.getExtension());
+            storeGeneratedProgram(token, programName, sourceCode, ".nxc");
         } catch ( Exception e ) {
             Ev3CompilerWorkflow.LOG.error("Storing the generated program into directory " + token + " failed", e);
             return Key.COMPILERWORKFLOW_ERROR_PROGRAM_STORE_FAILED;
@@ -193,54 +191,26 @@ public class Ev3CompilerWorkflow {
      */
     Key runBuild(String token, String mainFile, String mainPackage) {
         final StringBuilder sb = new StringBuilder();
+        String scriptName = "../OpenRobertaServer/src/main/resources/nbc";
+
         try {
-            File buildFile = new File(this.pathToCrossCompilerBuildXMLResource);
-            org.apache.tools.ant.Project project = new org.apache.tools.ant.Project();
+            ProcessBuilder procBuilder = new ProcessBuilder(new String[] {
+                scriptName,
+                this.pathToCrosscompilerBaseDir + token + "/src/" + mainFile + ".nxc",
+                "-O=" + this.pathToCrosscompilerBaseDir + token + "/" + mainFile + ".rxc",
+                "-I=./src/main/resources/hal.h"
 
-            project.init();
-            project.setProperty("user.projects.dir", this.pathToCrosscompilerBaseDir);
-            project.setProperty("crosscompiler.resources.dir", this.crossCompilerResourcesDir);
-            project.setProperty("token.dir", token);
-            project.setProperty("main.name", mainFile);
-            project.setProperty("main.package", mainPackage);
-
-            ProjectHelper projectHelper = ProjectHelper.getProjectHelper();
-            projectHelper.parse(project, buildFile);
-
-            project.addBuildListener(new BuildListener() {
-                @Override
-                public void taskStarted(BuildEvent event) {
-                }
-
-                @Override
-                public void taskFinished(BuildEvent event) {
-                }
-
-                @Override
-                public void targetStarted(BuildEvent event) {
-                    sb.append("targetStart: ").append(event.getTarget().getName()).append("\n");
-                }
-
-                @Override
-                public void targetFinished(BuildEvent event) {
-                    sb.append("targetEnd:   ").append(event.getTarget().getName()).append("\n");
-                }
-
-                @Override
-                public void messageLogged(BuildEvent event) {
-                    sb.append(event.getMessage()).append("\n");
-                }
-
-                @Override
-                public void buildStarted(BuildEvent event) {
-                }
-
-                @Override
-                public void buildFinished(BuildEvent event) {
-                }
             });
-            project.executeTarget(project.getDefaultTarget());
-            // LOG.info("build ok. Messages from build script are:\n" + sb.toString());
+            procBuilder.redirectInput(Redirect.INHERIT);
+            procBuilder.redirectOutput(Redirect.INHERIT);
+            procBuilder.redirectError(Redirect.INHERIT);
+            Process p = procBuilder.start();
+            int ecode = p.waitFor();
+            System.err.println("Exit code " + ecode);
+
+            if ( ecode != 0 ) {
+                return Key.COMPILERWORKFLOW_ERROR_PROGRAM_COMPILE_FAILED;
+            }
             return Key.COMPILERWORKFLOW_SUCCESS;
         } catch ( Exception e ) {
             if ( sb.length() > 0 ) {
@@ -248,6 +218,7 @@ public class Ev3CompilerWorkflow {
             } else {
                 Ev3CompilerWorkflow.LOG.error("exception when preparing the build", e);
             }
+            e.printStackTrace();
             return Key.COMPILERWORKFLOW_ERROR_PROGRAM_COMPILE_FAILED;
         }
     }

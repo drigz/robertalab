@@ -52,8 +52,8 @@ public class Ev3DownloadJar { // TODO(ensonic): rename to Ev3DownloadCode
             String programName = state.getProgramName();
             String fileName, filePath;
             if ( state.getFirmwareName().equals("lejos") ) {
-                fileName = programName + ".jar";
-                filePath = this.pathToCrosscompilerBaseDir + token + "/target";
+                fileName = programName + ".rxc";
+                filePath = this.pathToCrosscompilerBaseDir + token + "/";
             } else {
                 fileName = programName + ".py";
                 filePath = this.pathToCrosscompilerBaseDir + token + "/src";
