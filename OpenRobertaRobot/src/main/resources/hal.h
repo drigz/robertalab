@@ -1,3 +1,10 @@
+//Constants
+
+#ifndef E
+#define E 2.718281828459045
+#endif
+
+
 //Bluetooth functions
 sub BTCheck(int conn){
   if (!BluetoothStatus(conn)==NO_ERR){
