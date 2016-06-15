@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import de.fhg.iais.roberta.shared.action.ev3.TurnDirection;
 import de.fhg.iais.roberta.syntax.Phrase;
 import de.fhg.iais.roberta.syntax.action.ev3.DriveAction;
 import de.fhg.iais.roberta.syntax.action.ev3.MotorDriveStopAction;
@@ -122,7 +123,7 @@ public class CustomFunctionsVisitor extends CheckVisitor {
         case POW10:
             this.functionWasMet.add(mathSingleFunct.getFunctName());
             break;
-
+        
         case ROUND:
             this.functionWasMet.add(mathSingleFunct.getFunctName());
             break;
@@ -187,10 +188,12 @@ public class CustomFunctionsVisitor extends CheckVisitor {
     public Void visitTurnAction(TurnAction<Void> turnAction) {
 
         final boolean isDuration = turnAction.getParam().getDuration() != null;
-        if ( isDuration == true ) {
-
-            turnAction.getParam().getDuration().getValue().visit(this);
+        if ( turnAction.getDirection() == TurnDirection.RIGHT ) {
+            this.functionWasMet.add(FunctionNames.TURN_RIGHT);
+        } else {
+            this.functionWasMet.add(FunctionNames.TURN_LEFT);
         }
+
         turnAction.getParam().getSpeed().visit(this);
         return null;
     }

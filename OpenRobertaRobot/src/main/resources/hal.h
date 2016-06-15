@@ -1,3 +1,12 @@
+//Bluetooth functions
+sub BTCheck(int conn){
+  if (!BluetoothStatus(conn)==NO_ERR){
+    TextOut(5,LCD_LINE2,"Error");
+    Wait(1000);
+    Stop(true);
+  }
+}
+
 //math Functions
 
 inline int math_floor(float val) {

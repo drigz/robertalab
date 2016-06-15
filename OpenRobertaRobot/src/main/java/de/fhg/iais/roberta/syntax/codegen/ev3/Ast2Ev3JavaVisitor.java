@@ -229,9 +229,9 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                 return "string";
             case VOID:
                 return "void";
-            //TODO: find appropriate Bluetooth object
+            //in nxt code examples this connection is given as a simple integer
             case CONNECTION:
-                return "NXTConnection";
+                return "int";
         }
         throw new IllegalArgumentException("unhandled type");
     }
@@ -1139,7 +1139,6 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    //TODO: deal with empty lists
     @Override
     public Void visitLengthOfIsEmptyFunct(LengthOfIsEmptyFunct<Void> lengthOfIsEmptyFunct) {
 
@@ -2257,8 +2256,6 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         //TODO: change it to remove custom function visitor
         for ( final FunctionNames customFunction : this.usedFunctions ) {
             switch ( customFunction ) {
-                case EXP:
-                    this.sb.append("#define E 2.71828 \n");
                 case TURN_LEFT:
                     this.sb.append("#define turn_right(s,t) \n");
                 case TURN_RIGHT:
