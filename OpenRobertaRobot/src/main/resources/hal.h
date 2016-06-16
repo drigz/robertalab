@@ -432,26 +432,5 @@ inline float OnReg(int ports, float speed,int regmode)
    OnFwdReg(OUT_B, speed,regmode) ;
   }
   }  
-  inline float turn_left(int ports, float speed)
-{
-  if (speed < 0){
-     OnFwd(OUT_B, speed);
-    OnRev(OUT_A, speed) ;
-
-  }
-  else{
-   Off(OUT_AB);
-  }
-  }
-  inline float turn_right(int ports, float speed)
-{
-  if (speed < 0){
-     OnFwd(OUT_A, speed);
-    OnRev(OUT_B, speed) ;
-
-  }
-  else{
-   Off(OUT_AB);
-  }
-  }
   
+ 

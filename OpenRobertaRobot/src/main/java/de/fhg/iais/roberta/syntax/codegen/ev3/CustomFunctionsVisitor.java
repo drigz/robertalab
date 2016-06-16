@@ -123,7 +123,7 @@ public class CustomFunctionsVisitor extends CheckVisitor {
         case POW10:
             this.functionWasMet.add(mathSingleFunct.getFunctName());
             break;
-        
+
         case ROUND:
             this.functionWasMet.add(mathSingleFunct.getFunctName());
             break;
@@ -190,6 +190,7 @@ public class CustomFunctionsVisitor extends CheckVisitor {
         final boolean isDuration = turnAction.getParam().getDuration() != null;
         if ( turnAction.getDirection() == TurnDirection.RIGHT ) {
             this.functionWasMet.add(FunctionNames.TURN_RIGHT);
+
         } else {
             this.functionWasMet.add(FunctionNames.TURN_LEFT);
         }
@@ -200,8 +201,9 @@ public class CustomFunctionsVisitor extends CheckVisitor {
 
     @Override
     public Void visitMotorGetPowerAction(MotorGetPowerAction<Void> motorGetPowerAction) {
-        // TODO Auto-generated method stub
         return null;
+        // TODO Auto-generated method stub
+
     }
 
     @Override
@@ -216,8 +218,9 @@ public class CustomFunctionsVisitor extends CheckVisitor {
 
     @Override
     public Void visitMotorSetPowerAction(MotorSetPowerAction<Void> motorSetPowerAction) {
-        // TODO Auto-generated method stub
+        this.functionWasMet.add(FunctionNames.OnfwdReg);
         return null;
+        // TODO Auto-generated method stub
     }
 
     @Override
