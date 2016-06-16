@@ -840,7 +840,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitMotorDriveStopAction(MotorDriveStopAction<Void> stopAction) {
-        this.sb.append("off();");
+        this.sb.append("Off();");
         return null;
     }
 
@@ -2268,10 +2268,10 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
             switch ( customFunction ) {
                 case TURN_LEFT:
-                    this.sb.append("#define turn_left(s,t)\"OnRev(OUT_A, s);OnFwd(OUT_B, s);\n");
+                    this.sb.append("#define turn_left(s,t)OnRev(OUT_A, s);OnFwd(OUT_B, s);\n");
 
                 case TURN_RIGHT:
-                    this.sb.append("#define turn_right(s,t)\"OnFwd(OUT_A, s);OnRev(OUT_B, s);\n");
+                    this.sb.append("#define turn_right(s,t)OnFwd(OUT_A, s);OnRev(OUT_B, s);\n");
             }
         }
     }
