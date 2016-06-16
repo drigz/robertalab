@@ -1679,7 +1679,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     }
 
     /*private void addFunctions() {
-    
+
         for ( final FunctionNames customFunction : this.usedFunctions ) {
             switch ( customFunction ) {
                 case PRIME:

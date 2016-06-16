@@ -8,7 +8,7 @@ public class MotorDriveStopActionTest {
 
     @Test
     public void stop() throws Exception {
-        String a = "\noff();";
+        final String a = "\nOff();";
 
         Helper.assertCodeIsOk(a, "/ast/actions/action_Stop.xml");
     }

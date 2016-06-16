@@ -1,6 +1,7 @@
 package de.fhg.iais.roberta.syntax.action.ev3;
 
 import de.fhg.iais.roberta.blockly.generated.Block;
+import de.fhg.iais.roberta.shared.action.ev3.ActorPort;
 import de.fhg.iais.roberta.syntax.BlockType;
 import de.fhg.iais.roberta.syntax.BlocklyBlockProperties;
 import de.fhg.iais.roberta.syntax.BlocklyComment;
@@ -55,8 +56,13 @@ public class MotorDriveStopAction<V> extends Action<V> {
 
     @Override
     public Block astToBlock() {
-        Block jaxbDestination = new Block();
+        final Block jaxbDestination = new Block();
         JaxbTransformerHelper.setBasicProperties(this, jaxbDestination);
         return jaxbDestination;
+    }
+
+    public static ActorPort getPort() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }
