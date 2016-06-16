@@ -684,11 +684,21 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             showTextAction.getMsg().visit(this);
         } else if ( showTextAction.getMsg().getKind() == BlockType.BOOL_CONST ) {
             showTextAction.equals(this.TRUE);
-            this.sb.append("\"" + ",true" + "\"");
-            showTextAction.equals(this.FALSE);
-            this.sb.append("\"" + ",false" + "\"");
+            this.sb.append("\"" + "true" + "\"");
         }
 
+        else if ( showTextAction.getMsg().getKind() == BlockType.BOOL_CONST ) {
+            ;
+            showTextAction.equals(this.FALSE);
+
+            this.sb.append("\"" + "false" + "\"");
+        }
+        if ( showTextAction.getMsg().getKind() == BlockType.NUM_CONST ) {
+            this.sb.append("NumToStr(");
+
+            showTextAction.getMsg().visit(this);
+            this.sb.append(")");
+        }
         this.sb.append(");");
         return null;
     }
@@ -834,7 +844,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    @Override
+    @Override // no bricksensor
     public Void visitBrickSensor(BrickSensor<Void> brickSensor) {
         switch ( brickSensor.getMode() ) {
             case IS_PRESSED:
@@ -853,26 +863,27 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     public Void visitColorSensor(ColorSensor<Void> colorSensor) {
         final String Port = getEnumCode(colorSensor.getPort());
 
-        final String methodName = "SetSensor";
-        this.sb.append(methodName + "(IN_");
+        final String methodName = "SetSensorLight";
+        this.sb.append(methodName + "(IN_3");
         this.brickConfiguration.getSensors().entrySet();
+        this.sb.append(",");
         switch ( colorSensor.getMode() ) {
             case AMBIENTLIGHT:
-                this.sb.append(Port + (",") + ("AMBIENT"));
+                this.sb.append("IN_TYPE_COLORAMBIENT");
                 this.sb.append(")" + (";"));
                 break;
             case COLOUR:
-                this.sb.append(Port + (",") + ("COLOUR"));
+                this.sb.append("IN_TYPE_COLORCOLOUR");
                 this.sb.append(")" + (";"));
 
                 break;
             case RED:
-                this.sb.append(Port + (",") + ("RED"));
+                this.sb.append("IN_TYPE_COLORRED");
                 this.sb.append(")" + (";"));
 
                 break;
             case RGB:
-                this.sb.append(Port + (",") + ("RGB"));
+                this.sb.append("IN_TYPE_COLORRGB");
                 this.sb.append(")" + (";"));
                 break;
             default:
@@ -897,7 +908,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    @Override
+    @Override // no gyrosensor
     public Void visitGyroSensor(GyroSensor<Void> gyroSensor) {
         final String Port = getEnumCode(gyroSensor.getPort());
         final String methodName = "SetSensorGyro";
@@ -922,7 +933,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    @Override
+    @Override // no infrared sensor
     public Void visitInfraredSensor(InfraredSensor<Void> infraredSensor) {
         final String Port = getEnumCode(infraredSensor.getPort());
         final String methodName = "SetSensorInfrared";
@@ -962,21 +973,21 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     public Void visitTouchSensor(TouchSensor<Void> touchSensor) {
 
         if ( touchSensor.getPort() == SensorPort.S1 ) {
-            this.sb.append(",1 pressed");
+            this.sb.append("," + "\"" + "1 pressed" + "\"");
         } else {
             if ( touchSensor.getPort() == SensorPort.S2 ) {
                 ;
             }
-            this.sb.append(",2 pressed");
+            this.sb.append("," + "\"" + "2 pressed" + "\"");
 
             if ( touchSensor.getPort() == SensorPort.S3 ) {
                 ;
             }
-            this.sb.append(",3 pressed");
+            this.sb.append("," + "\"" + "3 pressed" + "\"");
             if ( touchSensor.getPort() == SensorPort.S4 ) {
                 ;
             }
-            this.sb.append(",4 pressed");
+            this.sb.append("," + "\"" + "2 pressed" + "\"");
         }
         return null;
     }
@@ -2252,16 +2263,17 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         this.sb.append("#include \"hal.h\" \n");
         this.sb.append("#include \"NXCDefs.h\" \n");
         //TODO: change it to remove custom function visitor
-        /*for ( final FunctionNames customFunction : this.usedFunctions ) {
+
+        for ( final FunctionNames customFunction : this.usedFunctions ) {
+
             switch ( customFunction ) {
                 case TURN_LEFT:
-                    this.sb.append("#define turn_left(s,t)\n");
+                    this.sb.append("#define turn_left(s,t)\"OnRev(OUT_A, s);OnFwd(OUT_B, s);\n");
 
                 case TURN_RIGHT:
-                    this.sb.append("#define turn_right(s,t) \n");
+                    this.sb.append("#define turn_right(s,t)\"OnFwd(OUT_A, s);OnRev(OUT_B, s);\n");
             }
-        
-        }*/
+        }
     }
 
     private void generatePrefix(boolean withWrapping) {
