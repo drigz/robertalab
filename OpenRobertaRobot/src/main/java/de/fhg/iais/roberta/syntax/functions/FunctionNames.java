@@ -55,8 +55,9 @@ public enum FunctionNames {
     TURN_LEFT( 10, Assoc.NONE ),
     OnReg( 10, Assoc.NONE ),
     OnfwdReg( 10, Assoc.NONE ),
-    OnRevReg( 10, Assoc.NONE );
-
+    OnRevReg( 10, Assoc.NONE ),
+    BLUE( 10, Assoc.NONE ),
+    RED( 10, Assoc.NONE );
     private final String[] values;
     private final int precedence;
     private final Assoc assoc;

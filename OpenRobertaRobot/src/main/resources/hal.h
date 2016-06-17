@@ -422,7 +422,7 @@ inline int array_find_last_bool(bool arr[], bool item) {
       return ArrayLen(arr) - 1 - i;
   }
 }
-inline float OnReg(int ports, float speed,int regmode)
+inline float on_reg(int ports, float speed,int regmode)
 {
   if (speed > 0){
     OnRevReg(OUT_C, speed,regmode);
@@ -431,6 +431,17 @@ inline float OnReg(int ports, float speed,int regmode)
   else{
    OnFwdReg(OUT_B, speed,regmode) ;
   }
-  }  
+}  
+sub turn_right(float s, float t){
+  OnFwd(OUT_A, s);
+  OnRev(OUT_B, s);
+  Wait(t);
+}
+sub turn_left(float s, float t){
+  OnFwd(OUT_A, s);
+  OnRev(OUT_B, s);
+  Wait(t);
+}
+
   
  
