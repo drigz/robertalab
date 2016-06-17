@@ -133,7 +133,7 @@ public class AstToLejosJavaVisitorTest {
         assertCodeIsOk(a, "/syntax/code_generator/java/java_code_generator3.xml");
     }
 
-    //ignore
+    // ignore
     public void test4() throws Exception {
 
         final String a = "" //
