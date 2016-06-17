@@ -23,60 +23,72 @@
 
 //Bluetooth functions and constants
 
-#ifndef BT_CONN
-#define BT_CONN 1
-#endif
-
-#ifndef OUTBOX
-#define OUTBOX 5
-#endif
-
-#ifndef INBOX
-#define INBOX 1
-#endif
-
-#ifndef OUT_MBOX
-#define OUT_MBOX 1
-#endif
-
-#ifndef IN_MBOX
-#define IN_MBOX 5
+#ifndef BT_SLAVE_CONN
+#define BT_SLAVE_CONN 0
 #endif
 
 sub BTCheck(int conn){
   if (!BluetoothStatus(conn)==NO_ERR){
     TextOut(5,LCD_LINE2,"Error");
     Wait(1000);
-    Stop(true);
+    StopAllTasks();
   }
 }
 
-inline string bluetooth_get_msg(){
-  TextOut(5,LCD_LINE1,"Slave receiving");
-  string in = "NO MESSAGE";
-  if (BTCheck(0) == true){
-    SendResponseNumber(OUT_MBOX,0xFF); //unblock master
-    while(true){
-      if (ReceiveRemoteString(IN_MBOX,true,in) != STAT_MSG_EMPTY_MAILBOX) {
-        TextOut(0,LCD_LINE3," ");
-        TextOut(5,LCD_LINE3,in);
-        SendResponseNumber(OUT_MBOX,0xFF);
-      }
-      Wait(10);
-    }
+
+sub bluetooth_get_number(int inbox){
+  int in;
+  ReceiveRemoteNumber(inbox,true,in);
+  TextOut(0,LCD_LINE3,"Receiving");
+  TextOut(0,LCD_LINE4,"  ");
+  NumOut(5,LCD_LINE4,in);
+}
+
+sub bluetooth_send_number(int out, int connection, int inbox, int outbox){
+  TextOut(0,LCD_LINE1,"Sending");
+  TextOut(0,LCD_LINE2,"  ");
+  NumOut(5,LCD_LINE2,out);
+  SendRemoteNumber(connection,outbox,out);
+}
+
+sub bluetooth_get_string(int inbox){
+  string in;
+  ReceiveRemoteString(inbox,true,in);
+  TextOut(0,LCD_LINE3,"Receiving");
+  TextOut(0,LCD_LINE4,"  ");
+  TextOut(5,LCD_LINE4,in);
+}
+
+sub bluetooth_send_string(string out, int connection, int inbox, int outbox){
+  TextOut(0,LCD_LINE1,"Sending");
+  TextOut(0,LCD_LINE2,"  ");
+  TextOut(5,LCD_LINE2,out);
+  SendRemoteString(connection,outbox,out);
+}
+
+sub bluetooth_get_bool(int inbox){
+  bool in;
+  ReceiveRemoteBool(inbox,true,in);
+  TextOut(0,LCD_LINE3,"Receiving");
+  TextOut(0,LCD_LINE4,"  ");
+  if (in == true){
+    TextOut(5,LCD_LINE2,"true");
+  }
+  else{
+    TextOut(5,LCD_LINE2,"false");
   }
 }
 
-inline void bluetooth_send_msg(string msg , int connection){
-  TextOut(10,LCD_LINE1,"Master sending");
-  int ack = 0;
-  TextOut(0,LCD_LINE3," ");
-  TextOut(5,LCD_LINE3,msg);
-  SendRemoteString(connection,OUTBOX,msg);
-  until(ack==0xFF) {
-    until(ReceiveRemoteNumber(INBOX,true,ack) == NO_ERR);
+sub bluetooth_send_bool(bool out, int connection, int inbox, int outbox){
+  TextOut(0,LCD_LINE1,"Sending");
+  TextOut(0,LCD_LINE2,"  ");
+  if (out == true){
+    TextOut(5,LCD_LINE2,"true");
   }
-  Wait(250);
+  else{
+    TextOut(5,LCD_LINE2,"false");
+  }
+  SendRemoteBool(connection,outbox,out);
 }
 
 

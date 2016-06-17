@@ -281,6 +281,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     };
 
+    //now all these constants (except for PI that was originally in nxc) are defined in hal.h
     @Override
     public Void visitMathConst(MathConst<Void> mathConst) {
         switch ( mathConst.getMathConst() ) {
@@ -288,20 +289,20 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                 this.sb.append("PI");
                 break;
             case E:
-                this.sb.append("2.71828");
+                this.sb.append("E");
                 break;
             case GOLDEN_RATIO:
-                this.sb.append("((1.0 + sqrt(5.0)) / 2.0)");
+                this.sb.append("GOLDEN_RATIO");
                 break;
             case SQRT2:
-                this.sb.append("sqrt(2)");
+                this.sb.append("SQRT2");
                 break;
             case SQRT1_2:
-                this.sb.append("sqrt(1.0/2.0)");
+                this.sb.append("SQRT1_2");
                 break;
             // IEEE 754 floating point representation
             case INFINITY:
-                this.sb.append("0x7f800000");
+                this.sb.append("INFINITY");
                 break;
             default:
                 break;
@@ -1063,7 +1064,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    //TODO: LISTS
+    //TODO: LISTs. Decide if these blocks are needed.
 
     @Override
     public Void visitGetSubFunct(GetSubFunct<Void> getSubFunct) {
@@ -1092,7 +1093,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     }
 
-    //TODO: perhaps look into the types
+    //TODO: try to do more tests
     @Override
     public Void visitIndexOfFunct(IndexOfFunct<Void> indexOfFunct) {
         final BlocklyType typeArr = indexOfFunct.getParam().get(0).getVariableType();
@@ -1183,6 +1184,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
+    //TODO: LISTs. Decide if these blocks are needed.
     @Override
     public Void visitListRepeat(ListRepeat<Void> listRepeat) {
         this.sb.append("BlocklyMethods.createListWithItem(");
@@ -1426,6 +1428,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
+    //ODO: LISTs. Decide if this block is needed.
     @Override
     public Void visitTextJoinFunct(TextJoinFunct<Void> textJoinFunct) {
         //Fix this method
@@ -1490,18 +1493,24 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    // TODO: find out hoe to establish bluetooth connection using nxc
+    // TODO: fix blocks
+    // the function is in hal.h
     @Override
     public Void visitBluetoothReceiveAction(BluetoothReceiveAction<Void> bluetoothReadAction) {
-        this.sb.append("bluetooth_get_msg(");
+        this.sb.append("bluetooth_get_number(");
+        //TODO: add these block options:
+        //this.sb.append("bluetooth_get_string(");
+        //this.sb.append("bluetooth_get_boolean(");
+        // the function accepts inbox address (int)
         //bluetoothReadAction.getConnection().visit(this);
         this.sb.append(")");
         return null;
     }
 
+    // not needed for nxt
     @Override
     public Void visitBluetoothConnectAction(BluetoothConnectAction<Void> bluetoothConnectAction) {
-        this.sb.append("hal.establishConnectionTo(");
+        /*this.sb.append("hal.establishConnectionTo(");
         if ( bluetoothConnectAction.get_address().getKind() != BlockType.STRING_CONST ) {
             this.sb.append("String.valueOf(");
             bluetoothConnectAction.get_address().visit(this);
@@ -1509,29 +1518,37 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         } else {
             bluetoothConnectAction.get_address().visit(this);
         }
-        this.sb.append(")");
+        this.sb.append(")");*/
         return null;
     }
 
+    // the function is in hal.h
     @Override
     public Void visitBluetoothSendAction(BluetoothSendAction<Void> bluetoothSendAction) {
-        this.sb.append("bluetooth_send_msg(");
-        if ( bluetoothSendAction.getMsg().getKind() != BlockType.STRING_CONST ) {
-            String.valueOf(bluetoothSendAction.getMsg().visit(this));
-        } else {
-            bluetoothSendAction.getMsg().visit(this);
-        }
-        this.sb.append(", ");
-        bluetoothSendAction.getConnection().visit(this);
+        this.sb.append("bluetooth_send_number(");
+        //TODO: add these block options: output variable (string, boolean or number. Need to create an enumeration), connection (int, 1-3 for master, always
+        // 0 for slave), outbox address (int)
+        //this.sb.append("bluetooth_send_string(");
+        //this.sb.append("bluetooth_send_boolean(");
+        // the function accepts the following: inbox address
+
+        //if ( bluetoothSendAction.getMsg().getKind() != BlockType.STRING_CONST ) {
+        //    String.valueOf(bluetoothSendAction.getMsg().visit(this));
+        //} else {
+        //    bluetoothSendAction.getMsg().visit(this);
+        //}
+        //this.sb.append(", ");
+        //bluetoothSendAction.getConnection().visit(this);
         this.sb.append(");");
         return null;
     }
 
+    // not needed for nxt
     @Override
     public Void visitBluetoothWaitForConnectionAction(BluetoothWaitForConnectionAction<Void> bluetoothWaitForConnection) {
-        this.sb.append("int connection = ;");
+        /*this.sb.append("int connection = ;");
         //get the numer
-        this.sb.append("BTCheck(connection);");
+        this.sb.append("BTCheck(connection);");*/
         return null;
     }
 
@@ -1618,6 +1635,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     }
     */
 
+    //TODO: ifStmt.getExpr().get(i) only gives true. Doesn't show body of the block. Fix.
     private void generateCodeFromIfElse(IfStmt<Void> ifStmt) {
         for ( int i = 0; i < ifStmt.getExpr().size(); i++ ) {
             if ( i == 0 ) {
@@ -1635,6 +1653,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         }
     }
 
+    // TODO: is not being shown at all. Fix.
     private void generateCodeFromElse(IfStmt<Void> ifStmt) {
         if ( ifStmt.getElseList().get().size() != 0 ) {
             nlIndent();
@@ -1680,7 +1699,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     }
 
     /*private void addFunctions() {
-    
+
         for ( final FunctionNames customFunction : this.usedFunctions ) {
             switch ( customFunction ) {
                 case PRIME:
@@ -1734,7 +1753,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     nlIndent();
                     this.sb.append("} \n");
                     this.incrIndentation();
-
+    
                     //max of two values
                     this.sb.append("inline float mathMax(float firstValue, float secondValue) {");
                     nlIndent();
@@ -1963,7 +1982,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     nlIndent();
                     this.sb.append("}  \n");
                     this.incrIndentation();
-
+    
                     this.sb.append("inline float arrayMedian(float arr[]) {");
                     nlIndent();
                     this.sb.append("int n = ArrayLen(arr);");
@@ -2017,7 +2036,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     nlIndent();
                     this.sb.append("return result; \n");
                     this.sb.append("} \n");
-
+    
                     this.sb.append("inline float arrayMean(float arr[]) {");
                     nlIndent();
                     this.sb.append("float sum = 0;");
@@ -2032,7 +2051,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     nlIndent();
                     this.sb.append("sum/ArrayLen(arr); \n");
                     this.sb.append("} \n");
-
+    
                     this.sb.append("inline float arrayStandardDeviatioin(float arr[]) {");
                     nlIndent();
                     this.sb.append("int n = ArrayLen(arr);");
@@ -2064,8 +2083,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     this.sb.append("} \n");
                     this.incrIndentation();
                     break;
-    
-    
+
+
                 case WHOLE:
                     this.sb.append("inline bool isWhole(float val){");
                     nlIndent();
@@ -2110,7 +2129,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     nlIndent();
                     this.sb.append("}  \n");
                     this.incrIndentation();
-
+    
                     this.sb.append("inline float arrayMode(float arr[]){");
                     nlIndent();
                     this.sb.append("arrayInsertionSort(arr);");
@@ -2159,7 +2178,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     this.sb.append("}  \n");
                     this.incrIndentation();
                     break;
-
+    
                     case FIRSTARR:
                     this.sb.append("inline int arrayFindFirst( item) {");
                     this.sb.append(this.arrType);
@@ -2196,7 +2215,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     nlIndent();
                     this.sb.append("} \n");
                     this.incrIndentation();
-
+    
                     //TODO: may be put into another function
                     this.sb.append("inline int arrayFindLast( item) {");
                     this.sb.append(this.arrType);
@@ -2234,8 +2253,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     this.sb.append("} \n");
                     this.incrIndentation();
                     break;
-
-
+    
+    
                     case JTEXT:
                     this.sb.append("inline string textJoin (string arr[]) {");
                     nlIndent();
@@ -2252,29 +2271,17 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     this.sb.append("return temp; \n");
                     this.sb.append("}\n");
                     break;
-    
+
             }
         }
     }*/
 
     private void addConstants() {
-
         this.sb.append("#define WHEELDIAMETER " + this.brickConfiguration.getWheelDiameterCM() + "\n");
         this.sb.append("#define TRACKWIDTH " + this.brickConfiguration.getTrackWidthCM() + "\n");
         this.sb.append("#include \"hal.h\" \n");
         this.sb.append("#include \"NXCDefs.h\" \n");
         //TODO: change it to remove custom function visitor
-
-        for ( final FunctionNames customFunction : this.usedFunctions ) {
-
-            switch ( customFunction ) {
-                case TURN_LEFT:
-                    this.sb.append("#define turn_left(s,t)OnRev(OUT_A, s);OnFwd(OUT_B, s);\n");
-
-                case TURN_RIGHT:
-                    this.sb.append("#define turn_right(s,t)OnFwd(OUT_A, s);OnRev(OUT_B, s);\n");
-            }
-        }
     }
 
     private void generatePrefix(boolean withWrapping) {
@@ -2328,15 +2335,15 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         sb.append(INDENT).append(INDENT).append(INDENT).append("    .build();");
         return sb.toString();
     }
-    
-    
+
+
     private void appendSensors(StringBuilder sb) {
         for ( Map.Entry<SensorPort, EV3Sensor> entry : this.brickConfiguration.getSensors().entrySet() ) {
             sb.append(INDENT).append(INDENT).append(INDENT);
             appendOptional(sb, "    .addSensor(", entry.getKey(), entry.getValue());
         }
     }
-    
+
     private void appendActors(StringBuilder sb) {
         for ( Map.Entry<ActorPort, EV3Actor> entry : this.brickConfiguration.getActors().entrySet() ) {
             sb.append(INDENT).append(INDENT).append(INDENT);
@@ -2357,8 +2364,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             sb.append(")\n");
         }
     }
-    
-    
+
+
     private String generateRegenerateUsedSensors() {
         StringBuilder sb = new StringBuilder();
         String arrayOfSensors = "";
@@ -2366,7 +2373,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             arrayOfSensors += usedSensor.generateRegenerate();
             arrayOfSensors += ", ";
         }
-    
+
         sb.append("private Set<UsedSensor> usedSensors = " + "new LinkedHashSet<UsedSensor>(");
         if ( this.usedSensors.size() > 0 ) {
             sb.append("Arrays.asList(" + arrayOfSensors.substring(0, arrayOfSensors.length() - 2) + ")");
@@ -2386,14 +2393,14 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         sb.append(", ").append(getEnumCode(ev3Actor.getRotationDirection())).append(", ").append(getEnumCode(ev3Actor.getMotorSide())).append(")");
         return sb.toString();
     }
-    
+
     private static String generateRegenerateEV3Sensor(HardwareComponent sensor) {
         StringBuilder sb = new StringBuilder();
         sb.append("new EV3Sensor(").append(getHardwareComponentTypeCode(sensor.getComponentType()));
         sb.append(")");
         return sb.toString();
     }
-    
+
     private static String getHardwareComponentTypeCode(HardwareComponentType type) {
         return type.getClass().getSimpleName() + "." + type.getTypeName();
     }
