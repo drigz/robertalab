@@ -8,14 +8,14 @@ public class DriveActionTest {
 
     //ignore
     public void drive() throws Exception {
-        final String a = "OnFwd(OUT_BC,50)";
+        final String a = "OnFwdReg(OUT_BC,50)";
 
         Helper.assertCodeIsOk(a, "/ast/actions/action_MotorDiffOn.xml");
     }
 
     @Test
     public void driveFor() throws Exception {
-        final String a = "\nOnFwd(OUT_BC,50,18.0*20);";
+        final String a = "\nOnFwdReg(OUT_BC,50,18.0*20);";
 
         Helper.assertCodeIsOk(a, "/ast/actions/action_MotorDiffOnFor.xml");
     }
