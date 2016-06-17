@@ -685,11 +685,9 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         } else if ( showTextAction.getMsg().getKind() == BlockType.BOOL_CONST ) {
             showTextAction.equals(this.TRUE);
             this.sb.append("\"" + "true" + "\"");
-        }
-
-        if ( showTextAction.getMsg().getKind() == BlockType.BOOL_CONST ) {
-            ;
-            showTextAction.equals(this.FALSE);
+            if ( showTextAction.equals(this.FALSE) ) {
+                ;
+            }
 
             this.sb.append("\"" + "false" + "\"");
         }
@@ -742,7 +740,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     @Override
     public Void visitMotorSetPowerAction(MotorSetPowerAction<Void> motorSetPowerAction) {
 
-        final String methodName = "OnReg";
+        final String methodName = "on_reg";
 
         final boolean isRegulated = this.brickConfiguration.isMotorRegulated(motorSetPowerAction.getPort());
         this.sb.append(methodName + "(OUT_" + motorSetPowerAction.getPort() + ",");
@@ -830,7 +828,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         if ( isDuration ) {
             this.sb.append(", ");
             if ( turnAction.getParam().getDuration().getType() == de.fhg.iais.roberta.shared.action.ev3.MotorMoveMode.DEGREE ) {
-                this.sb.append("0.0028*"); //1 degree ( ° - deg) = 0.0028 rotations (rot)
+
             }
 
             turnAction.getParam().getDuration().getValue().visit(this);
@@ -860,7 +858,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    @Override
+    @Override // TO DO: have to add nxc colours.
     public Void visitColorSensor(ColorSensor<Void> colorSensor) {
         final String Port = getEnumCode(colorSensor.getPort());
 
@@ -993,7 +991,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    @Override
+    @Override //to do: have to add ultrasonic mode
     public Void visitUltrasonicSensor(UltrasonicSensor<Void> ultrasonicSensor) {
 
         if ( ultrasonicSensor.getPort() == SensorPort.S4 ) {
@@ -2265,17 +2263,17 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         this.sb.append("#include \"NXCDefs.h\" \n");
         //TODO: change it to remove custom function visitor
         //  added constants for turnaction
-        for ( final FunctionNames customFunction : this.usedFunctions ) {
+        //  for ( final FunctionNames customFunction : this.usedFunctions ) {
 
-            switch ( customFunction ) {
-                case TURN_LEFT:
-                    this.sb.append("#define turn_left(s,t)OnRev(OUT_A, s);OnFwd(OUT_B, s);\n");
+        //    switch ( customFunction ) {
+        //      case TURN_LEFT:
+        // this.sb.append("#define turn_left(s,t)OnRev(OUT_A, s);OnFwd(OUT_B, s);\n");
 
-                case TURN_RIGHT:
-                    this.sb.append("#define turn_right(s,t)OnFwd(OUT_A, s);OnRev(OUT_B, s);\n");
-            }
-        }
+        //       case TURN_RIGHT:
+        // this.sb.append("#define turn_right(s,t)OnFwd(OUT_A, s);OnRev(OUT_B, s);\n");
     }
+    //   }
+    // }
 
     private void generatePrefix(boolean withWrapping) {
         if ( !withWrapping ) {
