@@ -2264,7 +2264,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         this.sb.append("#include \"hal.h\" \n");
         this.sb.append("#include \"NXCDefs.h\" \n");
         //TODO: change it to remove custom function visitor
-
+        //  added constants for turnaction
         for ( final FunctionNames customFunction : this.usedFunctions ) {
 
             switch ( customFunction ) {
