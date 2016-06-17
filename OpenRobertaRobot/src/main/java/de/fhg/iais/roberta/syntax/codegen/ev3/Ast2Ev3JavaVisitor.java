@@ -687,6 +687,9 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             this.sb.append("\"" + "true" + "\"");
 
             showTextAction.equals(this.FALSE);
+            if ( showTextAction.equals(this.FALSE) ) {
+                ;
+            }
 
             this.sb.append("\"" + "false" + "\"");
         }

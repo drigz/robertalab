@@ -122,7 +122,7 @@ public class CustomFunctionsVisitor extends CheckVisitor {
         case POW10:
             this.functionWasMet.add(mathSingleFunct.getFunctName());
             break;
-
+        
         case ROUND:
             this.functionWasMet.add(mathSingleFunct.getFunctName());
             break;
