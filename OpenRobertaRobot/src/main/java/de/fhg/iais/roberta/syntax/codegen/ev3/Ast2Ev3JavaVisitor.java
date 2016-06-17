@@ -685,8 +685,6 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         } else if ( showTextAction.getMsg().getKind() == BlockType.BOOL_CONST ) {
             showTextAction.equals(this.TRUE);
             this.sb.append("\"" + "true" + "\"");
-
-            showTextAction.equals(this.FALSE);
             if ( showTextAction.equals(this.FALSE) ) {
                 ;
             }
@@ -783,13 +781,13 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    @Override
+    @Override // regulated drive action
     public Void visitDriveAction(DriveAction<Void> driveAction) {
-        String methodName = "OnFwd";
+        String methodName = "OnFwdReg";
         final boolean isDuration = driveAction.getParam().getDuration() != null;
 
         if ( driveAction.getDirection() == DriveDirection.BACKWARD ) {
-            methodName = "OnRev";
+            methodName = "OnRevReg";
         }
         this.sb.append(methodName + "(OUT_");
         this.sb.append(this.brickConfiguration.getLeftMotorPort());
@@ -860,7 +858,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    @Override
+    @Override // TO DO: have to add nxc colours.
     public Void visitColorSensor(ColorSensor<Void> colorSensor) {
         final String Port = getEnumCode(colorSensor.getPort());
 
@@ -887,7 +885,6 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                 this.sb.append("IN_TYPE_COLORRGB");
                 this.sb.append(")" + (";"));
                 break;
-
             default:
                 throw new DbcException("Invalide mode for Color Sensor!");
         }
@@ -994,7 +991,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    @Override
+    @Override //to do: have to add ultrasonic mode
     public Void visitUltrasonicSensor(UltrasonicSensor<Void> ultrasonicSensor) {
 
         if ( ultrasonicSensor.getPort() == SensorPort.S4 ) {
@@ -2264,19 +2261,19 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         this.sb.append("#define TRACKWIDTH " + this.brickConfiguration.getTrackWidthCM() + "\n");
         this.sb.append("#include \"hal.h\" \n");
         this.sb.append("#include \"NXCDefs.h\" \n");
-
         //TODO: change it to remove custom function visitor
         //  added constants for turnaction
+        //  for ( final FunctionNames customFunction : this.usedFunctions ) {
 
-        // for ( final FunctionNames customFunction : this.usedFunctions ) {
+        //    switch ( customFunction ) {
+        //      case TURN_LEFT:
+        // this.sb.append("#define turn_left(s,t)OnRev(OUT_A, s);OnFwd(OUT_B, s);\n");
 
-        //switch ( customFunction ) {
-        //  case TURN_LEFT:
-        //  this.sb.append("#define turn_left(s,t)OnRev(OUT_A, s);OnFwd(OUT_B, s);\n");
-
-        //    case TURN_RIGHT:
-        //   this.sb.append("#define turn_right(s,t)OnFwd(OUT_A, s);OnRev(OUT_B, s);\n");
+        //       case TURN_RIGHT:
+        // this.sb.append("#define turn_right(s,t)OnFwd(OUT_A, s);OnRev(OUT_B, s);\n");
     }
+    //   }
+    // }
 
     private void generatePrefix(boolean withWrapping) {
         if ( !withWrapping ) {
