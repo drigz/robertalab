@@ -281,6 +281,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     };
 
+    //now all these constants (except for PI that was originally in nxc) are defined in hal.h
     @Override
     public Void visitMathConst(MathConst<Void> mathConst) {
         switch ( mathConst.getMathConst() ) {
@@ -288,20 +289,20 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                 this.sb.append("PI");
                 break;
             case E:
-                this.sb.append("2.71828");
+                this.sb.append("E");
                 break;
             case GOLDEN_RATIO:
-                this.sb.append("((1.0 + sqrt(5.0)) / 2.0)");
+                this.sb.append("GOLDEN_RATIO");
                 break;
             case SQRT2:
-                this.sb.append("sqrt(2)");
+                this.sb.append("SQRT2");
                 break;
             case SQRT1_2:
-                this.sb.append("sqrt(1.0/2.0)");
+                this.sb.append("SQRT1_2");
                 break;
             // IEEE 754 floating point representation
             case INFINITY:
-                this.sb.append("0x7f800000");
+                this.sb.append("INFINITY");
                 break;
             default:
                 break;
@@ -685,9 +686,11 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         } else if ( showTextAction.getMsg().getKind() == BlockType.BOOL_CONST ) {
             showTextAction.equals(this.TRUE);
             this.sb.append("\"" + "true" + "\"");
-            if ( showTextAction.equals(this.FALSE) ) {
-                ;
-            }
+        }
+
+        if ( showTextAction.getMsg().getKind() == BlockType.BOOL_CONST ) {
+            ;
+            showTextAction.equals(this.FALSE);
 
             this.sb.append("\"" + "false" + "\"");
         }
@@ -740,7 +743,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     @Override
     public Void visitMotorSetPowerAction(MotorSetPowerAction<Void> motorSetPowerAction) {
 
-        final String methodName = "on_reg";
+        final String methodName = "OnReg";
 
         final boolean isRegulated = this.brickConfiguration.isMotorRegulated(motorSetPowerAction.getPort());
         this.sb.append(methodName + "(OUT_" + motorSetPowerAction.getPort() + ",");
@@ -781,13 +784,13 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    @Override // regulated drive action
+    @Override
     public Void visitDriveAction(DriveAction<Void> driveAction) {
-        String methodName = "OnFwdReg";
+        String methodName = "OnFwd";
         final boolean isDuration = driveAction.getParam().getDuration() != null;
 
         if ( driveAction.getDirection() == DriveDirection.BACKWARD ) {
-            methodName = "OnRevReg";
+            methodName = "OnRev";
         }
         this.sb.append(methodName + "(OUT_");
         this.sb.append(this.brickConfiguration.getLeftMotorPort());
@@ -828,7 +831,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         if ( isDuration ) {
             this.sb.append(", ");
             if ( turnAction.getParam().getDuration().getType() == de.fhg.iais.roberta.shared.action.ev3.MotorMoveMode.DEGREE ) {
-
+                this.sb.append("0.0028*"); //1 degree ( ° - deg) = 0.0028 rotations (rot)
             }
 
             turnAction.getParam().getDuration().getValue().visit(this);
@@ -858,7 +861,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    @Override // TO DO: have to add nxc colours.
+    @Override
     public Void visitColorSensor(ColorSensor<Void> colorSensor) {
         final String Port = getEnumCode(colorSensor.getPort());
 
@@ -991,7 +994,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    @Override //to do: have to add ultrasonic mode
+    @Override
     public Void visitUltrasonicSensor(UltrasonicSensor<Void> ultrasonicSensor) {
 
         if ( ultrasonicSensor.getPort() == SensorPort.S4 ) {
@@ -1061,7 +1064,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    //TODO: LISTS
+    //TODO: LISTs. Decide if these blocks are needed.
 
     @Override
     public Void visitGetSubFunct(GetSubFunct<Void> getSubFunct) {
@@ -1090,7 +1093,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     }
 
-    //TODO: perhaps look into the types
+    //TODO: try to do more tests
     @Override
     public Void visitIndexOfFunct(IndexOfFunct<Void> indexOfFunct) {
         final BlocklyType typeArr = indexOfFunct.getParam().get(0).getVariableType();
@@ -1181,6 +1184,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
+    //TODO: LISTs. Decide if these blocks are needed.
     @Override
     public Void visitListRepeat(ListRepeat<Void> listRepeat) {
         this.sb.append("BlocklyMethods.createListWithItem(");
@@ -1424,6 +1428,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
+    //ODO: LISTs. Decide if this block is needed.
     @Override
     public Void visitTextJoinFunct(TextJoinFunct<Void> textJoinFunct) {
         //Fix this method
@@ -1488,18 +1493,24 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    // TODO: find out hoe to establish bluetooth connection using nxc
+    // TODO: fix blocks
+    // the function is in hal.h
     @Override
     public Void visitBluetoothReceiveAction(BluetoothReceiveAction<Void> bluetoothReadAction) {
-        this.sb.append("bluetooth_get_msg(");
+        this.sb.append("bluetooth_get_number(");
+        //TODO: add these block options:
+        //this.sb.append("bluetooth_get_string(");
+        //this.sb.append("bluetooth_get_boolean(");
+        // the function accepts inbox address (int)
         //bluetoothReadAction.getConnection().visit(this);
         this.sb.append(")");
         return null;
     }
 
+    // not needed for nxt
     @Override
     public Void visitBluetoothConnectAction(BluetoothConnectAction<Void> bluetoothConnectAction) {
-        this.sb.append("hal.establishConnectionTo(");
+        /*this.sb.append("hal.establishConnectionTo(");
         if ( bluetoothConnectAction.get_address().getKind() != BlockType.STRING_CONST ) {
             this.sb.append("String.valueOf(");
             bluetoothConnectAction.get_address().visit(this);
@@ -1507,29 +1518,37 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         } else {
             bluetoothConnectAction.get_address().visit(this);
         }
-        this.sb.append(")");
+        this.sb.append(")");*/
         return null;
     }
 
+    // the function is in hal.h
     @Override
     public Void visitBluetoothSendAction(BluetoothSendAction<Void> bluetoothSendAction) {
-        this.sb.append("bluetooth_send_msg(");
-        if ( bluetoothSendAction.getMsg().getKind() != BlockType.STRING_CONST ) {
-            String.valueOf(bluetoothSendAction.getMsg().visit(this));
-        } else {
-            bluetoothSendAction.getMsg().visit(this);
-        }
-        this.sb.append(", ");
-        bluetoothSendAction.getConnection().visit(this);
+        this.sb.append("bluetooth_send_number(");
+        //TODO: add these block options: output variable (string, boolean or number. Need to create an enumeration), connection (int, 1-3 for master, always
+        // 0 for slave), outbox address (int)
+        //this.sb.append("bluetooth_send_string(");
+        //this.sb.append("bluetooth_send_boolean(");
+        // the function accepts the following: inbox address
+
+        //if ( bluetoothSendAction.getMsg().getKind() != BlockType.STRING_CONST ) {
+        //    String.valueOf(bluetoothSendAction.getMsg().visit(this));
+        //} else {
+        //    bluetoothSendAction.getMsg().visit(this);
+        //}
+        //this.sb.append(", ");
+        //bluetoothSendAction.getConnection().visit(this);
         this.sb.append(");");
         return null;
     }
 
+    // not needed for nxt
     @Override
     public Void visitBluetoothWaitForConnectionAction(BluetoothWaitForConnectionAction<Void> bluetoothWaitForConnection) {
-        this.sb.append("int connection = ;");
+        /*this.sb.append("int connection = ;");
         //get the numer
-        this.sb.append("BTCheck(connection);");
+        this.sb.append("BTCheck(connection);");*/
         return null;
     }
 
@@ -1616,6 +1635,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     }
     */
 
+    //TODO: ifStmt.getExpr().get(i) only gives true. Doesn't show body of the block. Fix.
     private void generateCodeFromIfElse(IfStmt<Void> ifStmt) {
         for ( int i = 0; i < ifStmt.getExpr().size(); i++ ) {
             if ( i == 0 ) {
@@ -1633,6 +1653,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         }
     }
 
+    // TODO: is not being shown at all. Fix.
     private void generateCodeFromElse(IfStmt<Void> ifStmt) {
         if ( ifStmt.getElseList().get().size() != 0 ) {
             nlIndent();
@@ -2256,24 +2277,12 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     }*/
 
     private void addConstants() {
-
         this.sb.append("#define WHEELDIAMETER " + this.brickConfiguration.getWheelDiameterCM() + "\n");
         this.sb.append("#define TRACKWIDTH " + this.brickConfiguration.getTrackWidthCM() + "\n");
         this.sb.append("#include \"hal.h\" \n");
         this.sb.append("#include \"NXCDefs.h\" \n");
         //TODO: change it to remove custom function visitor
-        //  added constants for turnaction
-        //  for ( final FunctionNames customFunction : this.usedFunctions ) {
-
-        //    switch ( customFunction ) {
-        //      case TURN_LEFT:
-        // this.sb.append("#define turn_left(s,t)OnRev(OUT_A, s);OnFwd(OUT_B, s);\n");
-
-        //       case TURN_RIGHT:
-        // this.sb.append("#define turn_right(s,t)OnFwd(OUT_A, s);OnRev(OUT_B, s);\n");
     }
-    //   }
-    // }
 
     private void generatePrefix(boolean withWrapping) {
         if ( !withWrapping ) {
