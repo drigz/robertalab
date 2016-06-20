@@ -414,6 +414,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
+    //TODO: check default value. Is it so for nxc?
     @Override
     public Void visitEmptyExpr(EmptyExpr<Void> emptyExpr) {
         switch ( emptyExpr.getDefVal().getName() ) {
@@ -672,6 +673,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
+    // TODO: fix boolean output, add arrays
     @Override
     public Void visitShowTextAction(ShowTextAction<Void> showTextAction) {
         this.sb.append("TextOut(");
@@ -846,7 +848,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    @Override // no bricksensor
+    @Override //TODO: *no bricksensor* it is a block for nxt buttons. Should be completed. //Evg
     public Void visitBrickSensor(BrickSensor<Void> brickSensor) {
         switch ( brickSensor.getMode() ) {
             case IS_PRESSED:
@@ -971,41 +973,18 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
+    // TODO: perhaps fix block so it would deal with 0/1 instead of true/false. Also check other modes
+    // of the sensor
     @Override
     public Void visitTouchSensor(TouchSensor<Void> touchSensor) {
-
-        if ( touchSensor.getPort() == SensorPort.S1 ) {
-            this.sb.append("," + "\"" + "1 pressed" + "\"");
-        } else {
-            if ( touchSensor.getPort() == SensorPort.S2 ) {
-                ;
-            }
-            this.sb.append("," + "\"" + "2 pressed" + "\"");
-
-            if ( touchSensor.getPort() == SensorPort.S3 ) {
-                ;
-            }
-            this.sb.append("," + "\"" + "3 pressed" + "\"");
-            if ( touchSensor.getPort() == SensorPort.S4 ) {
-                ;
-            }
-            this.sb.append("," + "\"" + "2 pressed" + "\"");
-        }
+        this.sb.append("is_pressed(" + touchSensor.getPort().getPortNumber() + ")");
         return null;
     }
 
     @Override
     public Void visitUltrasonicSensor(UltrasonicSensor<Void> ultrasonicSensor) {
-
-        if ( ultrasonicSensor.getPort() == SensorPort.S4 ) {
-            ;
-
-            this.sb.append("SetSensorLowspeed(IN_4);");
-        }
-
-        {
-            return null;
-        }
+        this.sb.append("SensorUS(IN_" + ultrasonicSensor.getPort().getPortNumber() + ")");
+        return null;
     }
 
     @Override
@@ -1042,7 +1021,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return sensorGetSample.getSensor().visit(this);
     }
 
-    //irrelevant?
+    //not used
     @Override
     public Void visitTextPrintFunct(TextPrintFunct<Void> textPrintFunct) {
         this.sb.append("System.out.println(");
@@ -1093,7 +1072,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     }
 
-    //TODO: try to do more tests
+    //TODO: do more tests with different parameters
     @Override
     public Void visitIndexOfFunct(IndexOfFunct<Void> indexOfFunct) {
         final BlocklyType typeArr = indexOfFunct.getParam().get(0).getVariableType();
@@ -1234,11 +1213,11 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitMathConstrainFunct(MathConstrainFunct<Void> mathConstrainFunct) {
-        this.sb.append("math_min(math_max(");
+        this.sb.append("constrain(");
         mathConstrainFunct.getParam().get(0).visit(this);
         this.sb.append(", ");
         mathConstrainFunct.getParam().get(1).visit(this);
-        this.sb.append("), ");
+        this.sb.append(", ");
         mathConstrainFunct.getParam().get(2).visit(this);
         this.sb.append(")");
         return null;
@@ -1337,17 +1316,13 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitMathRandomFloatFunct(MathRandomFloatFunct<Void> mathRandomFloatFunct) {
-        this.sb.append("Random(100) / 100");
+        this.sb.append("random_float()");
         return null;
     }
 
     @Override
     public Void visitMathRandomIntFunct(MathRandomIntFunct<Void> mathRandomIntFunct) {
-        this.sb.append("abs(");
-        mathRandomIntFunct.getParam().get(0).visit(this);
-        this.sb.append(" - ");
-        mathRandomIntFunct.getParam().get(1).visit(this);
-        this.sb.append(") * Random(100) / 100 + math_min(");
+        this.sb.append("random_integer_in_range(");
         mathRandomIntFunct.getParam().get(0).visit(this);
         this.sb.append(", ");
         mathRandomIntFunct.getParam().get(1).visit(this);
@@ -1428,7 +1403,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    //ODO: LISTs. Decide if this block is needed.
+    //TODO: JText. Decide if this block is needed.
     @Override
     public Void visitTextJoinFunct(TextJoinFunct<Void> textJoinFunct) {
         //Fix this method
@@ -1543,7 +1518,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    // not needed for nxt
+    // not needed for nxt. Use a block that calls BTCheck(int conn) function instead
     @Override
     public Void visitBluetoothWaitForConnectionAction(BluetoothWaitForConnectionAction<Void> bluetoothWaitForConnection) {
         /*this.sb.append("int connection = ;");
@@ -1635,7 +1610,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     }
     */
 
-    //TODO: ifStmt.getExpr().get(i) only gives true. Doesn't show body of the block. Fix.
+    //TODO: ifStmt.getExpr().get(i) only gives true. Doesn't show body of the block. Old code? Fix.
     private void generateCodeFromIfElse(IfStmt<Void> ifStmt) {
         for ( int i = 0; i < ifStmt.getExpr().size(); i++ ) {
             if ( i == 0 ) {
@@ -1753,7 +1728,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     nlIndent();
                     this.sb.append("} \n");
                     this.incrIndentation();
-    
+
                     //max of two values
                     this.sb.append("inline float mathMax(float firstValue, float secondValue) {");
                     nlIndent();
@@ -1982,7 +1957,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     nlIndent();
                     this.sb.append("}  \n");
                     this.incrIndentation();
-    
+
                     this.sb.append("inline float arrayMedian(float arr[]) {");
                     nlIndent();
                     this.sb.append("int n = ArrayLen(arr);");
@@ -2036,7 +2011,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     nlIndent();
                     this.sb.append("return result; \n");
                     this.sb.append("} \n");
-    
+
                     this.sb.append("inline float arrayMean(float arr[]) {");
                     nlIndent();
                     this.sb.append("float sum = 0;");
@@ -2051,7 +2026,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     nlIndent();
                     this.sb.append("sum/ArrayLen(arr); \n");
                     this.sb.append("} \n");
-    
+
                     this.sb.append("inline float arrayStandardDeviatioin(float arr[]) {");
                     nlIndent();
                     this.sb.append("int n = ArrayLen(arr);");
@@ -2129,7 +2104,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     nlIndent();
                     this.sb.append("}  \n");
                     this.incrIndentation();
-    
+
                     this.sb.append("inline float arrayMode(float arr[]){");
                     nlIndent();
                     this.sb.append("arrayInsertionSort(arr);");
@@ -2178,7 +2153,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     this.sb.append("}  \n");
                     this.incrIndentation();
                     break;
-    
+
                     case FIRSTARR:
                     this.sb.append("inline int arrayFindFirst( item) {");
                     this.sb.append(this.arrType);
@@ -2215,7 +2190,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     nlIndent();
                     this.sb.append("} \n");
                     this.incrIndentation();
-    
+
                     //TODO: may be put into another function
                     this.sb.append("inline int arrayFindLast( item) {");
                     this.sb.append(this.arrType);
@@ -2253,8 +2228,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     this.sb.append("} \n");
                     this.incrIndentation();
                     break;
-    
-    
+
+
                     case JTEXT:
                     this.sb.append("inline string textJoin (string arr[]) {");
                     nlIndent();

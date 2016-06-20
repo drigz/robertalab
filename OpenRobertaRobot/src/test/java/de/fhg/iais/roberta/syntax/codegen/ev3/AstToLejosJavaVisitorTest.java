@@ -82,7 +82,7 @@ public class AstToLejosJavaVisitorTest {
         final String a = "" //
             + MAIN_METHOD
 
-            + "        if (,\"1pressed\") {\n"
+            + "        if (is_pressed(1)) {\n"
             + "          SENSOR_TYPE_LIGHT_ACTIVE;SetSensorLight(IN_3,IN_TYPE_COLORGREEN);\n"
             + "        } else if ( Pickcolor.RED == SetSensorLight(IN_3,IN_TYPE_COLORCOLOUR);) {\n"
             + "        \n"
