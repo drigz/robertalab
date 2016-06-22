@@ -784,10 +784,12 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     @Override // regulated drive action
     public Void visitDriveAction(DriveAction<Void> driveAction) {
         String methodName = "OnFwdReg";
+
         final boolean isDuration = driveAction.getParam().getDuration() != null;
 
         if ( driveAction.getDirection() == DriveDirection.BACKWARD ) {
-            methodName = "OnRevReg";
+           
+           methodName = "OnRevSync";
         }
         this.sb.append(methodName + "(OUT_");
         this.sb.append(this.brickConfiguration.getLeftMotorPort());
@@ -795,19 +797,22 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
         this.sb.append(", ");
         driveAction.getParam().getSpeed().visit(this);
+        this.sb.append(", OUT_REGMODE_SYNC");
 
-        if ( isDuration ) {
+        if ( isDuration == true ) {
             this.sb.append(",");
-
             if ( driveAction.getParam().getDuration().getType() == de.fhg.iais.roberta.shared.action.ev3.MotorMoveMode.DISTANCE ) {
-                this.sb.append("18.0*"); // 18cm is one rotation
+                final String methodName = "RotateMotorEx";
+
+                this.sb.append("18.0*"); // 18cm is one rotation //Synchronise two motors. Should be set to true if a non-zero turn percent is specified or no turning will occur
                 driveAction.getParam().getDuration().getValue().visit(this);
 
-                this.sb.append(");");
-                return null;
-            }
-            this.sb.append(")");
+                this.sb.append("0" + ",true" + ",true");
 
+            }
+           
+
+            this.sb.append(");");
             return null;
         }
         this.sb.append(");");
@@ -818,20 +823,26 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     public Void visitTurnAction(TurnAction<Void> turnAction) {
 
-        String methodName = "turn_right";
+        String methodName = "OnFwdSync";
         final boolean isDuration = turnAction.getParam().getDuration() != null;
         if ( turnAction.getDirection() == TurnDirection.LEFT ) {
-            methodName = "turn_left";
+            methodName = "OnRevSync";
         }
-        this.sb.append(methodName + "(");
+        this.sb.append(methodName + "(OUT_");
+
+        this.sb.append(this.brickConfiguration.getLeftMotorPort());
+        this.sb.append(this.brickConfiguration.getRightMotorPort());
+        this.sb.append(",");
         turnAction.getParam().getSpeed().visit(this);
         if ( isDuration ) {
-            this.sb.append(", ");
-            if ( turnAction.getParam().getDuration().getType() == de.fhg.iais.roberta.shared.action.ev3.MotorMoveMode.DEGREE ) {
 
+            this.sb.append("RotateMotorEx");
+            if ( turnAction.getParam().getDuration().getType() == de.fhg.iais.roberta.shared.action.ev3.MotorMoveMode.DEGREE ) {
+                this.sb.append(",");
             }
 
             turnAction.getParam().getDuration().getValue().visit(this);
+            this.sb.append(",100" + ",true" + ",true");
         }
         this.sb.append(");");
         return null;
@@ -839,7 +850,12 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitMotorDriveStopAction(MotorDriveStopAction<Void> stopAction) {
-        this.sb.append("Off();");
+
+        final String methodName = "Off";
+        this.sb.append(methodName + "(OUT_");
+        this.sb.append(this.brickConfiguration.getLeftMotorPort());
+        this.sb.append(this.brickConfiguration.getRightMotorPort());
+        this.sb.append(");");
         return null;
     }
 

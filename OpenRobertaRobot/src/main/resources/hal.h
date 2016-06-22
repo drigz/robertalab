@@ -431,6 +431,7 @@ inline float on_reg(int ports, float speed,int regmode)
   else{
    OnFwdReg(OUT_B, speed,regmode) ;
   }
+<<<<<<< HEAD
 
 }   
   sub turn_left(float s, float t){
@@ -448,5 +449,9 @@ sub turn_right(float s, float t){
   Wait(t);
 }
 
+=======
+  }  
+ 
+>>>>>>> nxtCode
   
  

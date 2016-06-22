@@ -230,14 +230,14 @@ public class AstToLejosJavaVisitorTest {
         assertCodeIsOk(a, "/syntax/code_generator/java/java_code_generator8.xml");
     }
 
-    @Test
+    //
     public void test19() throws Exception {
 
         final String a = "" //
             + MAIN_METHOD
             + "        float variablenName = 0;\n"
 
-            + "OnFwd(OUT_AB,50);"
+            + "OnFwdReg(OUT_AB,50);"
             + "GraphicOut(0,0,\"OLDGLASSES\");"
             + SUFFIX
 
