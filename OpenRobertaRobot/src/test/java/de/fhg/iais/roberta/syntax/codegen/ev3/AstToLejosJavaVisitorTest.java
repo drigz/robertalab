@@ -172,7 +172,7 @@ public class AstToLejosJavaVisitorTest {
 
             + "          RotateMotor(OUT_B,0);"
             + "        RotateMotor(OUT_B,30,360.0*0);"
-            + "        turn_right(0);"
+            + "       OnFwdSync(OUT_AB,0);"
             + "        setVolume(50);"
             + "        PlayTone(0,0);"
             + SUFFIX
