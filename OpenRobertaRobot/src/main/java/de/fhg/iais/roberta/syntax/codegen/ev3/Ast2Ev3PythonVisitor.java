@@ -155,8 +155,8 @@ public class Ast2Ev3PythonVisitor implements AstVisitor<Void> {
         Assert.notNull(brickConfiguration);
         Assert.isTrue(phrasesSet.size() >= 1);
 
-        Set<EV3Sensors> usedSensors = null;// = UsedSensorsCheckVisitor.check(phrasesSet);//TODO checking for used sensors is not needed since ev3dev is much faster than lejos
-        Ast2Ev3PythonVisitor astVisitor = new Ast2Ev3PythonVisitor(programName, brickConfiguration, usedSensors, 0);
+        final Set<EV3Sensors> usedSensors = null;// = UsedSensorsCheckVisitor.check(phrasesSet);//TODO checking for used sensors is not needed since ev3dev is much faster than lejos
+        final Ast2Ev3PythonVisitor astVisitor = new Ast2Ev3PythonVisitor(programName, brickConfiguration, usedSensors, 0);
         astVisitor.generatePrefix(withWrapping);
 
         generateCodeFromPhrases(phrasesSet, withWrapping, astVisitor);
@@ -168,8 +168,8 @@ public class Ast2Ev3PythonVisitor implements AstVisitor<Void> {
 
     private static void generateCodeFromPhrases(ArrayList<ArrayList<Phrase<Void>>> phrasesSet, boolean withWrapping, Ast2Ev3PythonVisitor astVisitor) {
         boolean mainBlock = false;
-        for ( ArrayList<Phrase<Void>> phrases : phrasesSet ) {
-            for ( Phrase<Void> phrase : phrases ) {
+        for ( final ArrayList<Phrase<Void>> phrases : phrasesSet ) {
+            for ( final Phrase<Void> phrase : phrases ) {
                 mainBlock = handleMainBlocks(astVisitor, mainBlock, phrase);
                 phrase.visit(astVisitor);
             }
@@ -299,7 +299,7 @@ public class Ast2Ev3PythonVisitor implements AstVisitor<Void> {
         if ( var.getValue().getKind() != BlockType.EMPTY_EXPR ) {
             this.sb.append(" = ");
             if ( var.getValue().getKind() == BlockType.EXPR_LIST ) {
-                ExprList<Void> list = (ExprList<Void>) var.getValue();
+                final ExprList<Void> list = (ExprList<Void>) var.getValue();
                 if ( list.get().size() == 2 ) {
                     list.get().get(1).visit(this);
                 } else {
@@ -314,7 +314,7 @@ public class Ast2Ev3PythonVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitUnary(Unary<Void> unary) {
-        Unary.Op op = unary.getOp();
+        final Unary.Op op = unary.getOp();
         String sym = op.getOpSymbol();
         // fixup language specific symbols
         if ( op == Unary.Op.NOT ) {
@@ -333,7 +333,7 @@ public class Ast2Ev3PythonVisitor implements AstVisitor<Void> {
     @Override
     public Void visitBinary(Binary<Void> binary) {
         generateSubExpr(this.sb, false, binary.getLeft(), binary);
-        Binary.Op op = binary.getOp();
+        final Binary.Op op = binary.getOp();
         String sym = op.getOpSymbol();
         // fixup language specific symbols
         switch ( op ) {
@@ -414,7 +414,7 @@ public class Ast2Ev3PythonVisitor implements AstVisitor<Void> {
     @Override
     public Void visitExprList(ExprList<Void> exprList) {
         boolean first = true;
-        for ( Expr<Void> expr : exprList.get() ) {
+        for ( final Expr<Void> expr : exprList.get() ) {
             if ( expr.getKind() != BlockType.EMPTY_EXPR ) {
                 if ( first ) {
                     first = false;
@@ -537,7 +537,7 @@ public class Ast2Ev3PythonVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitStmtList(StmtList<Void> stmtList) {
-        for ( Stmt<Void> stmt : stmtList.get() ) {
+        for ( final Stmt<Void> stmt : stmtList.get() ) {
             nlIndent();
             stmt.visit(this);
         }
@@ -658,8 +658,8 @@ public class Ast2Ev3PythonVisitor implements AstVisitor<Void> {
     @Override
     public Void visitMotorOnAction(MotorOnAction<Void> motorOnAction) {
         String methodName;
-        boolean isRegulated = this.brickConfiguration.isMotorRegulated(motorOnAction.getPort());
-        boolean duration = motorOnAction.getParam().getDuration() != null;
+        final boolean isRegulated = this.brickConfiguration.isMotorRegulated(motorOnAction.getPort());
+        final boolean duration = motorOnAction.getParam().getDuration() != null;
         if ( duration ) {
             methodName = isRegulated ? "hal.rotateRegulatedMotor('" : "hal.rotateUnregulatedMotor('";
         } else {
@@ -678,8 +678,8 @@ public class Ast2Ev3PythonVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitMotorSetPowerAction(MotorSetPowerAction<Void> motorSetPowerAction) {
-        boolean isRegulated = this.brickConfiguration.isMotorRegulated(motorSetPowerAction.getPort());
-        String methodName = isRegulated ? "hal.setRegulatedMotorSpeed('" : "hal.setUnregulatedMotorSpeed('";
+        final boolean isRegulated = this.brickConfiguration.isMotorRegulated(motorSetPowerAction.getPort());
+        final String methodName = isRegulated ? "hal.setRegulatedMotorSpeed('" : "hal.setUnregulatedMotorSpeed('";
         this.sb.append(methodName + motorSetPowerAction.getPort().toString() + "', ");
         motorSetPowerAction.getPower().visit(this);
         this.sb.append(")");
@@ -688,8 +688,8 @@ public class Ast2Ev3PythonVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitMotorGetPowerAction(MotorGetPowerAction<Void> motorGetPowerAction) {
-        boolean isRegulated = this.brickConfiguration.isMotorRegulated(motorGetPowerAction.getPort());
-        String methodName = isRegulated ? "hal.getRegulatedMotorSpeed('" : "hal.getUnregulatedMotorSpeed('";
+        final boolean isRegulated = this.brickConfiguration.isMotorRegulated(motorGetPowerAction.getPort());
+        final String methodName = isRegulated ? "hal.getRegulatedMotorSpeed('" : "hal.getUnregulatedMotorSpeed('";
         this.sb.append(methodName + motorGetPowerAction.getPort().toString() + "')");
         return null;
     }
@@ -702,8 +702,8 @@ public class Ast2Ev3PythonVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitDriveAction(DriveAction<Void> driveAction) {
-        boolean isDuration = driveAction.getParam().getDuration() != null;
-        String methodName = isDuration ? "hal.driveDistance(" : "hal.regulatedDrive(";
+        final boolean isDuration = driveAction.getParam().getDuration() != null;
+        final String methodName = isDuration ? "hal.driveDistance(" : "hal.regulatedDrive(";
         this.sb.append(methodName);
         this.sb.append("'" + this.brickConfiguration.getLeftMotorPort().toString() + "', ");
         this.sb.append("'" + this.brickConfiguration.getRightMotorPort().toString() + "', False, ");
@@ -719,9 +719,9 @@ public class Ast2Ev3PythonVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitTurnAction(TurnAction<Void> turnAction) {
-        boolean isDuration = turnAction.getParam().getDuration() != null;
-        boolean isRegulated = this.brickConfiguration.getActorOnPort(this.brickConfiguration.getLeftMotorPort()).isRegulated();
-        String methodName = "hal.rotateDirection" + (isDuration ? "Angle" : isRegulated ? "Regulated" : "Unregulated") + "(";
+        final boolean isDuration = turnAction.getParam().getDuration() != null;
+        final boolean isRegulated = this.brickConfiguration.getActorOnPort(this.brickConfiguration.getLeftMotorPort()).isRegulated();
+        final String methodName = "hal.rotateDirection" + (isDuration ? "Angle" : isRegulated ? "Regulated" : "Unregulated") + "(";
         this.sb.append(methodName);
         this.sb.append("'" + this.brickConfiguration.getLeftMotorPort().toString() + "', ");
         this.sb.append("'" + this.brickConfiguration.getRightMotorPort().toString() + "', False, ");
@@ -760,7 +760,7 @@ public class Ast2Ev3PythonVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitColorSensor(ColorSensor<Void> colorSensor) {
-        String colorSensorPort = colorSensor.getPort().getPortNumber();
+        final String colorSensorPort = colorSensor.getPort().getPortNumber();
         switch ( colorSensor.getMode() ) {
             case AMBIENTLIGHT:
                 this.sb.append("hal.getColorSensorAmbient('" + colorSensorPort + "')");
@@ -782,7 +782,7 @@ public class Ast2Ev3PythonVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitEncoderSensor(EncoderSensor<Void> encoderSensor) {
-        String encoderSensorPort = encoderSensor.getMotor().toString();
+        final String encoderSensorPort = encoderSensor.getMotor().toString();
         if ( encoderSensor.getMode() == MotorTachoMode.RESET ) {
             this.sb.append("hal.resetMotorTacho('" + encoderSensorPort + "')");
         } else {
@@ -793,7 +793,7 @@ public class Ast2Ev3PythonVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitGyroSensor(GyroSensor<Void> gyroSensor) {
-        String gyroSensorPort = gyroSensor.getPort().getPortNumber();
+        final String gyroSensorPort = gyroSensor.getPort().getPortNumber();
         if ( gyroSensor.getMode() == GyroSensorMode.RESET ) {
             this.sb.append("hal.resetGyroSensor('" + gyroSensorPort + "')");
         } else {
@@ -804,7 +804,7 @@ public class Ast2Ev3PythonVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitInfraredSensor(InfraredSensor<Void> infraredSensor) {
-        String infraredSensorPort = infraredSensor.getPort().getPortNumber();
+        final String infraredSensorPort = infraredSensor.getPort().getPortNumber();
         switch ( infraredSensor.getMode() ) {
             case DISTANCE:
                 this.sb.append("hal.getInfraredSensorDistance('" + infraredSensorPort + "')");
@@ -842,7 +842,7 @@ public class Ast2Ev3PythonVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitUltrasonicSensor(UltrasonicSensor<Void> ultrasonicSensor) {
-        String ultrasonicSensorPort = ultrasonicSensor.getPort().getPortNumber();
+        final String ultrasonicSensorPort = ultrasonicSensor.getPort().getPortNumber();
         if ( ultrasonicSensor.getMode() == UltrasonicSensorMode.DISTANCE ) {
             this.sb.append("hal.getUltraSonicSensorDistance('" + ultrasonicSensorPort + "')");
         } else {
@@ -906,14 +906,14 @@ public class Ast2Ev3PythonVisitor implements AstVisitor<Void> {
         this.sb.append("BlocklyMethods.listsGetSubList( ");
         getSubFunct.getParam().get(0).visit(this);
         this.sb.append(", ");
-        IndexLocation where1 = IndexLocation.get(getSubFunct.getStrParam().get(0));
+        final IndexLocation where1 = IndexLocation.get(getSubFunct.getStrParam().get(0));
         this.sb.append(getEnumCode(where1));
         if ( where1 == IndexLocation.FROM_START || where1 == IndexLocation.FROM_END ) {
             this.sb.append(", ");
             getSubFunct.getParam().get(1).visit(this);
         }
         this.sb.append(", ");
-        IndexLocation where2 = IndexLocation.get(getSubFunct.getStrParam().get(1));
+        final IndexLocation where2 = IndexLocation.get(getSubFunct.getStrParam().get(1));
         this.sb.append(getEnumCode(where2));
         if ( where2 == IndexLocation.FROM_START || where2 == IndexLocation.FROM_END ) {
             this.sb.append(", ");
@@ -1346,7 +1346,7 @@ public class Ast2Ev3PythonVisitor implements AstVisitor<Void> {
                 generateCodeFromStmtCondition("elif", ifStmt.getExpr().get(i));
             }
             incrIndentation();
-            StmtList<Void> then = ifStmt.getThenList().get(i);
+            final StmtList<Void> then = ifStmt.getThenList().get(i);
             if ( then.get().isEmpty() ) {
                 nlIndent();
                 this.sb.append("pass");
@@ -1375,7 +1375,7 @@ public class Ast2Ev3PythonVisitor implements AstVisitor<Void> {
 
     private void generateCodeFromStmtConditionFor(String stmtType, Expr<Void> expr) {
         this.sb.append(stmtType).append(' ');
-        ExprList<Void> expressions = (ExprList<Void>) expr;
+        final ExprList<Void> expressions = (ExprList<Void>) expr;
         expressions.get().get(0).visit(this);
         this.sb.append(" in xrange(");
         expressions.get().get(1).visit(this);
@@ -1434,7 +1434,7 @@ public class Ast2Ev3PythonVisitor implements AstVisitor<Void> {
     }
 
     private String generateRegenerateConfiguration() {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         sb.append("_brickConfiguration = {\n");
         sb.append("    'wheel-diameter': " + this.brickConfiguration.getWheelDiameterCM() + ",\n");
         sb.append("    'track-width': " + this.brickConfiguration.getTrackWidthCM() + ",\n");
@@ -1446,10 +1446,10 @@ public class Ast2Ev3PythonVisitor implements AstVisitor<Void> {
 
     private void appendActors(StringBuilder sb) {
         sb.append("    'actors': {\n");
-        for ( Map.Entry<ActorPort, EV3Actor> entry : this.brickConfiguration.getActors().entrySet() ) {
-            HardwareComponent hc = entry.getValue();
+        for ( final Map.Entry<ActorPort, EV3Actor> entry : this.brickConfiguration.getActors().entrySet() ) {
+            final HardwareComponent hc = entry.getValue();
             if ( hc != null ) {
-                ActorPort port = entry.getKey();
+                final ActorPort port = entry.getKey();
                 sb.append("        '").append(port.toString()).append("':");
                 sb.append(generateRegenerateEV3Actor(hc, port));
                 sb.append(",\n");
@@ -1460,10 +1460,10 @@ public class Ast2Ev3PythonVisitor implements AstVisitor<Void> {
 
     private void appendSensors(StringBuilder sb) {
         sb.append("    'sensors': {\n");
-        for ( Map.Entry<SensorPort, EV3Sensor> entry : this.brickConfiguration.getSensors().entrySet() ) {
-            HardwareComponent hc = entry.getValue();
+        for ( final Map.Entry<SensorPort, EV3Sensor> entry : this.brickConfiguration.getSensors().entrySet() ) {
+            final HardwareComponent hc = entry.getValue();
             if ( hc != null ) {
-                SensorPort port = entry.getKey();
+                final SensorPort port = entry.getKey();
                 sb.append("        '").append(port.getPortNumber()).append("':");
                 sb.append(generateRegenerateEV3Sensor(hc, port));
                 sb.append(",\n");
@@ -1473,7 +1473,7 @@ public class Ast2Ev3PythonVisitor implements AstVisitor<Void> {
     }
 
     private String generateRegenerateUsedSensors() {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         //String arrayOfSensors = "";
         // FIXME: what is this used for?
         //        for ( EV3Sensors usedSensor : this.usedSensors ) {
@@ -1492,7 +1492,7 @@ public class Ast2Ev3PythonVisitor implements AstVisitor<Void> {
     //}
 
     private static String generateRegenerateEV3Actor(HardwareComponent actor, ActorPort port) {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         // FIXME: that won't scale
         String name = null;
         switch ( actor.getComponentType().getShortName() ) {
@@ -1505,7 +1505,7 @@ public class Ast2Ev3PythonVisitor implements AstVisitor<Void> {
             default:
                 throw new IllegalArgumentException("no mapping for " + actor.getComponentType().getShortName() + "to ev3dev-lang-python");
         }
-        EV3Actor ev3Actor = (EV3Actor) actor;
+        final EV3Actor ev3Actor = (EV3Actor) actor;
         sb.append("Hal.make").append(name).append("(ev3dev.OUTPUT_").append(port.toString());
         sb.append(", ").append(ev3Actor.isRegulated() ? "'on'" : "'off'");
         sb.append(", ").append(getEnumCode(ev3Actor.getRotationDirection()));
@@ -1515,7 +1515,7 @@ public class Ast2Ev3PythonVisitor implements AstVisitor<Void> {
     }
 
     private static String generateRegenerateEV3Sensor(HardwareComponent sensor, SensorPort port) {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         // FIXME: that won't scale
         String name = null;
         // [m for m in dir(ev3dev) if m.find("_sensor") != -1]
@@ -1547,7 +1547,7 @@ public class Ast2Ev3PythonVisitor implements AstVisitor<Void> {
         try {
             Integer.parseInt(str);
             return true;
-        } catch ( NumberFormatException e ) {
+        } catch ( final NumberFormatException e ) {
             return false;
         }
     }
