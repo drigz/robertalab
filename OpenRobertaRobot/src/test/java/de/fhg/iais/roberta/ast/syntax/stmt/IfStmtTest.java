@@ -52,18 +52,18 @@ public class IfStmtTest {
     public void ifStmt2() throws Exception {
         final String a =
             "\nif ( true ) {\n"
-                + "    System.out.println(\"1\");\n"
-                + "    System.out.println(\"8\");\n"
+                + "    ;\n"
+                + "    ;\n"
                 + "} else if ( false ) {\n"
-                + "    System.out.println(\"2\");\n"
+                + "    ;\n"
                 + "} else {\n"
-                + "    System.out.println(\"3\");\n"
+                + "   ;\n"
                 + "}\n"
                 + "if ( true ) {\n"
-                + "    System.out.println(\" 1\");\n"
+                + "    ;\n"
                 + "} else {\n"
-                + "    System.out.println(\" else\");\n"
-                + "    System.out.println(0);\n"
+                + "    ;\n"
+                + "    ;\n"
                 + "}";
 
         Helper.assertCodeIsOk(a, "/syntax/stmt/if_stmt2.xml");

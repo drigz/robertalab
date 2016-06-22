@@ -848,7 +848,9 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    @Override //TODO: *no bricksensor* it is a block for nxt buttons. Should be completed. //Evg
+    //TODO: It is a block for nxt buttons. Should be completed. Also- blocks changed, because the
+    //buttons are different
+    @Override
     public Void visitBrickSensor(BrickSensor<Void> brickSensor) {
         switch ( brickSensor.getMode() ) {
             case IS_PRESSED:
@@ -866,11 +868,11 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     @Override
     public Void visitColorSensor(ColorSensor<Void> colorSensor) {
         final String Port = getEnumCode(colorSensor.getPort());
-
-        final String methodName = "SetSensorLight";
-        this.sb.append(methodName + "(IN_3");
-        this.brickConfiguration.getSensors().entrySet();
-        this.sb.append(",");
+        this.sb.append("Sensor(IN_");
+        colorSensor.getPort().getPortNumber();
+        //this.brickConfiguration.getSensors().entrySet();
+        this.sb.append(")");
+        //TODO: move to the part where sensors are being called
         switch ( colorSensor.getMode() ) {
             case AMBIENTLIGHT:
                 this.sb.append("IN_TYPE_COLORAMBIENT");
@@ -973,14 +975,13 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    // TODO: perhaps fix block so it would deal with 0/1 instead of true/false. Also check other modes
-    // of the sensor
     @Override
     public Void visitTouchSensor(TouchSensor<Void> touchSensor) {
-        this.sb.append("is_pressed(" + touchSensor.getPort().getPortNumber() + ")");
+        this.sb.append("SENSOR_" + touchSensor.getPort().getPortNumber());
         return null;
     }
 
+    // TODO: add modes
     @Override
     public Void visitUltrasonicSensor(UltrasonicSensor<Void> ultrasonicSensor) {
         this.sb.append("SensorUS(IN_" + ultrasonicSensor.getPort().getPortNumber() + ")");
@@ -1024,9 +1025,9 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     //not used
     @Override
     public Void visitTextPrintFunct(TextPrintFunct<Void> textPrintFunct) {
-        this.sb.append("System.out.println(");
-        textPrintFunct.getParam().get(0).visit(this);
-        this.sb.append(")");
+        //this.sb.append("System.out.println(");
+        //textPrintFunct.getParam().get(0).visit(this);
+        //this.sb.append(")");
         return null;
     }
 
@@ -1043,8 +1044,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    //TODO: LISTs. Decide if these blocks are needed.
-
+    //TODO: Delete.
     @Override
     public Void visitGetSubFunct(GetSubFunct<Void> getSubFunct) {
         this.sb.append("BlocklyMethods.listsGetSubList( ");
@@ -1072,7 +1072,6 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     }
 
-    //TODO: do more tests with different parameters
     @Override
     public Void visitIndexOfFunct(IndexOfFunct<Void> indexOfFunct) {
         final BlocklyType typeArr = indexOfFunct.getParam().get(0).getVariableType();
@@ -1163,7 +1162,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    //TODO: LISTs. Decide if these blocks are needed.
+    //TODO: Delete.
     @Override
     public Void visitListRepeat(ListRepeat<Void> listRepeat) {
         this.sb.append("BlocklyMethods.createListWithItem(");
@@ -1173,6 +1172,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         this.sb.append(")");
         return null;
     }
+
+    //TODO: Delete.
 
     @Override
     public Void visitListGetIndex(ListGetIndex<Void> listGetIndex) {
@@ -1192,6 +1193,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         }
         return null;
     }
+
+    //TODO: Delete.
 
     @Override
     public Void visitListSetIndex(ListSetIndex<Void> listSetIndex) {
@@ -1375,10 +1378,10 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                 this.sb.append("math_acos(");
                 break;
             case ROUND:
-                this.sb.append("math_floor(0.5 + ");
+                this.sb.append("math_round(");
                 break;
             case ROUNDUP:
-                this.sb.append("1 + math_floor(");
+                this.sb.append("math_round_up(");
                 break;
             //check why there are double brackets
             case ROUNDDOWN:
@@ -1403,7 +1406,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    //TODO: JText. Decide if this block is needed.
+    //TODO: Delete
     @Override
     public Void visitTextJoinFunct(TextJoinFunct<Void> textJoinFunct) {
         //Fix this method
@@ -1482,9 +1485,12 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    // not needed for nxt
+    // not needed for nxt. Use a block that calls BTCheck(int conn) function instead
     @Override
     public Void visitBluetoothConnectAction(BluetoothConnectAction<Void> bluetoothConnectAction) {
+        this.sb.append("BTCheck(");
+        //
+
         /*this.sb.append("hal.establishConnectionTo(");
         if ( bluetoothConnectAction.get_address().getKind() != BlockType.STRING_CONST ) {
             this.sb.append("String.valueOf(");
@@ -1492,19 +1498,20 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             this.sb.append(")");
         } else {
             bluetoothConnectAction.get_address().visit(this);
-        }
-        this.sb.append(")");*/
+        }*/
+        this.sb.append(")");
         return null;
     }
 
-    // the function is in hal.h
+    // the function is built-in
+    //TODO: coding conventions!
     @Override
     public Void visitBluetoothSendAction(BluetoothSendAction<Void> bluetoothSendAction) {
-        this.sb.append("bluetooth_send_number(");
+        this.sb.append("SendRemoteNumber(");
         //TODO: add these block options: output variable (string, boolean or number. Need to create an enumeration), connection (int, 1-3 for master, always
         // 0 for slave), outbox address (int)
-        //this.sb.append("bluetooth_send_string(");
-        //this.sb.append("bluetooth_send_boolean(");
+        //this.sb.append("SendRemoteString(");
+        //this.sb.append("SendRemoteBool(");
         // the function accepts the following: inbox address
 
         //if ( bluetoothSendAction.getMsg().getKind() != BlockType.STRING_CONST ) {
@@ -1600,16 +1607,6 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         }
     }
 
-    /*private void generateCodeFromTernary(IfStmt<Void> ifStmt) {
-        this.sb.append("(" + whitespace());
-        ifStmt.getExpr().get(0).visit(this);
-        this.sb.append(whitespace() + ")" + whitespace() + "?" + whitespace());
-        ((ExprStmt<Void>) ifStmt.getThenList().get(0).get().get(0)).getExpr().visit(this);
-        this.sb.append(whitespace() + ":" + whitespace());
-        ((ExprStmt<Void>) ifStmt.getElseList().get().get(0)).getExpr().visit(this);
-    }
-    */
-
     //TODO: ifStmt.getExpr().get(i) only gives true. Doesn't show body of the block. Old code? Fix.
     private void generateCodeFromIfElse(IfStmt<Void> ifStmt) {
         for ( int i = 0; i < ifStmt.getExpr().size(); i++ ) {
@@ -1673,584 +1670,6 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         }
     }
 
-    /*private void addFunctions() {
-
-        for ( final FunctionNames customFunction : this.usedFunctions ) {
-            switch ( customFunction ) {
-                case PRIME:
-                    this.sb.append("inline bool mathPrime(float number){");
-                    nlIndent();
-                    this.sb.append("for ( int i = 2; i <= sqrt(number); i++ ) {");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("if ((number % i) == 0 ) {");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("return false;");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    nlIndent();
-                    this.sb.append("else{");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("return true;");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}  \n");
-                    this.incrIndentation();
-                    break;
-                case CLAMP:
-                    this.sb.append("inline float mathMin(float firstValue, float secondValue) {");
-                    nlIndent();
-                    this.sb.append("if (firstValue < secondValue){");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("return firstValue;");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    nlIndent();
-                    this.sb.append("else{");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("return secondValue;");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("} \n");
-                    this.incrIndentation();
-
-                    //max of two values
-                    this.sb.append("inline float mathMax(float firstValue, float secondValue) {");
-                    nlIndent();
-                    this.sb.append("if (firstValue > secondValue){");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("return firstValue;");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    nlIndent();
-                    this.sb.append("else{");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("return secondValue;");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("} \n");
-                    this.incrIndentation();
-                    break;
-                    case RINT:
-                    this.sb.append("inline float mathMin(float firstValue, float secondValue) {");
-                    nlIndent();
-                    this.sb.append("if (firstValue < secondValue){");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("return firstValue;");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    nlIndent();
-                    this.sb.append("else{");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("return secondValue;");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("} \n");
-                    this.incrIndentation();
-                    break;
-                case ROUNDDOWN:
-                    this.sb.append("inline int mathFloor(float val) {");
-                    nlIndent();
-                    this.sb.append("int temp = val;");
-                    nlIndent();
-                    this.sb.append("return temp; \n");
-                    this.sb.append("} \n");
-                    break;
-                case ROUNDUP:
-                    this.sb.append("inline int mathFloor(float val) {");
-                    nlIndent();
-                    this.sb.append("int temp = val;");
-                    nlIndent();
-                    this.sb.append("return temp; \n");
-                    this.sb.append("} \n");
-                case ROUND:
-                    this.sb.append("inline int mathFloor(float val) {");
-                    nlIndent();
-                    this.sb.append("int temp = val;");
-                    nlIndent();
-                    this.sb.append("return temp; \n");
-                    this.sb.append("} \n");
-                    //won't work with fractional power
-                case POW:
-                    this.sb.append("inline float mathPow(float firstValue, float secondValue) {");
-                    nlIndent();
-                    this.sb.append("float result = 1;");
-                    nlIndent();
-                    this.sb.append("for (int i = 0; i < secondValue; i++) {");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("result = result * firstValue;");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    nlIndent();
-                    this.sb.append("return result; \n");
-                    this.sb.append("} \n");
-                    break;
-                case EXP:
-                    this.sb.append("inline float mathPow(float firstValue, float secondValue) {");
-                    nlIndent();
-                    this.sb.append("float result = 1;");
-                    nlIndent();
-                    this.sb.append("for (int i = 0; i < secondValue; i++) {");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("result = result * firstValue;");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    nlIndent();
-                    this.sb.append("return result; \n");
-                    this.sb.append("} \n");
-                    break;
-                case POW10:
-                    this.sb.append("inline float mathPow(float firstValue, float secondValue) {");
-                    nlIndent();
-                    this.sb.append("float result = 1;");
-                    nlIndent();
-                    this.sb.append("for (int i = 0; i < secondValue; i++) {");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("result = result * firstValue;");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    nlIndent();
-                    this.sb.append("return result; \n");
-                    this.sb.append("} \n");
-                    break;
-                case SUM:
-                    this.sb.append("inline float arraySum(float arr[]) {");
-                    nlIndent();
-                    this.sb.append("float sum = 0;");
-                    nlIndent();
-                    this.sb.append("for(int i = 0; i < ArrayLen(arr); i++) {{");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("sum += arr[i];");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    nlIndent();
-                    this.sb.append("return sum; \n");
-                    this.sb.append("} \n");
-                case MIN:
-                    this.sb.append("inline float arrayMin(float arr[]) {");
-                    nlIndent();
-                    this.sb.append("float min = arr[0];");
-                    nlIndent();
-                    this.sb.append("for(int i = 1; i < ArrayLen(arr); i++) {");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("if (arr[i] < min){");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("min = arr[i];");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    nlIndent();
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    nlIndent();
-                    this.sb.append("return min;");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}  \n");
-                    this.incrIndentation();
-                    break;
-                case MAX:
-                    this.sb.append("inline float arrayMax(float arr[]) {");
-                    nlIndent();
-                    this.sb.append("float max = arr[0];");
-                    nlIndent();
-                    this.sb.append("for(int i = 1; i < ArrayLen(arr); i++) {");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("if (arr[i] > max){");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("max = arr[i];");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    nlIndent();
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    nlIndent();
-                    this.sb.append("return max;");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}  \n");
-                    this.incrIndentation();
-                    break;
-                case AVERAGE:
-                    this.sb.append("inline float arrayMean(float arr[]) {");
-                    nlIndent();
-                    this.sb.append("float sum = 0;");
-                    nlIndent();
-                    this.sb.append("for(int i = 0; i < ArrayLen(arr); i++) {");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("sum += arr[i];");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    nlIndent();
-                    this.sb.append("sum/ArrayLen(arr); \n");
-                    this.sb.append("} \n");
-                case MEDIAN:
-                    this.sb.append("inline void arrayInsertionSort(float &arr[]) {");
-                    nlIndent();
-                    this.sb.append("for (int i=1; i < ArrayLen(arr); i++){");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("int index = arr[i];");
-                    nlIndent();
-                    this.sb.append("int j = i;");
-                    nlIndent();
-                    this.sb.append("while (j > 0 && arr[j-1] > index){");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("arr[j] = arr[j-1];");
-                    nlIndent();
-                    this.sb.append("j--;");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    nlIndent();
-                    this.sb.append("arr[j] = index;");
-                    nlIndent();
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}  \n");
-                    this.incrIndentation();
-
-                    this.sb.append("inline float arrayMedian(float arr[]) {");
-                    nlIndent();
-                    this.sb.append("int n = ArrayLen(arr);");
-                    nlIndent();
-                    this.sb.append("if ( n == 0 ) {");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("return 0;");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    nlIndent();
-                    this.sb.append("arrayInsertionSort(arr);");
-                    nlIndent();
-                    this.sb.append("float median;");
-                    nlIndent();
-                    this.sb.append("if ( n % 2 == 0 ) {");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("median = (arr[n/2] + arr[n / 2 - 1]) / 2;");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    nlIndent();
-                    this.sb.append("else{");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("median = arr[n / 2];");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    nlIndent();
-                    this.sb.append("return median;");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("} \n");
-                    this.incrIndentation();
-                    break;
-                case STD_DEV:
-                    this.sb.append("inline float mathPow(float firstValue, float secondValue) {");
-                    nlIndent();
-                    this.sb.append("float result = 1;");
-                    nlIndent();
-                    this.sb.append("for (int i = 0; i < secondValue; i++) {");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("result = result * firstValue;");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    nlIndent();
-                    this.sb.append("return result; \n");
-                    this.sb.append("} \n");
-
-                    this.sb.append("inline float arrayMean(float arr[]) {");
-                    nlIndent();
-                    this.sb.append("float sum = 0;");
-                    nlIndent();
-                    this.sb.append("for(int i = 0; i < ArrayLen(arr); i++) {");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("sum += arr[i];");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    nlIndent();
-                    this.sb.append("sum/ArrayLen(arr); \n");
-                    this.sb.append("} \n");
-
-                    this.sb.append("inline float arrayStandardDeviatioin(float arr[]) {");
-                    nlIndent();
-                    this.sb.append("int n = ArrayLen(arr);");
-                    nlIndent();
-                    this.sb.append("if ( n == 0 ) {");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("return 0;");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    nlIndent();
-                    this.sb.append("float variance = 0;");
-                    nlIndent();
-                    this.sb.append("float mean = arrayMean(arr);");
-                    this.sb.append("for ( int i = 0; i < ArrayLen(arr); i++) {");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("variance += mathPow(arr[i] - mean, 2);");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    nlIndent();
-                    this.sb.append("variance /= n;");
-                    nlIndent();
-                    this.sb.append("return sqrt(variance)");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("} \n");
-                    this.incrIndentation();
-                    break;
-
-
-                case WHOLE:
-                    this.sb.append("inline bool isWhole(float val){");
-                    nlIndent();
-                    this.sb.append("int intPart = val;");
-                    nlIndent();
-                    this.sb.append("return ((val - intPart) == 0);  \n");
-                    this.sb.append("} \n");
-                    case RANDOM:
-                    this.sb.append("inline float arrayRand(float arr[]) {");
-                    nlIndent();
-                    this.sb.append("int arrayInd = ArrayLen(arr) * Random(100) / 100;");
-                    nlIndent();
-                    this.sb.append("return arr[arrayInd - 1];  \n");
-                    this.sb.append("} \n");
-                    case MODE:
-                    //mode search is much easier for a sorted array
-                    this.sb.append("inline void arrayInsertionSort(float &arr[]) {");
-                    nlIndent();
-                    this.sb.append("for (int i=1; i < ArrayLen(arr); i++){");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("int index = arr[i];");
-                    nlIndent();
-                    this.sb.append("int j = i;");
-                    nlIndent();
-                    this.sb.append("while (j > 0 && arr[j-1] > index){");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("arr[j] = arr[j-1];");
-                    nlIndent();
-                    this.sb.append("j--;");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    nlIndent();
-                    this.sb.append("arr[j] = index;");
-                    nlIndent();
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}  \n");
-                    this.incrIndentation();
-
-                    this.sb.append("inline float arrayMode(float arr[]){");
-                    nlIndent();
-                    this.sb.append("arrayInsertionSort(arr);");
-                    nlIndent();
-                    this.sb.append("float element = arr[0];");
-                    nlIndent();
-                    this.sb.append("float maxSeen = element;");
-                    nlIndent();
-                    this.sb.append("int count = 1;");
-                    nlIndent();
-                    this.sb.append("int modeCount = 1;");
-                    nlIndent();
-                    this.sb.append("for (int i = 1; i < ArrayLen(arr); i++){");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("if (arr[i] == element){");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("count++;");
-                    nlIndent();
-                    this.sb.append("if (count > modeCount){");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("modeCount = count;");
-                    nlIndent();
-                    this.sb.append("maxSeen = element;");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    this.sb.append("else{");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("element = arr[i];");
-                    nlIndent();
-                    this.sb.append("count = 1;");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    nlIndent();
-                    this.sb.append("return maxSeen;");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}  \n");
-                    this.incrIndentation();
-                    break;
-
-                    case FIRSTARR:
-                    this.sb.append("inline int arrayFindFirst( item) {");
-                    this.sb.append(this.arrType);
-                    this.sb.append(" arr[], ");
-                    this.sb.append(this.varType);
-                    this.sb.append(" item) {");
-                    nlIndent();
-                    this.sb.append("int i = 0;");
-                    nlIndent();
-                    this.sb.append("if (arr[0] == item){");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("return i;");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    nlIndent();
-                    this.sb.append("else{");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("do{");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("i++;");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("} while((arr[i] != item) && (i != ArrayLen(arr)));");
-                    nlIndent();
-                    this.sb.append("return i;");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("} \n");
-                    this.incrIndentation();
-
-                    //TODO: may be put into another function
-                    this.sb.append("inline int arrayFindLast( item) {");
-                    this.sb.append(this.arrType);
-                    this.sb.append(" arr[], ");
-                    this.sb.append(this.varType);
-                    this.sb.append(" item) {");
-                    nlIndent();
-                    this.sb.append("int i = 0;");
-                    nlIndent();
-                    this.sb.append("if (arr[ArrayLen(arr) - 1] == item){");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("return ArrayLen(arr) - 1 - i;");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    nlIndent();
-                    this.sb.append("else{");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("do{");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("i++;");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("while((arr[ArrayLen(arr) - 1 - i] != item)&&(i != 0));");
-                    nlIndent();
-                    this.sb.append("return ArrayLen(arr) - 1 - i;");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("} \n");
-                    this.incrIndentation();
-                    break;
-
-
-                    case JTEXT:
-                    this.sb.append("inline string textJoin (string arr[]) {");
-                    nlIndent();
-                    this.sb.append("string temp;");
-                    nlIndent();
-                    this.sb.append("for (int i=0; i < ArrayLen(arr); i++)  {");
-                    this.incrIndentation();
-                    nlIndent();
-                    this.sb.append("temp = temp + arr[i];");
-                    this.decrIndentation();
-                    nlIndent();
-                    this.sb.append("}");
-                    nlIndent();
-                    this.sb.append("return temp; \n");
-                    this.sb.append("}\n");
-                    break;
-
-            }
-        }
-    }*/
-
     private void addConstants() {
         this.sb.append("#define WHEELDIAMETER " + this.brickConfiguration.getWheelDiameterCM() + "\n");
         this.sb.append("#define TRACKWIDTH " + this.brickConfiguration.getTrackWidthCM() + "\n");
@@ -2276,19 +1695,20 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             switch ( entry.getValue().getComponentTypeName() ) {
                 case "EV3_COLOR_SENSOR":
                     nlIndent();
-                    this.sb.append("SetSensorLight(IN_" + entry.getKey().getPortNumber() + ");");
+                    this.sb.append("SetSensor(IN_" + entry.getKey().getPortNumber() + ", SENSOR_LIGHT);");
+                    //this.sb.append("SetSensor(IN_" + entry.getKey().getPortNumber() + ", SENSOR_COLORFULL);");
                     break;
                 case "EV3_TOUCH_SENSOR":
                     nlIndent();
-                    this.sb.append("SetSensorTouch(IN_" + entry.getKey().getPortNumber() + ");");
+                    this.sb.append("SetSensor(IN_" + entry.getKey().getPortNumber() + ", SENSOR_TOUCH);");
                     break;
                 case "EV3_ULTRASONIC_SENSOR":
                     nlIndent();
-                    this.sb.append("SetSensorLowspeed(IN_" + entry.getKey().getPortNumber() + ");");
+                    this.sb.append("SetSensor(IN_" + entry.getKey().getPortNumber() + ", SENSOR_LOWSPEED);");
                     break;
                 case "EV3_GYRO_SENSOR":
                     nlIndent();
-                    this.sb.append("SetSensorSound(IN_" + entry.getKey().getPortNumber() + ");");
+                    this.sb.append("SetSensor(IN_" + entry.getKey().getPortNumber() + ", SENSOR_SOUND);");
                     break;
                 default:
                     break;

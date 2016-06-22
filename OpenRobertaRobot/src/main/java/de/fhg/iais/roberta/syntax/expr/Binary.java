@@ -14,6 +14,7 @@ import de.fhg.iais.roberta.syntax.BlocklyConstants;
 import de.fhg.iais.roberta.syntax.Phrase;
 import de.fhg.iais.roberta.syntax.functions.FunctionNames;
 import de.fhg.iais.roberta.syntax.functions.MathPowerFunct;
+import de.fhg.iais.roberta.syntax.stmt.ExprStmt;
 import de.fhg.iais.roberta.transformer.ExprParam;
 import de.fhg.iais.roberta.transformer.Jaxb2AstTransformer;
 import de.fhg.iais.roberta.transformer.JaxbTransformerHelper;
@@ -241,13 +242,14 @@ public final class Binary<V> extends Expr<V> {
                 values = helper.extractValues(block, (short) 2);
                 leftt = helper.extractValue(values, new ExprParam(BlocklyConstants.VAR, String.class));
                 rightt = helper.extractValue(values, new ExprParam(BlocklyConstants.DELTA, Integer.class));
-                return Binary.make(
-                    Binary.Op.MATH_CHANGE,
-                    helper.convertPhraseToExpr(leftt),
-                    helper.convertPhraseToExpr(rightt),
-                    "",
-                    helper.extractBlockProperties(block),
-                    helper.extractComment(block));
+                return ExprStmt.make(
+                    Binary.make(
+                        Binary.Op.MATH_CHANGE,
+                        helper.convertPhraseToExpr(leftt),
+                        helper.convertPhraseToExpr(rightt),
+                        "",
+                        helper.extractBlockProperties(block),
+                        helper.extractComment(block)));
 
             case BlocklyConstants.MATH_MODULO:
                 return helper.blockToBinaryExpr(
