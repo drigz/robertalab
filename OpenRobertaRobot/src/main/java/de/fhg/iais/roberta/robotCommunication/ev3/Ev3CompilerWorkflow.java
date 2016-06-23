@@ -197,7 +197,7 @@ public class Ev3CompilerWorkflow {
             ProcessBuilder procBuilder = new ProcessBuilder(new String[] {
                 scriptName,
                 this.pathToCrosscompilerBaseDir + token + "/src/" + mainFile + ".nxc",
-                "-O=" + this.pathToCrosscompilerBaseDir + token + "/" + mainFile + ".rxc",
+                "-O=" + this.pathToCrosscompilerBaseDir + token + "/" + mainFile + ".rxe",
                 "-I=./src/main/resources/hal.h"
 
             });
