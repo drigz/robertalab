@@ -23,68 +23,98 @@
 
 //Bluetooth functions and constants
 
-#ifndef BT_CONN
-#define BT_CONN 1
+#ifndef BT_SLAVE_CONN
+#define BT_SLAVE_CONN 0
 #endif
 
-#ifndef OUTBOX
-#define OUTBOX 5
-#endif
 
-#ifndef INBOX
-#define INBOX 1
-#endif
-
-#ifndef OUT_MBOX
-#define OUT_MBOX 1
-#endif
-
-#ifndef IN_MBOX
-#define IN_MBOX 5
-#endif
-
-sub BTCheck(int conn){
+inline bool BTCheck(int conn){
   if (!BluetoothStatus(conn)==NO_ERR){
     TextOut(5,LCD_LINE2,"Error");
     Wait(1000);
-    Stop(true);
+    StopAllTasks();
+    return false;
+  }
+  else{
+    return true;
   }
 }
 
-inline string bluetooth_get_msg(){
-  TextOut(5,LCD_LINE1,"Slave receiving");
-  string in = "NO MESSAGE";
-  if (BTCheck(0) == true){
-    SendResponseNumber(OUT_MBOX,0xFF); //unblock master
-    while(true){
-      if (ReceiveRemoteString(IN_MBOX,true,in) != STAT_MSG_EMPTY_MAILBOX) {
-        TextOut(0,LCD_LINE3," ");
-        TextOut(5,LCD_LINE3,in);
-        SendResponseNumber(OUT_MBOX,0xFF);
-      }
-      Wait(10);
-    }
+inline float bluetooth_get_number(int inbox){
+  int in = NULL;
+  ReceiveRemoteNumber(inbox,true,in);
+  return in;
+  //TextOut(0,LCD_LINE3,"Receiving");
+  //TextOut(0,LCD_LINE4,"  ");
+  //NumOut(5,LCD_LINE4,in);
+  return in;
+}
+
+//sub bluetooth_send_number(int out, int connection, int inbox, int outbox){
+  //TextOut(0,LCD_LINE1,"Sending");
+  //TextOut(0,LCD_LINE2,"  ");
+  //NumOut(5,LCD_LINE2,out);
+  //SendRemoteNumber(connection,outbox,out);
+//}
+
+inline string bluetooth_get_string(int inbox){
+  string in = "";
+  if (in == ""){
+    return "NULL";
+  }
+  else {
+    ReceiveRemoteString(inbox,true,in);
+    //TextOut(0,LCD_LINE3,"Receiving");
+    //TextOut(0,LCD_LINE4,"  ");
+    //TextOut(5,LCD_LINE4,in);
+    return in;
   }
 }
 
-inline void bluetooth_send_msg(string msg , int connection){
-  TextOut(10,LCD_LINE1,"Master sending");
-  int ack = 0;
-  TextOut(0,LCD_LINE3," ");
-  TextOut(5,LCD_LINE3,msg);
-  SendRemoteString(connection,OUTBOX,msg);
-  until(ack==0xFF) {
-    until(ReceiveRemoteNumber(INBOX,true,ack) == NO_ERR);
-  }
-  Wait(250);
+//sub bluetooth_send_string(string out, int connection, int outbox){
+  //TextOut(0,LCD_LINE1,"Sending");
+  //TextOut(0,LCD_LINE2,"  ");
+  //TextOut(5,LCD_LINE2,out);
+  //SendRemoteString(connection,outbox,out);
+//}
+
+inline bool bluetooth_get_boolean(int inbox){
+  bool in = NULL;
+  ReceiveRemoteBool(inbox,true,in);
+  return in;
+  //TextOut(0,LCD_LINE3,"Receiving");
+  //TextOut(0,LCD_LINE4,"  ");
+  //if (in == true){
+  //  TextOut(5,LCD_LINE2,"true");
+  //}
+  //else{
+  //  TextOut(5,LCD_LINE2,"false");
+  //}
 }
 
+//sub bluetooth_send_boolean(bool out, int connection, int inbox, int outbox){
+  //TextOut(0,LCD_LINE1,"Sending");
+  //TextOut(0,LCD_LINE2,"  ");
+  //if (out == true){
+  //  TextOut(5,LCD_LINE2,"true");
+  //}
+  //else{
+  //  TextOut(5,LCD_LINE2,"false");
+  //}
+  //SendRemoteBool(connection,outbox,out);
+//}
 
 //math Functions
 
 inline int math_floor(float val) {
   int temp = val;
   return temp;
+}
+inline int math_round(float val){
+  return math_floor(0.5 + val);
+}
+inline int math_round_up(float val){
+  return (1 + math_floor(val));
 }
 inline bool math_is_whole(float val){
   int intPart = val;
@@ -114,14 +144,13 @@ inline float math_max(float first_value, float second_value) {
   }
 }
 inline bool math_prime(float number){
-  for ( int i = 2; i <= sqrt(number); i++ ) {
-    if ((number % i) == 0 ) {
-      return false;
+    if ((number % 2 == 0) || (number == 1)) return false;
+    //if not, then just check the odds
+    for(int i = 3; i * i <= number; i += 2) {
+        if(number % i == 0)
+            return false;
     }
-    else{
-      return true;
-    }
-  }
+    return true;
 }
 inline float math_ln(float val) {
   if (val > 1){
@@ -244,6 +273,18 @@ inline float math_atan(float val) {
     }
     return summ * 180 / PI;
   }
+}
+
+inline int random_integer_in_range(int val1, int val2){
+  return abs(val1 - val2) * Random(100) / 100 + math_min(val1, val2);
+}
+
+inline float random_float(){
+  return Random(100) / 100;
+}
+
+inline float constrain(float val, float min, float max){
+	return math_min(math_max(val, min), max);
 }
 
 //numerical array functions
@@ -422,6 +463,7 @@ inline int array_find_last_bool(bool arr[], bool item) {
       return ArrayLen(arr) - 1 - i;
   }
 }
+<<<<<<< HEAD
 inline float on_reg(int ports, float speed,int regmode)
 {
   if (speed > 0){
@@ -455,3 +497,5 @@ sub turn_right(float s, float t){
 >>>>>>> nxtCode
   
  
+=======
+>>>>>>> ee181ef3e089b35cdf5127869b826487f76daf1e

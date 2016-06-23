@@ -31,7 +31,7 @@ public class WhileUntilStmtTest {
     public void loopForever() throws Exception {
         String a = //
 
-            "while ( true ) {\n" + "    System.out.println(Pickcolor.GREEN);\n" + "}" + "\n" + "while ( true ) {\n" + "    System.out.println(\"\");\n" + "}";
+            "while ( true ) {\n" + "    ;\n" + "}" + "\n" + "while ( true ) {\n" + "    ;\n" + "}";
 
         Helper.assertCodeIsOk(a, "/ast/control/repeat_stmt_loopForever.xml");
     }

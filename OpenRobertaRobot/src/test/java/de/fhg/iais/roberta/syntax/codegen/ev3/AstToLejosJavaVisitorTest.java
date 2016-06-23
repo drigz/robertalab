@@ -27,10 +27,10 @@ public class AstToLejosJavaVisitorTest {
         + "#include\"NXCDefs.h\""
 
         + "task main(){"
-        + "    SetSensorTouch(IN_1);\n"
+        + "    SetSensor(IN_1,SENSOR_TOUCH);\n"
         //+ "    SetSensorSound(S2);\n"
         //+ "    SetSensorLight(S3);\n"
-        + "    SetSensorLowspeed(IN_2);\n";
+        + "    SetSensor(IN_2,SENSOR_LOWSPEED);\n";
 
     private static final String SUFFIX = "";
     private static Ev3Configuration brickConfiguration;
@@ -82,9 +82,9 @@ public class AstToLejosJavaVisitorTest {
         final String a = "" //
             + MAIN_METHOD
 
-            + "        if (,\"1pressed\") {\n"
+            + "        if (SENSOR_1) {\n"
             + "          SENSOR_TYPE_LIGHT_ACTIVE;SetSensorLight(IN_3,IN_TYPE_COLORGREEN);\n"
-            + "        } else if ( Pickcolor.RED == SetSensorLight(IN_3,IN_TYPE_COLORCOLOUR);) {\n"
+            + "        } else if ( Pickcolor.RED == Sensor(IN_)IN_TYPE_COLORCOLOUR);) {\n"
             + "        \n"
             + "            while ( true ) {\n"
             + "               GraphicOut( 0, 0,\"EYESOPEN\");\n\n"

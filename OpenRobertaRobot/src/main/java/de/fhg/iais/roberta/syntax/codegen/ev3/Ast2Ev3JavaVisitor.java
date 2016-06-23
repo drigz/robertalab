@@ -783,35 +783,62 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override // regulated drive action
     public Void visitDriveAction(DriveAction<Void> driveAction) {
-        String methodName = "OnFwdReg";
 
-        final boolean isDuration = driveAction.getParam().getDuration() != null;
+        boolean isDuration = driveAction.getParam().getDuration() != null;
+        String turnpct = "0";
+        String methodName = "";
+        String speedSign = "";
+        boolean isRegulatedDrive = this.brickConfiguration.getActorOnPort(this.brickConfiguration.getLeftMotorPort()).isRegulated();
 
+        if ( isRegulatedDrive ) {
+            if ( isDuration ) {
+                methodName = "RotateMotorEx";
+                if ( driveAction.getDirection() == DriveDirection.BACKWARD ) {
+                    speedSign = "-";
+                }
+            } else {
+                methodName = "OnFwdReg";
+                if ( driveAction.getDirection() == DriveDirection.BACKWARD ) {
+                    methodName = "OnRevReg";
+                }
+            }
+        } else {
+            methodName = "OnFwd";
+            if ( driveAction.getDirection() == DriveDirection.BACKWARD ) {
+                methodName = "OnRev";
+            }
+        }
         if ( driveAction.getDirection() == DriveDirection.BACKWARD ) {
 
             methodName = "OnRevSync";
         }
+
         this.sb.append(methodName + "(OUT_");
-        this.sb.append(this.brickConfiguration.getLeftMotorPort());
         this.sb.append(this.brickConfiguration.getRightMotorPort());
+        this.sb.append(this.brickConfiguration.getLeftMotorPort());
+        
 
-        this.sb.append(", ");
+        this.sb.append("," + speedSign);
         driveAction.getParam().getSpeed().visit(this);
-        this.sb.append(", OUT_REGMODE_SYNC");
 
-        if ( isDuration == true ) {
-            this.sb.append(",");
-            if ( driveAction.getParam().getDuration().getType() == de.fhg.iais.roberta.shared.action.ev3.MotorMoveMode.DISTANCE ) {
-                this.sb.append("RotateMotorEx");
+        if ( isRegulatedDrive ) {
+            if ( isDuration ) {
+                this.sb.append(",");
 
-                this.sb.append("18.0*"); // 18cm is one rotation //Synchronise two motors. Should be set to true if a non-zero turn percent is specified or no turning will occur
-                driveAction.getParam().getDuration().getValue().visit(this);
+                if ( driveAction.getParam().getDuration().getType() == de.fhg.iais.roberta.shared.action.ev3.MotorMoveMode.DISTANCE ) {
 
-                this.sb.append("0" + ",true" + ",true");
+                    this.sb.append("18.0*"); // 18cm is one rotation //Synchronise two motors. Should be set to true if a non-zero turn percent is specified or no turning will occur
+                    driveAction.getParam().getDuration().getValue().visit(this);
 
+                    this.sb.append(",0" + ",true" + ",true");
+
+                }
+
+                this.sb.append(");");
+                return null;
             }
+            this.sb.append((", OUT_REGMODE_SYNC") + ");");
 
-            this.sb.append(");");
             return null;
         }
         this.sb.append(");");
@@ -822,35 +849,67 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     public Void visitTurnAction(TurnAction<Void> turnAction) {
 
-        String methodName = "OnFwdSync";
         final boolean isDuration = turnAction.getParam().getDuration() != null;
-        if ( turnAction.getDirection() == TurnDirection.LEFT ) {
-            methodName = "OnRevSync";
+        String methodName = "";
+        String speedSign = "";
+        String turnpct = "100";
+
+        boolean isRegulatedDrive = this.brickConfiguration.getActorOnPort(this.brickConfiguration.getLeftMotorPort()).isRegulated();
+
+        if ( isRegulatedDrive ) {
+            if ( isDuration ) {
+                methodName = "RotateMotorEx";
+                if ( turnAction.getDirection() == TurnDirection.LEFT ) {
+                    speedSign = "-";
+                }
+            } else {
+                methodName = "OnFwdSync";
+
+                if ( turnAction.getDirection() == TurnDirection.LEFT ) {
+                    methodName = "OnRevSync";
+
+                }
+
+            }
+        } else {
+            methodName = "OnFwd";
+            if ( turnAction.getDirection() == TurnDirection.LEFT ) {
+                methodName = "OnRev";
+            }
         }
         this.sb.append(methodName + "(OUT_");
-
-        this.sb.append(this.brickConfiguration.getLeftMotorPort());
         this.sb.append(this.brickConfiguration.getRightMotorPort());
-        this.sb.append(",");
+        this.sb.append(this.brickConfiguration.getLeftMotorPort());
+
+        this.sb.append("," + speedSign);
         turnAction.getParam().getSpeed().visit(this);
         if ( isDuration ) {
 
-            this.sb.append("RotateMotorEx");
             if ( turnAction.getParam().getDuration().getType() == de.fhg.iais.roberta.shared.action.ev3.MotorMoveMode.DEGREE ) {
                 this.sb.append(",");
-            }
 
-            turnAction.getParam().getDuration().getValue().visit(this);
-            this.sb.append(",100" + ",true" + ",true");
+                turnAction.getParam().getDuration().getValue().visit(this);
+                this.sb.append(",100" + ",true" + ",true");
+            }
+            this.sb.append(");");
+            return null;
         }
-        this.sb.append(");");
+        this.sb.append(",100" + ");");
         return null;
+
     }
 
     @Override
     public Void visitMotorDriveStopAction(MotorDriveStopAction<Void> stopAction) {
+        String methodName = "";
+        boolean isRegulatedDrive = this.brickConfiguration.getActorOnPort(this.brickConfiguration.getLeftMotorPort()).isRegulated();
+        if ( isRegulatedDrive ) {
+            methodName = "OffEx";
+        } else {
+            methodName = "Off";
 
-        final String methodName = "Off";
+        }
+
         this.sb.append(methodName + "(OUT_");
         this.sb.append(this.brickConfiguration.getLeftMotorPort());
         this.sb.append(this.brickConfiguration.getRightMotorPort());

@@ -35,7 +35,7 @@ public class JavaVisitorTest {
         MathConst<Void> mathConst = MathConst.make(Const.E, BlocklyBlockProperties.make("1", "1", false, false, false, false, false, true, false), null);
         Ast2Ev3JavaVisitor visitor = new Ast2Ev3JavaVisitor("Test", brickConfiguration, usedCostumFunctions, 0);
         mathConst.visit(visitor);
-        Assert.assertEquals("2.71828", visitor.getSb().toString());
+        Assert.assertEquals("E", visitor.getSb().toString());
     }
 
     @Test

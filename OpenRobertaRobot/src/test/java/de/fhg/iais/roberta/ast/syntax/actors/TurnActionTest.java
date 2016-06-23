@@ -15,7 +15,11 @@ public class TurnActionTest {
 
     @Test
     public void turnFor() throws Exception {
+<<<<<<< HEAD
         final String a = "\nOnFwdSync(OUT_BC,50RotateMotorEx,20,100,true,true);";
+=======
+        final String a = "\nturn_right(50, 0.0028*20);";
+>>>>>>> ee181ef3e089b35cdf5127869b826487f76daf1e
 
         Helper.assertCodeIsOk(a, "/ast/actions/action_MotorDiffTurnFor.xml");
     }
