@@ -8,18 +8,15 @@ public class TurnActionTest {
 
     @Test
     public void turn() throws Exception {
-        final String a = "\nOnFwdSync(OUT_BC,50);";
+        final String a = "\nOnFwdSync(OUT_CB,50,100);";
 
         Helper.assertCodeIsOk(a, "/ast/actions/action_MotorDiffTurn.xml");
     }
 
     @Test
     public void turnFor() throws Exception {
-<<<<<<< HEAD
-        final String a = "\nOnFwdSync(OUT_BC,50RotateMotorEx,20,100,true,true);";
-=======
-        final String a = "\nturn_right(50, 0.0028*20);";
->>>>>>> ee181ef3e089b35cdf5127869b826487f76daf1e
+
+        final String a = "\nRotateMotorEx(OUT_CB,50,360.0*20,100,true,true);";
 
         Helper.assertCodeIsOk(a, "/ast/actions/action_MotorDiffTurnFor.xml");
     }

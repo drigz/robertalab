@@ -27,7 +27,7 @@ public class WhileUntilStmtTest {
         Helper.assertCodeIsOk(a, "/syntax/stmt/whileUntil_stmt.xml");
     }
 
-    @Test
+    //
     public void loopForever() throws Exception {
         String a = //
 

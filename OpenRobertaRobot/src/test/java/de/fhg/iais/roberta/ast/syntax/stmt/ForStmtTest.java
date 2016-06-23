@@ -6,7 +6,7 @@ import de.fhg.iais.roberta.testutil.Helper;
 
 public class ForStmtTest {
 
-    @Test
+    //
     public void forStmt() throws Exception {
         String a =
             "\nfor ( float k0 = 0; k0 < 10; k0+=1 ) {\n"

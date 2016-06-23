@@ -117,9 +117,8 @@ public class DriveAction<V> extends Action<V> {
         JaxbTransformerHelper.setBasicProperties(this, jaxbDestination);
 
         if ( getProperty().getBlockType().equals(BlocklyConstants.ROB_ACTIONS_MOTOR_DIFF_ON_FOR) ) {
-            JaxbTransformerHelper.addField(jaxbDestination, BlocklyConstants.DIRECTION, getDirection() == DriveDirection.FOREWARD
-                ? getDirection().name()
-                : "BACKWARDS");
+            JaxbTransformerHelper
+                .addField(jaxbDestination, BlocklyConstants.DIRECTION, getDirection() == DriveDirection.FOREWARD ? getDirection().name() : "BACKWARDS");
         } else {
             JaxbTransformerHelper.addField(jaxbDestination, BlocklyConstants.DIRECTION, getDirection().name());
         }
@@ -129,5 +128,10 @@ public class DriveAction<V> extends Action<V> {
             JaxbTransformerHelper.addValue(jaxbDestination, getParam().getDuration().getType().name(), getParam().getDuration().getValue());
         }
         return jaxbDestination;
+    }
+
+    public boolean getRotationDirection() {
+        // TODO Auto-generated method stub
+        return false;
     }
 }
