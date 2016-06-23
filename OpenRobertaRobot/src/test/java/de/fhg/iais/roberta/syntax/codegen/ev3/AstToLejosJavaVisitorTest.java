@@ -104,7 +104,6 @@ public class AstToLejosJavaVisitorTest {
         assertCodeIsOk(a, "/syntax/code_generator/java/java_code_generator2.xml");
     }
 
-    // ignore
     public void test3() throws Exception {
 
         final String a = "" //
@@ -133,7 +132,6 @@ public class AstToLejosJavaVisitorTest {
         assertCodeIsOk(a, "/syntax/code_generator/java/java_code_generator3.xml");
     }
 
-    // ignore
     public void test4() throws Exception {
 
         final String a = "" //
@@ -164,7 +162,6 @@ public class AstToLejosJavaVisitorTest {
         assertCodeIsOk(a, "/syntax/code_generator/java/java_code_generator4.xml");
     }
 
-    //ignore
     public void test5() throws Exception {
 
         final String a = "" //
@@ -211,7 +208,6 @@ public class AstToLejosJavaVisitorTest {
         assertCodeIsOk(a, "/syntax/code_generator/java/java_code_generator7.xml");
     }
 
-    //ignore
     public void test8() throws Exception {
 
         final String a = "" //
@@ -341,7 +337,6 @@ public class AstToLejosJavaVisitorTest {
         assertCodeIsOk(a, "/syntax/methods/method_void_3.xml");
     }
 
-    //ignore
     public void test14() throws Exception {
 
         final String a = "" //

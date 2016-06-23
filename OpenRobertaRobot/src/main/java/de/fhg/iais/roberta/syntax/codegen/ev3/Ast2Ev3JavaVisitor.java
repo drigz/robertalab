@@ -739,9 +739,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitMotorSetPowerAction(MotorSetPowerAction<Void> motorSetPowerAction) {
-
         final String methodName = "on_reg";
-
         final boolean isRegulated = this.brickConfiguration.isMotorRegulated(motorSetPowerAction.getPort());
         this.sb.append(methodName + "(OUT_" + motorSetPowerAction.getPort() + ",");
         motorSetPowerAction.getPower().visit(this);
@@ -785,38 +783,61 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     @Override // regulated drive action
 
     public Void visitDriveAction(DriveAction<Void> driveAction) {
+        boolean isDuration = driveAction.getParam().getDuration() != null;
+        String turnpct = "0";
+        String methodName = "";
+        String speedSign = "";
+        boolean isRegulatedDrive = this.brickConfiguration.getActorOnPort(this.brickConfiguration.getLeftMotorPort()).isRegulated();
 
-        final boolean isDuration = driveAction.getParam().getDuration() != null;
-        if ( isDuration ) {
-            final String methodName = isDuration ? "driveDistance(" : "regulatedDrive(";
-            this.sb.append("OnFwdReg");
-        }
-        if ( driveAction.getDirection() == DriveDirection.BACKWARD ) {
-            this.sb.append("OnRevReg");
-        }
-        this.sb.append("(OUT_");
-        this.sb.append(this.brickConfiguration.getLeftMotorPort());
-        this.sb.append(this.brickConfiguration.getRightMotorPort());
-        this.sb.append(",");
-        driveAction.getParam().getSpeed().visit(this);
-        this.sb.append(", OUT_REGMODE_SYNC");
+        if ( isRegulatedDrive ) {
+            if ( isDuration ) {
+                methodName = "RotateMotorEx";
+                if ( driveAction.getDirection() == DriveDirection.BACKWARD ) {
+                    speedSign = "-";
+                }
+            } else {
+                methodName = "OnFwdReg";
 
-        if ( isDuration == true ) {
-            this.sb.append(",");
-            if ( driveAction.getParam().getDuration().getType() == de.fhg.iais.roberta.shared.action.ev3.MotorMoveMode.DISTANCE ) {
-                final String methodName = "RotateMotorEx";
+                if ( driveAction.getDirection() == DriveDirection.BACKWARD ) {
+                    methodName = "OnRevReg";
 
-                this.sb.append("18.0*"); // 18cm is one rotation //Synchronise two motors. Should be set to true if a non-zero turn percent is specified or no turning will occur
-                driveAction.getParam().getDuration().getValue().visit(this);
-
-                this.sb.append("0" + ",true" + ",true");
+                }
 
             }
-
-            this.sb.append(");");
-            return null;
+        } else {
+            methodName = "OnFwd";
+            if ( driveAction.getDirection() == DriveDirection.BACKWARD ) {
+                methodName = "OnRev";
+            }
         }
 
+        this.sb.append(methodName + "(OUT_");
+        this.sb.append(this.brickConfiguration.getRightMotorPort());
+        this.sb.append(this.brickConfiguration.getLeftMotorPort());
+
+        this.sb.append("," + speedSign);
+        driveAction.getParam().getSpeed().visit(this);
+
+        if ( isRegulatedDrive ) {
+            if ( isDuration ) {
+                this.sb.append(",");
+
+                if ( driveAction.getParam().getDuration().getType() == de.fhg.iais.roberta.shared.action.ev3.MotorMoveMode.DISTANCE ) {
+
+                    this.sb.append("18.0*"); // 18cm is one rotation //Synchronise two motors. Should be set to true if a non-zero turn percent is specified or no turning will occur
+                    driveAction.getParam().getDuration().getValue().visit(this);
+
+                    this.sb.append(",0" + ",true" + ",true");
+
+                }
+
+                this.sb.append(");");
+                return null;
+            }
+            this.sb.append((", OUT_REGMODE_SYNC") + ");");
+
+            return null;
+        }
         this.sb.append(");");
         return null;
     }
@@ -825,36 +846,68 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     public Void visitTurnAction(TurnAction<Void> turnAction) {
 
-        String methodName = "OnFwdSync";
         final boolean isDuration = turnAction.getParam().getDuration() != null;
-        if ( turnAction.getDirection() == TurnDirection.LEFT ) {
-            methodName = "OnRevSync";
+        String methodName = "";
+        String speedSign = "";
+        String turnpct = "100";
+
+        boolean isRegulatedDrive = this.brickConfiguration.getActorOnPort(this.brickConfiguration.getLeftMotorPort()).isRegulated();
+
+        if ( isRegulatedDrive ) {
+            if ( isDuration ) {
+                methodName = "RotateMotorEx";
+                if ( turnAction.getDirection() == TurnDirection.LEFT ) {
+                    speedSign = "-";
+                }
+            } else {
+                methodName = "OnFwdSync";
+
+                if ( turnAction.getDirection() == TurnDirection.LEFT ) {
+                    methodName = "OnRevSync";
+
+                }
+
+            }
+        } else {
+            methodName = "OnFwd";
+            if ( turnAction.getDirection() == TurnDirection.LEFT ) {
+                methodName = "OnRev";
+            }
         }
         this.sb.append(methodName + "(OUT_");
-
-        this.sb.append(this.brickConfiguration.getLeftMotorPort());
         this.sb.append(this.brickConfiguration.getRightMotorPort());
-        this.sb.append(",");
+        this.sb.append(this.brickConfiguration.getLeftMotorPort());
+
+        this.sb.append("," + speedSign);
         turnAction.getParam().getSpeed().visit(this);
 
         if ( isDuration ) {
 
-            this.sb.append("RotateMotorEx");
             if ( turnAction.getParam().getDuration().getType() == de.fhg.iais.roberta.shared.action.ev3.MotorMoveMode.DEGREE ) {
                 this.sb.append(",");
-            }
 
-            turnAction.getParam().getDuration().getValue().visit(this);
-            this.sb.append(",100" + ",true" + ",true");
+                turnAction.getParam().getDuration().getValue().visit(this);
+                this.sb.append(",100" + ",true" + ",true");
+            }
+            this.sb.append(");");
+            return null;
         }
-        this.sb.append(");");
+        this.sb.append(",100" + ");");
         return null;
+
     }
 
     @Override
     public Void visitMotorDriveStopAction(MotorDriveStopAction<Void> stopAction) {
+        String methodName = "";
+        boolean isRegulatedDrive = this.brickConfiguration.getActorOnPort(this.brickConfiguration.getLeftMotorPort()).isRegulated();
+        if ( isRegulatedDrive ) {
+            methodName = "OffEx";
+        } else {
+            methodName = "Off";
 
-        final String methodName = "Off";
+        }
+
         this.sb.append(methodName + "(OUT_");
         this.sb.append(this.brickConfiguration.getLeftMotorPort());
         this.sb.append(this.brickConfiguration.getRightMotorPort());
@@ -1751,7 +1804,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     nlIndent();
                     this.sb.append("} \n");
                     this.incrIndentation();
-    
+
                     //max of two values
                     this.sb.append("inline float mathMax(float firstValue, float secondValue) {");
                     nlIndent();
@@ -1980,7 +2033,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     nlIndent();
                     this.sb.append("}  \n");
                     this.incrIndentation();
-    
+
                     this.sb.append("inline float arrayMedian(float arr[]) {");
                     nlIndent();
                     this.sb.append("int n = ArrayLen(arr);");
@@ -2034,7 +2087,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     nlIndent();
                     this.sb.append("return result; \n");
                     this.sb.append("} \n");
-    
+
                     this.sb.append("inline float arrayMean(float arr[]) {");
                     nlIndent();
                     this.sb.append("float sum = 0;");
@@ -2049,7 +2102,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     nlIndent();
                     this.sb.append("sum/ArrayLen(arr); \n");
                     this.sb.append("} \n");
-    
+
                     this.sb.append("inline float arrayStandardDeviatioin(float arr[]) {");
                     nlIndent();
                     this.sb.append("int n = ArrayLen(arr);");
@@ -2127,7 +2180,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     nlIndent();
                     this.sb.append("}  \n");
                     this.incrIndentation();
-    
+
                     this.sb.append("inline float arrayMode(float arr[]){");
                     nlIndent();
                     this.sb.append("arrayInsertionSort(arr);");
@@ -2176,7 +2229,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     this.sb.append("}  \n");
                     this.incrIndentation();
                     break;
-    
+
                     case FIRSTARR:
                     this.sb.append("inline int arrayFindFirst( item) {");
                     this.sb.append(this.arrType);
@@ -2213,7 +2266,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     nlIndent();
                     this.sb.append("} \n");
                     this.incrIndentation();
-    
+
                     //TODO: may be put into another function
                     this.sb.append("inline int arrayFindLast( item) {");
                     this.sb.append(this.arrType);
@@ -2251,8 +2304,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     this.sb.append("} \n");
                     this.incrIndentation();
                     break;
-    
-    
+
+
                     case JTEXT:
                     this.sb.append("inline string textJoin (string arr[]) {");
                     nlIndent();
