@@ -88,14 +88,14 @@ public class AstToLejosJavaVisitorTest {
             + "        \n"
             + "            while ( true ) {\n"
             + "               GraphicOut( 0, 0,\"EYESOPEN\");\n\n"
-            + "                  RotateMotor(OUT_B,30);"
+            + "                  OnFwdReg(OUT_B,30,100);"
             + "            \n"
             + "        }\n"
             + "        }\n"
             + "        playFile(1);\n"
             + "        setVolume(50);\n"
             + "        for ( float i = 1; i < 10; i += 1 ) {\n\n"
-            + "        RotateMotor(OUT_B,30,360.0*1);"
+            + "        RotateMotorEx(OUT_B,30,360.0*1,100,true,true);"
             + "        }\n"
             + SUFFIX
 
@@ -104,7 +104,10 @@ public class AstToLejosJavaVisitorTest {
         assertCodeIsOk(a, "/syntax/code_generator/java/java_code_generator2.xml");
     }
 
+<<<<<<< HEAD
     //ignore
+=======
+>>>>>>> nxtCode
     public void test3() throws Exception {
 
         final String a = "" //
@@ -133,7 +136,6 @@ public class AstToLejosJavaVisitorTest {
         assertCodeIsOk(a, "/syntax/code_generator/java/java_code_generator3.xml");
     }
 
-    // ignore
     public void test4() throws Exception {
 
         final String a = "" //
@@ -164,7 +166,10 @@ public class AstToLejosJavaVisitorTest {
         assertCodeIsOk(a, "/syntax/code_generator/java/java_code_generator4.xml");
     }
 
+<<<<<<< HEAD
     @Test
+=======
+>>>>>>> nxtCode
     public void test5() throws Exception {
 
         final String a = "" //
@@ -197,13 +202,13 @@ public class AstToLejosJavaVisitorTest {
         assertCodeIsOk(a, "/syntax/code_generator/java/java_code_generator6.xml");
     }
 
-    @Test
+    //
     public void test7() throws Exception {
         final String a = "" //
             + MAIN_METHOD
 
-            + "          RotateMotor(OUT_B,30);\n"
-            + "          RotateMotor(OUT_B,30,360.0*1);\n"
+            + "          OnFwdReg(OUT_B,30,100);\n"
+            + "          RotateMotorEx(OUT_B,30,360.0*1,100,true,true);\n"
             + SUFFIX
 
             + "}\n";
@@ -211,7 +216,10 @@ public class AstToLejosJavaVisitorTest {
         assertCodeIsOk(a, "/syntax/code_generator/java/java_code_generator7.xml");
     }
 
+<<<<<<< HEAD
     //
+=======
+>>>>>>> nxtCode
     public void test8() throws Exception {
 
         final String a = "" //
@@ -268,13 +276,13 @@ public class AstToLejosJavaVisitorTest {
     //assertCodeIsOk(a, "/ast/task/task_mainTask.xml");
     //}
 
-    @Test
+    //
     public void test10() throws Exception {
 
         final String a = "" //
             + MAIN_METHOD
 
-            + "       RotateMotor(OUT_B,30,360.0*1);"
+            + "       RotateMotorEx(OUT_B,30,360.0*1,100,true,true);"
             + "        macheEtwas(10, 10);"
 
             + "   void macheEtwas(float x, float x2) {\n"
@@ -341,7 +349,6 @@ public class AstToLejosJavaVisitorTest {
         assertCodeIsOk(a, "/syntax/methods/method_void_3.xml");
     }
 
-    //ignore
     public void test14() throws Exception {
 
         final String a = "" //
