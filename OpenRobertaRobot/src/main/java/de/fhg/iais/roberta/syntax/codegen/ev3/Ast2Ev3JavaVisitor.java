@@ -281,6 +281,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     };
 
+    //now all these constants (except for PI that was originally in nxc) are defined in hal.h
     @Override
     public Void visitMathConst(MathConst<Void> mathConst) {
         switch ( mathConst.getMathConst() ) {
@@ -288,20 +289,20 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                 this.sb.append("PI");
                 break;
             case E:
-                this.sb.append("2.71828");
+                this.sb.append("E");
                 break;
             case GOLDEN_RATIO:
-                this.sb.append("((1.0 + sqrt(5.0)) / 2.0)");
+                this.sb.append("GOLDEN_RATIO");
                 break;
             case SQRT2:
-                this.sb.append("sqrt(2)");
+                this.sb.append("SQRT2");
                 break;
             case SQRT1_2:
-                this.sb.append("sqrt(1.0/2.0)");
+                this.sb.append("SQRT1_2");
                 break;
             // IEEE 754 floating point representation
             case INFINITY:
-                this.sb.append("0x7f800000");
+                this.sb.append("INFINITY");
                 break;
             default:
                 break;
@@ -1102,9 +1103,6 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     //not used
     @Override
     public Void visitTextPrintFunct(TextPrintFunct<Void> textPrintFunct) {
-        //this.sb.append("System.out.println(");
-        //textPrintFunct.getParam().get(0).visit(this);
-        //this.sb.append(")");
         return null;
     }
 

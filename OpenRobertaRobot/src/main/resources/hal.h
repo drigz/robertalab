@@ -41,13 +41,13 @@ inline bool BTCheck(int conn){
 }
 
 inline float bluetooth_get_number(int inbox){
-  int in = NULL;
+  int in = 5;
   ReceiveRemoteNumber(inbox,true,in);
   return in;
   //TextOut(0,LCD_LINE3,"Receiving");
   //TextOut(0,LCD_LINE4,"  ");
   //NumOut(5,LCD_LINE4,in);
-  return in;
+  //return in;
 }
 
 //sub bluetooth_send_number(int out, int connection, int inbox, int outbox){
@@ -463,39 +463,3 @@ inline int array_find_last_bool(bool arr[], bool item) {
       return ArrayLen(arr) - 1 - i;
   }
 }
-<<<<<<< HEAD
-inline float on_reg(int ports, float speed,int regmode)
-{
-  if (speed > 0){
-    OnRevReg(OUT_C, speed,regmode);
-
-  }
-  else{
-   OnFwdReg(OUT_B, speed,regmode) ;
-  }
-<<<<<<< HEAD
-
-}   
-  sub turn_left(float s, float t){
-
-  OnFwd(OUT_A, s);
-  OnRev(OUT_B, s);
-  Wait(t);
-}
-
-
-sub turn_right(float s, float t){
-
-  OnFwd(OUT_A, s);
-  OnRev(OUT_B, s);
-  Wait(t);
-}
-
-=======
-  }  
- 
->>>>>>> nxtCode
-  
- 
-=======
->>>>>>> ee181ef3e089b35cdf5127869b826487f76daf1e
