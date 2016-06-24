@@ -104,6 +104,17 @@ inline bool bluetooth_get_boolean(int inbox){
   //SendRemoteBool(connection,outbox,out);
 //}
 
+//sensors' functions
+sub IsPressedAndReleased(int button){
+  SetButtonReleaseCount(button, 0);
+  NumOut (0,LCD_LINE6, ButtonReleaseCount(button));
+  while((ButtonReleaseCount(button) == 0)||(ButtonPressCount(button) == 0)){
+    TextOut(0,LCD_LINE1, "zero");
+  }
+  //SetButtonState(BTN1, BTNSTATE_PRESSED_EV);
+  //SetButtonState(BTNLEFT, 0x10);
+}
+
 //math Functions
 
 inline int math_floor(float val) {

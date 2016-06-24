@@ -414,6 +414,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
+    // TODO: check empty expression
     @Override
     public Void visitEmptyExpr(EmptyExpr<Void> emptyExpr) {
         switch ( emptyExpr.getDefVal().getName() ) {
@@ -599,6 +600,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
+    //TODO: check
     @Override
     public Void visitLightAction(LightAction<Void> lightAction) {
         if ( lightAction.getBlinkMode() == BlinkMode.ON ) {
@@ -672,6 +674,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
+    // TODO: fix boolean, numbers and arrays
     @Override
     public Void visitShowTextAction(ShowTextAction<Void> showTextAction) {
         this.sb.append("TextOut(");
@@ -926,16 +929,18 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    //TODO: It is a block for nxt buttons. Should be completed. Also- blocks changed, because the
-    //buttons are different
+    // TODO: change getEnumCode(brickSensor.getKey()), so it would return the following:
+    // BTNEXIT, BTNRIGHT, BTNLEFT, BTNCENTER
     @Override
     public Void visitBrickSensor(BrickSensor<Void> brickSensor) {
         switch ( brickSensor.getMode() ) {
             case IS_PRESSED:
-                this.sb.append("hal.isPressed(" + getEnumCode(brickSensor.getKey()) + ")");
+                this.sb.append("ButtonPressed(" + getEnumCode(brickSensor.getKey()) + ", false)");
                 break;
+            //TODO: fix for multiple calling
+            // No block?
             case WAIT_FOR_PRESS_AND_RELEASE:
-                this.sb.append("hal.isPressedAndReleased(" + getEnumCode(brickSensor.getKey()) + ")");
+                this.sb.append("IsPressedAndReleased(" + getEnumCode(brickSensor.getKey()) + ")");
                 break;
             default:
                 throw new DbcException("Invalide mode for BrickSensor!");
@@ -1059,7 +1064,6 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    // TODO: add modes
     @Override
     public Void visitUltrasonicSensor(UltrasonicSensor<Void> ultrasonicSensor) {
         this.sb.append("SensorUS(IN_" + ultrasonicSensor.getPort().getPortNumber() + ")");
@@ -1750,7 +1754,6 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         this.sb.append("#define TRACKWIDTH " + this.brickConfiguration.getTrackWidthCM() + "\n");
         this.sb.append("#include \"hal.h\" \n");
         this.sb.append("#include \"NXCDefs.h\" \n");
-        //TODO: change it to remove custom function visitor
     }
 
     private void generatePrefix(boolean withWrapping) {
