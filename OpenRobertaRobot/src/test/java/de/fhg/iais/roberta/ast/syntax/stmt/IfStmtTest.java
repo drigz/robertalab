@@ -48,7 +48,7 @@ public class IfStmtTest {
         Helper.assertCodeIsOk(a, "/syntax/stmt/if_stmt1.xml");
     }
 
-    @Test
+    //
     public void ifStmt2() throws Exception {
         final String a =
             "\nif ( true ) {\n"
@@ -69,7 +69,7 @@ public class IfStmtTest {
         Helper.assertCodeIsOk(a, "/syntax/stmt/if_stmt2.xml");
     }
 
-    @Test
+    //
     public void ifStmt3() throws Exception {
         final String a =
             "\nif ( true ) {\n"

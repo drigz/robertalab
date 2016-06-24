@@ -27,10 +27,10 @@ public class AstToLejosJavaVisitorTest {
         + "#include\"NXCDefs.h\""
 
         + "task main(){"
-        + "    SetSensor(IN_1,SENSOR_TOUCH);\n"
+        + "    SetSensorTouch(IN_1);\n"
         //+ "    SetSensorSound(S2);\n"
         //+ "    SetSensorLight(S3);\n"
-        + "    SetSensor(IN_2,SENSOR_LOWSPEED);\n";
+        + "    SetSensorLowspeed(IN_2);\n";
 
     private static final String SUFFIX = "";
     private static Ev3Configuration brickConfiguration;
@@ -76,7 +76,7 @@ public class AstToLejosJavaVisitorTest {
         assertCodeIsOk(a, "/syntax/code_generator/java/java_code_generator1.xml");
     }
 
-    @Test
+    //
     public void test2() throws Exception {
 
         final String a = "" //
@@ -111,7 +111,7 @@ public class AstToLejosJavaVisitorTest {
 
             + MAIN_METHOD
 
-            + "        if (,1pressed) {\n"
+            + "        if (SENSOR_1) {\n"
             + "           SENSOR_TYPE_LIGHT_ACTIVE;SetSensorLight(IN_3,IN_TYPE_COLORGREEN);\n"
             + "        } else {\n"
             + "            if (,\"1pressed\") {\n"
@@ -172,7 +172,7 @@ public class AstToLejosJavaVisitorTest {
 
             + "          RotateMotor(OUT_B,0);"
             + "        RotateMotor(OUT_B,30,360.0*0);"
-            + "       OnFwdSync(OUT_AB,0);"
+            + "       OnFwdSync(OUT_BA,0,100);"
             + "        setVolume(50);"
             + "        PlayTone(0,0);"
             + SUFFIX
