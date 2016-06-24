@@ -9,10 +9,7 @@ public class ColorSensorTest {
     @Test
     public void setColor() throws Exception {
         final String a =
-            "\nSetSensorLight(IN_3,IN_TYPE_COLORCOLOUR);"
-                + "SetSensorLight(IN_3,IN_TYPE_COLORRED);"
-                + "SetSensorLight(IN_3,IN_TYPE_COLORRGB);"
-                + "SetSensorLight(IN_3,IN_TYPE_COLORAMBIENT);";
+            "\nSensor(IN_)IN_TYPE_COLORCOLOUR);" + "Sensor(IN_)IN_TYPE_COLORRED);" + "Sensor(IN_)IN_TYPE_COLORRGB);" + "Sensor(IN_)IN_TYPE_COLORAMBIENT);";
 
         Helper.assertCodeIsOk(a, "/ast/sensors/sensor_setColor.xml");
     }

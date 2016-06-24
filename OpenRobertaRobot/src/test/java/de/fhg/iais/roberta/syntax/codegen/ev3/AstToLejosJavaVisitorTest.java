@@ -27,10 +27,10 @@ public class AstToLejosJavaVisitorTest {
         + "#include\"NXCDefs.h\""
 
         + "task main(){"
-        + "    SetSensorTouch(IN_1);\n"
-        //+ "    SetSensorSound(S2);\n"
-        //+ "    SetSensorLight(S3);\n"
-        + "    SetSensorLowspeed(IN_2);\n";
+        + "    SetSensor(IN_1,SENSOR_TOUCH);\n"
+        // + "    SetSensor(IN_4, SENSOR_SOUND);\n"
+        //+ "    SetSensor(IN_3, SENSOR_LIGHT);\n"
+        + "    SetSensor(IN_2,SENSOR_LOWSPEED);\n";
 
     private static final String SUFFIX = "";
     private static Ev3Configuration brickConfiguration;
