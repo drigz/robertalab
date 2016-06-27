@@ -134,4 +134,5 @@ public class UsedSensorsCheckVisitor extends CheckVisitor {
         this.usedSensors.add(new UsedSensor(ultrasonicSensor.getPort(), EV3Sensors.EV3_ULTRASONIC_SENSOR, ultrasonicSensor.getMode()));
         return null;
     }
+
 }

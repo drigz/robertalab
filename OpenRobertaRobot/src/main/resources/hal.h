@@ -21,6 +21,19 @@
 #define INFINITY 0x7f800000
 #endif
 
+//sensor functions
+sub SetTimerValue(long& timer){
+  timer = CurrentTick();
+}
+
+inline long GetTimerValue(long timer){
+  return CurrentTick() - timer;
+}
+
+sub ResetTimerValue(long& timer){
+  timer = CurrentTick();
+}
+
 //Bluetooth functions and constants
 
 #ifndef BT_SLAVE_CONN

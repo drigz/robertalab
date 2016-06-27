@@ -30,7 +30,7 @@ public class AstToLejosJavaVisitorTest {
         + "    SetSensor(IN_1,SENSOR_TOUCH);\n"
         // + "    SetSensor(IN_4, SENSOR_SOUND);\n"
         //+ "    SetSensor(IN_3, SENSOR_LIGHT);\n"
-        + "    SetSensor(IN_2,SENSOR_LOWSPEED);\n";
+        + "    SetSensor(IN_2,SENSOR_LOWSPEED);\n" + "long timer;\n" + "SetTimerValue(timer);";
 
     private static final String SUFFIX = "";
     private static Ev3Configuration brickConfiguration;

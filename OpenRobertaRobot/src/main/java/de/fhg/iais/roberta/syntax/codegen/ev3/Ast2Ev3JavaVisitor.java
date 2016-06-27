@@ -620,6 +620,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     }
 
+    //TODO: fix
     @Override
     public Void visitLightStatusAction(LightStatusAction<Void> lightStatusAction) {
         switch ( lightStatusAction.getStatus() ) {
@@ -638,7 +639,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitPlayFileAction(PlayFileAction<Void> playFileAction) {
-        this.sb.append("playFile(" + playFileAction.getFileName() + ");");
+        this.sb.append("PlayFile(" + playFileAction.getFileName() + ");");
         return null;
     }
 
@@ -1038,14 +1039,16 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
+    //TODO: reimplement it for 6 timers?
     @Override
     public Void visitTimerSensor(TimerSensor<Void> timerSensor) {
         switch ( timerSensor.getMode() ) {
             case GET_SAMPLE:
-                this.sb.append("SetTimerValue(" + timerSensor.getTimer() + ")");
+                this.sb.append("GetTimerValue(timer)");
                 break;
             case RESET:
-                this.sb.append("resetTimer(" + timerSensor.getTimer() + ");");
+                //this.sb.append("ResetTimerValue(" + timerSensor.getTimer() + ");");
+                this.sb.append("ResetTimerValue(timer);");
                 break;
             default:
                 throw new DbcException("Invalid Time Mode!");
@@ -1782,6 +1785,12 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     break;
             }
         }
+
+        //TODO: hide it after the used block part is implemented
+        nlIndent();
+        this.sb.append("long timer;");
+        nlIndent();
+        this.sb.append("SetTimerValue(timer);");
     }
 
     /**
