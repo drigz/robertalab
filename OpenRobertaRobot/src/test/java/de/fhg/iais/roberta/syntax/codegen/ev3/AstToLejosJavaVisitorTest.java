@@ -30,7 +30,7 @@ public class AstToLejosJavaVisitorTest {
         + "    SetSensor(IN_1,SENSOR_TOUCH);\n"
         // + "    SetSensor(IN_4, SENSOR_SOUND);\n"
         //+ "    SetSensor(IN_3, SENSOR_LIGHT);\n"
-        + "    SetSensor(IN_2,SENSOR_LOWSPEED);\n" + "long timer;\n" + "SetTimerValue(timer);";
+        + "    SetSensor(IN_2,SENSOR_LOWSPEED);\n" + "long timer1;\n" + "SetTimerValue(timer1);";
 
     private static final String SUFFIX = "";
     private static Ev3Configuration brickConfiguration;
@@ -173,7 +173,7 @@ public class AstToLejosJavaVisitorTest {
             + "          RotateMotor(OUT_B,0);"
             + "        RotateMotor(OUT_B,30,360.0*0);"
             + "       OnFwdSync(OUT_BA,0,100);"
-            + "        setVolume(50);"
+            + "        SetVolume(50);"
             + "        PlayTone(0,0);"
             + SUFFIX
 

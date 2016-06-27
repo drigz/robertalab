@@ -14,7 +14,7 @@ public class MathSingleTest {
 
     @Test
     public void Test1() throws Exception {
-        final String a = "setVolume(sqrt(0));";
+        final String a = "SetVolume(sqrt(0));";
 
         Helper.assertCodeIsOk(a, "/syntax/math/math_single1.xml");
     }

@@ -583,12 +583,12 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     public Void visitVolumeAction(VolumeAction<Void> volumeAction) {
         switch ( volumeAction.getMode() ) {
             case SET:
-                this.sb.append("setVolume(");
+                this.sb.append("SetVolume(");
                 volumeAction.getVolume().visit(this);
                 this.sb.append(");");
                 break;
             case GET:
-                this.sb.append("getVolume()");
+                this.sb.append("Volume()");
                 break;
             default:
                 throw new DbcException("Invalid volume action mode!");
@@ -1039,16 +1039,15 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    //TODO: reimplement it for 6 timers?
     @Override
     public Void visitTimerSensor(TimerSensor<Void> timerSensor) {
         switch ( timerSensor.getMode() ) {
             case GET_SAMPLE:
-                this.sb.append("GetTimerValue(timer)");
+                this.sb.append("GetTimerValue(timer" + timerSensor.getTimer() + ")");
                 break;
             case RESET:
                 //this.sb.append("ResetTimerValue(" + timerSensor.getTimer() + ");");
-                this.sb.append("ResetTimerValue(timer);");
+                this.sb.append("ResetTimerValue(timer" + timerSensor.getTimer() + ");");
                 break;
             default:
                 throw new DbcException("Invalid Time Mode!");
@@ -1788,9 +1787,9 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
         //TODO: hide it after the used block part is implemented
         nlIndent();
-        this.sb.append("long timer;");
+        this.sb.append("long timer1;");
         nlIndent();
-        this.sb.append("SetTimerValue(timer);");
+        this.sb.append("SetTimerValue(timer1);");
     }
 
     /**

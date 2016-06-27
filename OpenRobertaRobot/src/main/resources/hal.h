@@ -22,16 +22,16 @@
 #endif
 
 //sensor functions
-sub SetTimerValue(long& timer){
-  timer = CurrentTick();
+sub SetTimerValue(long& timer1){
+  timer1 = CurrentTick();
 }
 
-inline long GetTimerValue(long timer){
-  return CurrentTick() - timer;
+inline long GetTimerValue(long timer1){
+  return CurrentTick() - timer1;
 }
 
-sub ResetTimerValue(long& timer){
-  timer = CurrentTick();
+sub ResetTimerValue(long& timer1){
+  timer1 = CurrentTick();
 }
 
 //Bluetooth functions and constants
