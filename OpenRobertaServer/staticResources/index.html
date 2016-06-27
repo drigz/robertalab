@@ -19,6 +19,7 @@ limitations under the License.
 <head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <link rel="stylesheet" type="text/css" href="js/libs/bootstrap/bootstrap-3.3.1-dist/dist/css/bootstrap.min.css"></link>
+<link rel="stylesheet" type="text/css" href="js/libs/bootstrap/bootstrap-3.3.1-dist/dist/css/bootstrap-table.min.css"></link>
 <!-- <link rel="stylesheet" type="text/css" href="/common/jquery.dataTables.min.css"></link> -->
 <link rel="stylesheet" type="text/css" href="/css/typicons.css"></link>
 <link rel="stylesheet" type="text/css" href="/css/roberta.css"></link>
@@ -70,8 +71,8 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
 							<li><a href="#" id="menuRunProg" class="typcn typcn-media-play" lkey="Blockly.Msg.MENU_START_BRICK">run on brick</a></li>
 							<li><a href="#" id="menuRunSim" class="typcn typcn-media-play-outline" lkey="Blockly.Msg.MENU_START_SIM">run in simulation</a></li>
 							<li><a href="#" id="menuNewProg" class="typcn typcn-document-add" lkey="Blockly.Msg.MENU_NEW">neu ...</a></li>
-							<li class="logout"><a href="#" id="menuListProg" class="typcn typcn-th-list" lkey="Blockly.Msg.MENU_LIST">Liste ...</a></li>
-							<li><a href="#" id="menuListExamples" class="typcn typcn-th-list" lkey="Blockly.Msg.MENU_LIST_EXAMPLES">Beispielprogramme ...</a></li>
+							<li class="logout"><a href="#" id="menuListProg" class="typcn typcn-th-list" lkey="Blockly.Msg.MENU_LIST_PROG">Liste ...</a></li>
+							<li><a href="#" id="menuListExamples" class="typcn typcn-th-list" lkey="Blockly.Msg.MENU_LIST_PROG_EXAMPLES">Beispielprogramme ...</a></li>
 							<li class="login logout"><a href="#" id="menuSaveProg" class="typcn typcn-cloud-storage" lkey="Blockly.Msg.MENU_SAVE">speichern</a></li>
 							<li class="logout"><a href="#" id="menuSaveAsProg" class="typcn typcn-cloud-storage" lkey="Blockly.Msg.MENU_SAVE_AS">speichern unter ...</a></li>
 							<li class=""><a href="#" id="menuShowCode" class="typcn typcn-code" lkey="Blockly.Msg.MENU_SHOW_CODE">show code</a></li>
@@ -93,7 +94,7 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
 						<ul class="dropdown-menu">
 							<li class="login logout"><a href="#" id="menuCheckConfig" class="typcn typcn-tick" lkey="Blockly.Msg.MENU_CHECK">checken</a></li>
 							<li><a href="#" id="menuNewConfig" class="typcn typcn-document-add" lkey="Blockly.Msg.MENU_NEW">neu ...</a></li>
-							<li class="logout"><a href="#" id="menuListConfig" class="typcn typcn-th-list" lkey="Blockly.Msg.MENU_LIST">Liste ... </a></li>
+							<li class="logout"><a href="#" id="menuListConfig" class="typcn typcn-th-list" lkey="Blockly.Msg.MENU_LIST_CONF">Liste ... </a></li>
 							<li class="login logout"><a href="#" id="menuSaveConfig" class="typcn typcn-cloud-storage" lkey="Blockly.Msg.MENU_SAVE">speichern</a></li>
 							<li class="logout"><a href="#" id="menuSaveAsConfig" class="typcn typcn-cloud-storage" lkey="Blockly.Msg.MENU_SAVE_AS">speichern unter ...</a></li>
 							<li class="hidden"><a href="#" id="menuPropertiesConfig" class="" lkey="Blockly.Msg.MENU_PROPERTIES">Eigenschaften ...</a></li>
@@ -105,8 +106,9 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
 								lkey="Blockly.Msg.MENU_ROBOT"></span>
 						</a>
 						<ul class="dropdown-menu">
-							<li class="robotType ev3"><a href="#" id="menuEv3" class="typcn typcn-ev3">EV3</a></li>
-							<li class="robotType nxt hidden"><a href="#" id="menuNxt" class="typcn typcn-Roberta">NXT</a></li>
+							<li class="robotType ev3 disabled"><a href="#" id="menu-ev3" class="typcn typcn-ev3">EV3</a></li>
+							<li class="robotType nxt"><a href="#" id="menu-nxt" class="typcn typcn-nxt">NXT</a></li>
+							<li class="robotType bayduino"><a href="#" id="menu-bayduino" class="typcn typcn-bayduino">BAYDUINO</a></li>
 							<li class="divider"></li>
 							<li><a href="#" id="menuConnect" class="typcn typcn-wi-fi" lkey="Blockly.Msg.MENU_CONNECT">verbinden ...</a></li>
 							<li><a href="#" id="menuRobotInfo" class="typcn typcn-input-checked" lkey="Blockly.Msg.MENU_ROBOT_STATE_INFO">Roboterinformationen</a></li>
@@ -176,17 +178,6 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
 					<li><a href="#" class="simBack typcn typcn-arrow-left-thick" lkey="Blockly.Msg.MENU_SIM_BACK">Back</a></li>
 				</ul>
 			</div>
-			<!-- Head-navigation-tabs -->
-			<div id="headNavigationTabs" class="navigation-row collapse navbar-collapse">
-				<ul class="nav nav-pills" id="head-navigation-tabs">
-					<li><a href="#" id="tabProgram">
-							<span lkey="Blockly.Msg.TAB_PROGRAM" class="menuTab">Program</span>&nbsp;<span id="tabProgramName"></span>
-						</a></li>
-					<li><a href="#" id="tabConfiguration">
-							<span lkey="Blockly.Msg.TAB_CONFIGURATION" class="menuTab">Configuration</span>&nbsp;<span id="tabConfigurationName"></span>
-						</a></li>
-				</ul>
-			</div>
 		</div>
 		<!-- Roberta-Logo -->
 		<div class="logo">
@@ -217,8 +208,89 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
 				<span id="toastText"></span>
 			</div>
 		</div>
+		<!-- Head-navigation-tabs -->
+		<div id="headNavigationTabs" class="navigation-row collapse navbar-collapse container">
+			<ul class="nav nav-tabs" id="head-navigation-tabs">
+				<li class="active"><a data-toggle="tab" id="tabProgram" href="#blockly">
+						<span lkey="Blockly.Msg.TAB_PROGRAM" class="menuTab">Program</span>&nbsp;<span id="tabProgramName"></span>
+					</a></li>
+				<li><a data-toggle="tab" id="tabConfiguration" href="#bricklyDiv">
+						<span lkey="Blockly.Msg.TAB_CONFIGURATION" class="menuTab">Configuration</span>&nbsp;<span id="tabConfigurationName"></span>
+					</a></li>
+				<li class="hidden"><a data-toggle="tab" id="tabProgList" href="#progList">Listing of programs</a></li>
+				<li class="hidden"><a data-toggle="tab" id="tabConfList" href="#confList">Listing of configurations</a></li>
+				<li class="hidden"><a data-toggle="tab" id="tabLogList" href="#logList">Logging</a></li>
+			</ul>
+		</div>
 	</nav>
 	<!-- ################## END HEAD NAVIGATION ################## -->
+	<!-- ################## TABS ################## -->
+	<div class="tab-content container" id="main-section">
+		<div id="blockly" class="tab-pane fade in active">
+			<div id="blocklyDiv"></div>
+			<div id="simDiv">
+				<div id="uniDiv" style="position: absolute; left: 0; top: 0; z-index: 0; width: 100%;"></div>
+				<div id="backgroundDiv" style="position: absolute; left: 0; top: 0; z-index: 0; width: 100%;"></div>
+				<div id="objectDiv" style="position: absolute; left: 0; top: 0; z-index: 1; width: 100%"></div>
+				<div id="robotDiv" style="position: absolute; left: 0; top: 0; z-index: 1; width: 100%"></div>
+				<div id="infoDiv" width="100px" height="200px" style="position: absolute; right: 0; top: 0; z-index: 1"></div>
+				<div id="simButtons">
+					<button id="simBack" type="button" class="simBack blbtn typcn typcn-arrow-left-thick" lkey="Blockly.Msg.MENU_SIM_BACK_TOOLTIP" rel="tooltip"
+						data-original-title="" title=""></button>
+					<button id="simScene" type="button" class="simScene blbtn typcn typcn-image" lkey="Blockly.Msg.MENU_SIM_SCENE_TOOLTIP" rel="tooltip" data-original-title=""
+						title=""></button>
+					<button id="simRobot" type="button" class="simRobot blbtn typcn typcn-ev3" lkey="Blockly.Msg.MENU_SIM_ROBOT_TOOLTIP" rel="tooltip" data-original-title=""
+						title=""></button>
+				</div>
+			</div>
+			<div id="codeDiv">
+				<div id="codeContent">
+					<div id="codePackage" class="codeActive"></div>
+					<button type="button" class="btn typcn typcn-plus" data-toggle="collapse" data-target="#codeImport">simple collapsible</button>
+					<div id="codeImport" class="collapse in codeActive"></div>
+				</div>
+				<div id="codeButtons" class="code">
+					<button id="codeBack" type="button" class="codeBack blbtn typcn typcn-arrow-left-thick" data-toggle="collapse"></button>
+					<button id="codeDownload" type="button" class="codeDownload blbtn typcn typcn-download" data-toggle="collapse"></button>
+				</div>
+			</div>
+		</div>
+		<div id="progList" class="tab-pane fade">
+			<!-- <h2 lkey="Blockly.Msg.DATATABLE_PROGRAMS">Programme</h2>
+ -->
+			<div id="toolbar">
+				<button id="backProgList" class="btn">
+					<i class="typcn typcn-arrow-left"></i>
+				</button>
+			</div>
+			<table id="programNameTable">
+			</table>
+		</div>
+		<div id="confList" class="tab-pane fade">
+			<h2 lkey="Blockly.Msg.DATATABLE_CONFIGURATIONS">Konfigurationen</h2>
+			<table id="configurationNameTable" class="tableSize table table-striped table-hover">
+				<tr>
+					<td></td>
+				</tr>
+			</table>
+			<div class="navbar navbar-fixed-bottom">
+				<input class="btn buttonLoad" id="loadConfigurationFromListing" lkey="Blockly.Msg.BUTTON_LOAD" type="submit" value="Laden" />
+				<input class="btn buttonDelete" id="deleteConfigurationFromListing" lkey="Blockly.Msg.BUTTON_DO_DELETE" type="submit" value="Löschen" />
+				<input class="btn backButton" id="backConfiguration" type="submit" lkey="Blockly.Msg.POPUP_CANCEL" value="Cancel" />
+			</div>
+		</div>
+		<div id="logList" class="tab-pane fade">
+			<h2>Logging</h2>
+			<ol id="log" class="log" reversed>
+			</ol>
+			<div class="navbar navbar-fixed-bottom">
+				<input id="clearLog" class="btn" lkey="Blockly.Msg.BUTTON_EMPTY_LIST" type="submit" value="Liste leeren"></input>
+				<input id="backLogging" class="btn backButton" type="submit" lkey="Blockly.Msg.POPUP_CANCEL" value="Cancel"></input>
+			</div>
+		</div>
+		<div id="bricklyDiv" class="tab-pane fade"></div>
+	</div>
+	<!--  ################## END TABS ################## -->
 	<!-- ################## POPUPS ################## -->
 	<!-- Popup login -->
 	<div class="modal fade" id="login-user" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -345,6 +417,7 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
 							<div class="input-group">
 								<span class="input-group-addon typcn input-typcn typcn-lock-closed"></span>
 								<input type="password" class="form-control" id="passOld" name="passOld" autofocus />
+								<input type="hidden" class="form-control" id="resetPassLink" name="resetPassLink" />
 							</div>
 						</div>
 						<div class="form-group">
@@ -584,7 +657,7 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
 				</div>
 				<div class="modal-footer" style="text-align: center">
 					<button id="startupClose" type="button" data-dismiss="modal" class="btn" lkey="Blockly.Msg.BUTTON_START">Start</button>
-					<button type="button" class="btn hidden-xs" data-dismiss="modal" id="takeATour">take a tour</button>
+					<button type="button" class="btn hidden-xs" data-dismiss="modal" lkey="Blockly.Msg.POPUP_TOUR" id="takeATour">take a tour</button>
 				</div>
 				<div class="modal-body left-inner-addon popup-checkbox">
 					<input type="checkbox" name="checkbox" id="checkbox_id" value="value">
@@ -602,7 +675,6 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 				</div>
 				<div class="modal-body">
 					<div lkey="Blockly.Msg.POPUP_TEXT_STARTUP_MESSAGE" id="popupTextStartupMessage"></div>
@@ -617,38 +689,22 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
 	</div>
 	<!--  Popup to show relations / share programs -->
 	<div id="show-relations" class="modal fade">
-		<div class="modal-dialog">
+		<div class="modal-dialog modal-lg">
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					       <h3 id="#headShare" class="modal-title">Share</h3>
+            
 				</div>
-				<form id="share-program-form">
-					<div class="modal-body">
-						<div id="relationsListing">
-							<h2 id="headShare" lkey="Blockly.Msg.BUTTON_DO_SHARE">Share</h2>
-							<table id="relationsTable" class="table table-striped table-hover">
-								<tr>
-									<td></td>
-								</tr>
-							</table>
-						</div>
-						<label for="programShareWith" lkey="Blockly.Msg.POPUP_SHARE_WITH">Share with ...</label>
-						<div class="form-inline left-inner-addon" id="programShareRight">
-							<div class="input-group">
-								<span class="input-group-addon typcn input-typcn typcn-user"></span>
-								<input type="text" id="programShareWith" class="form-control" name="programShareWith" autofocus />
-							</div>
-							<label class="checkbox-inline"> <input id="read" type="checkbox" name="readWrite" value="READ" checked="checked" /> <span
-								lkey="Blockly.Msg.POPUP_SHARE_READ">READ</span>
-							</label> <label class="checkbox-inline"> <input id="write" type="checkbox" name="readWrite" value="WRITE" /> <span lkey="Blockly.Msg.POPUP_SHARE_WRITE">WRITE</span>
-							</label>
-						</div>
-					</div>
-					<div class="modal-footer">
-						<button type="submit" class="btn btn-primary" id="shareProgram">OK</button>
-						<input type="button" class="btn backButton" data-dismiss="modal" lkey="Blockly.Msg.POPUP_CANCEL"></input>
-					</div>
-				</form>
+				<!-- <form id="share-program-form"> -->
+				<div class="modal-body">
+					<table id="relationsTable">
+					</table>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" id="shareProgram">OK</button>
+					<input type="button" class="btn backButton" data-dismiss="modal" lkey="Blockly.Msg.POPUP_CANCEL"></input>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -697,87 +753,5 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
 		</div>
 	</div>
 	<!-- ################## END POPUPS ################## -->
-	<!-- ################## TABS ################## -->
-	<div id="main-section">
-		<div id="tabs">
-			<ul>
-				<li class="hidden"><a id="tabBlockly" href="#blockly">Blockly</a></li>
-				<li class="hidden"><a id="tabListing" href="#progListing">Listing of programs</a></li>
-				<li class="hidden"><a id="tabConfigurationListing" href="#confListing">Listing of configurations</a></li>
-				<li class="hidden"><a id="tabLogging" href="#logging">Logging</a></li>
-				<li class="hidden"><a id="tabBrickly" href="#brickly">Brickly</a></li>
-			</ul>
-			<div id="blockly">
-				<div id="blocklyDiv"></div>
-				<div id="simDiv">
-					<div id="uniDiv" style="position: absolute; left: 0; top: 0; z-index: 0; width: 100%;"></div>
-					<div id="backgroundDiv" style="position: absolute; left: 0; top: 0; z-index: 0; width: 100%;"></div>
-					<div id="objectDiv" style="position: absolute; left: 0; top: 0; z-index: 1; width: 100%"></div>
-					<div id="robotDiv" style="position: absolute; left: 0; top: 0; z-index: 1; width: 100%"></div>
-					<div id="infoDiv" width="100px" height="200px" style="position: absolute; right: 0; top: 0; z-index: 1"></div>
-					<div id="simButtons">
-						<button id="simBack" type="button" class="simBack blbtn typcn typcn-arrow-left-thick" lkey="Blockly.Msg.MENU_SIM_BACK_TOOLTIP" rel="tooltip"
-							data-original-title="" title=""></button>
-						<button id="simScene" type="button" class="simScene blbtn typcn typcn-image" lkey="Blockly.Msg.MENU_SIM_SCENE_TOOLTIP" rel="tooltip"
-							data-original-title="" title=""></button>
-						<button id="simRobot" type="button" class="simRobot blbtn typcn typcn-ev3" lkey="Blockly.Msg.MENU_SIM_ROBOT_TOOLTIP" rel="tooltip" data-original-title=""
-							title=""></button>
-					</div>
-				</div>
-				<div id="codeDiv">
-					<div id="codeContent">
-						<div id="codePackage" class="codeActive"></div>
-						<button type="button" class="btn typcn typcn-plus" data-toggle="collapse" data-target="#codeImport">simple collapsible</button>
-						<div id="codeImport" class="collapse in codeActive"></div>
-					</div>
-					<div id="codeButtons" class="code">
-						<button id="codeBack" type="button" class="codeBack blbtn typcn typcn-arrow-left-thick" data-toggle="collapse"></button>
-						<button id="codeDownload" type="button" class="codeDownload blbtn typcn typcn-download" data-toggle="collapse"></button>
-					</div>
-				</div>
-			</div>
-			<div id="progListing">
-				<h2 lkey="Blockly.Msg.DATATABLE_PROGRAMS">Programme</h2>
-				<table id="programNameTable" class="tableSize table table-striped table-hover">
-					<tr>
-						<td></td>
-					</tr>
-				</table>
-				<div class="navbar navbar-fixed-bottom">
-					<input class="btn buttonLoad" id="loadFromListing" lkey="Blockly.Msg.BUTTON_LOAD" type="submit" value="Laden" />
-					<input class="btn buttonDelete" id="deleteFromListing" lkey="Blockly.Msg.BUTTON_DO_DELETE" type="submit" value="Löschen" />
-					<input class="btn buttonShare" id="shareFromListing" lkey="Blockly.Msg.BUTTON_DO_SHARE" type="submit" value="Teilen" />
-					<input class="btn backButton" id="backProgram" type="submit" lkey="Blockly.Msg.POPUP_CANCEL" value="Cancel" />
-					<input class="btn buttonRefresh" id="refreshListing" type="submit" lkey="Blockly.Msg.BUTTON_REFRESH" value="Refresh" />
-				</div>
-			</div>
-			<div id="confListing">
-				<h2 lkey="Blockly.Msg.DATATABLE_CONFIGURATIONS">Konfigurationen</h2>
-				<table id="configurationNameTable" class="tableSize table table-striped table-hover">
-					<tr>
-						<td></td>
-					</tr>
-				</table>
-				<div class="navbar navbar-fixed-bottom">
-					<input class="btn buttonLoad" id="loadConfigurationFromListing" lkey="Blockly.Msg.BUTTON_LOAD" type="submit" value="Laden" />
-					<input class="btn buttonDelete" id="deleteConfigurationFromListing" lkey="Blockly.Msg.BUTTON_DO_DELETE" type="submit" value="Löschen" />
-					<input class="btn backButton" id="backConfiguration" type="submit" lkey="Blockly.Msg.POPUP_CANCEL" value="Cancel" />
-				</div>
-			</div>
-			<div id="logging">
-				<h2>Logging</h2>
-				<ol id="log" class="log" reversed>
-				</ol>
-				<div class="navbar navbar-fixed-bottom">
-					<input id="clearLog" class="btn" lkey="Blockly.Msg.BUTTON_EMPTY_LIST" type="submit" value="Liste leeren"></input>
-					<input id="backLogging" class="btn backButton" type="submit" lkey="Blockly.Msg.POPUP_CANCEL" value="Cancel"></input>
-				</div>
-			</div>
-			<div id="brickly">
-				<div id="bricklyDiv"></div>
-			</div>
-		</div>
-	</div>
-	<!--  ################## END TABS ################## -->
 </body>
 </html>

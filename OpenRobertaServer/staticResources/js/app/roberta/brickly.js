@@ -6,7 +6,7 @@ define([ 'exports', 'log', 'util', 'comm', 'message', 'roberta.user-state', 'blo
     function init() {
         COMM.json("/toolbox", {
             "cmd" : "loadT",
-            "name" : "ev3Brick",
+            "name" : userState.robot,
             "owner" : " "
         }, injectBrickly);
     }
@@ -50,6 +50,7 @@ define([ 'exports', 'log', 'util', 'comm', 'message', 'roberta.user-state', 'blo
                     userState.configurationSaved = false;
                 }
             });
+            bricklyWorkspace.device = userState.robot;
             // Configurations can't be executed
             bricklyWorkspace.robControls.runOnBrick.setAttribute("style", "display : none");
             bricklyWorkspace.robControls.runInSim.setAttribute("style", "display: none");
@@ -70,7 +71,7 @@ define([ 'exports', 'log', 'util', 'comm', 'message', 'roberta.user-state', 'blo
         if (!opt_configuration || !opt_configuration.data) {
             COMM.json("/conf", {
                 "cmd" : "loadC",
-                "name" : "ev3Brick",
+                "name" : userState.robot,
                 "owner" : " "
             }, initConfigurationEnvironment);
         } else {
@@ -88,7 +89,8 @@ define([ 'exports', 'log', 'util', 'comm', 'message', 'roberta.user-state', 'blo
                     Blockly.Xml.domToWorkspace(bricklyWorkspace, xml);
                     var block = bricklyWorkspace.getBlockById(2);
                     if (block) {
-                        block.moveBy(x, y);
+                        var coord = block.getRelativeToSurfaceXY()
+                        block.moveBy(x-coord.x, y-coord.y);
                     }
                     $('#menuSaveConfig').parent().addClass('disabled');
                     bricklyWorkspace.robControls.disable('saveProgram');
@@ -163,7 +165,7 @@ define([ 'exports', 'log', 'util', 'comm', 'message', 'roberta.user-state', 'blo
     function loadToolboxAndConfiguration(opt_configurationBlocks) {
         COMM.json("/toolbox", {
             "cmd" : "loadT",
-            "name" : "ev3Brick", // TODO do not use a hardcoded name!
+            "name" : userState.robot,
             "owner" : " "
         }, function(toolbox) {
             showToolbox(toolbox);
@@ -176,7 +178,7 @@ define([ 'exports', 'log', 'util', 'comm', 'message', 'roberta.user-state', 'blo
     function loadToolbox() {
         COMM.json("/toolbox", {
             "cmd" : "loadT",
-            "name" : "ev3Brick", // TODO do not use a hardcoded name!
+            "name" : userState.robot,
             "owner" : " "
         }, function(toolbox) {
             showToolbox(toolbox);

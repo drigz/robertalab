@@ -63,13 +63,14 @@ define([ 'exports', 'roberta.navigation', 'message', 'util', 'rest.user', 'rober
      * Update User Password
      */
     function updateUserPasswordOnServer() {
-        restPasswordLink = $("#passOld").val()
+        restPasswordLink = $("#resetPassLink").val()
         $formUserPasswordChange.validate();
         if ($formUserPasswordChange.valid()) {
             if (restPasswordLink) {
                 USER.resetPasswordToServer(restPasswordLink, $("#passNew").val(), function(result) {
                     if (result.rc === "ok") {
                         $("#change-user-password").modal('hide');
+                        $("#resetPassLink").val(undefined);
                     }
                     MSG.displayInformation(result, "", result.message);
                 });
@@ -211,7 +212,7 @@ define([ 'exports', 'roberta.navigation', 'message', 'util', 'rest.user', 'rober
                 },
                 registerUserName : "required",
                 registerUserEmail : {
-                    required : true,
+                    required : false,
                     email : true
                 },
             },
@@ -561,11 +562,19 @@ define([ 'exports', 'roberta.navigation', 'message', 'util', 'rest.user', 'rober
      * @param {name}
      *            Name to be set
      */
-    function setProgram(name, opt_owner) {
-        if (name) {
-            userState.program = name;
+    function setProgram(result, opt_owner) {
+        if (result) {
+            userState.program = result.name;
+            userState.programSaved = result.programSaved;
+            userState.programShared = result.programShared;
+            userState.programTimestamp = result.lastChanged;
+            var name = result.name;
             if (opt_owner) {
-                name += ' (<span class="typcn typcn-user progName"></span>' + opt_owner + ')';
+                if (userState.programShared == 'WRITE') {
+                    name += ' (<span class="typcn typcn-pencil progName"></span>' + opt_owner + ')';
+                } else {
+                    name += ' (<span class="typcn typcn-eye progName"></span>' + opt_owner + ')';
+                }
             }
             $('#tabProgramName').html(name);
         }
