@@ -2,7 +2,6 @@ package de.fhg.iais.roberta.syntax.codegen.ev3;
 
 import java.util.ArrayList;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
@@ -124,7 +123,6 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     private final Ev3Configuration brickConfiguration;
     private final String programName;
     private final StringBuilder sb = new StringBuilder();
-    private final Set<FunctionNames> usedFunctions;
     private int indentation;
 
     private double x;
@@ -143,11 +141,10 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
      * @param usedFunctions in the current program
      * @param indentation to start with. Will be ince/decr depending on block structure
      */
-    Ast2Ev3JavaVisitor(String programName, Ev3Configuration brickConfiguration, Set<FunctionNames> usedFunctions, int indentation) {
+    public Ast2Ev3JavaVisitor(String programName, Ev3Configuration brickConfiguration, int indentation) {
         this.programName = programName;
         this.brickConfiguration = brickConfiguration;
         this.indentation = indentation;
-        this.usedFunctions = usedFunctions;
     }
 
     /**
@@ -163,8 +160,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         Assert.notNull(brickConfiguration);
         Assert.isTrue(phrasesSet.size() >= 1);
 
-        final Set<FunctionNames> usedFunctions = CustomFunctionsVisitor.check(phrasesSet);
-        final Ast2Ev3JavaVisitor astVisitor = new Ast2Ev3JavaVisitor(programName, brickConfiguration, usedFunctions, withWrapping ? 1 : 0);
+        final Ast2Ev3JavaVisitor astVisitor = new Ast2Ev3JavaVisitor(programName, brickConfiguration, withWrapping ? 1 : 0);
         astVisitor.generatePrefix(withWrapping);
 
         generateCodeFromPhrases(phrasesSet, withWrapping, astVisitor);
@@ -937,11 +933,10 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             case IS_PRESSED:
                 this.sb.append("ButtonPressed(" + getEnumCode(brickSensor.getKey()) + ", false)");
                 break;
-            //TODO: fix for multiple calling
-            // No block?
-            case WAIT_FOR_PRESS_AND_RELEASE:
-                this.sb.append("IsPressedAndReleased(" + getEnumCode(brickSensor.getKey()) + ")");
-                break;
+            //Not needed
+            //case WAIT_FOR_PRESS_AND_RELEASE:
+            //    this.sb.append("IsPressedAndReleased(" + getEnumCode(brickSensor.getKey()) + ")");
+            //    break;
             default:
                 throw new DbcException("Invalide mode for BrickSensor!");
         }
@@ -1060,7 +1055,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitTouchSensor(TouchSensor<Void> touchSensor) {
-        this.sb.append("SENSOR_" + touchSensor.getPort().getPortNumber());
+        this.sb.append("Sensor(IN_" + touchSensor.getPort().getPortNumber());
+        this.sb.append(")");
         return null;
     }
 
@@ -1126,7 +1122,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     //TODO: Delete.
     @Override
     public Void visitGetSubFunct(GetSubFunct<Void> getSubFunct) {
-        this.sb.append("BlocklyMethods.listsGetSubList( ");
+        /*this.sb.append("BlocklyMethods.listsGetSubList( ");
         getSubFunct.getParam().get(0).visit(this);
         this.sb.append(", ");
         final IndexLocation where1 = IndexLocation.get(getSubFunct.getStrParam().get(0));
@@ -1146,7 +1142,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                 getSubFunct.getParam().get(1).visit(this);
             }
         }
-        this.sb.append(")");
+        this.sb.append(")");*/
         return null;
 
     }
@@ -1244,19 +1240,18 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     //TODO: Delete.
     @Override
     public Void visitListRepeat(ListRepeat<Void> listRepeat) {
-        this.sb.append("BlocklyMethods.createListWithItem(");
+        /*this.sb.append("BlocklyMethods.createListWithItem(");
         listRepeat.getParam().get(0).visit(this);
         this.sb.append(", ");
         listRepeat.getParam().get(1).visit(this);
-        this.sb.append(")");
+        this.sb.append(")");*/
         return null;
     }
 
     //TODO: Delete.
-
     @Override
     public Void visitListGetIndex(ListGetIndex<Void> listGetIndex) {
-        this.sb.append("BlocklyMethods.listsIndex(");
+        /*this.sb.append("BlocklyMethods.listsIndex(");
         listGetIndex.getParam().get(0).visit(this);
         this.sb.append(", ");
         this.sb.append(getEnumCode(listGetIndex.getElementOperation()));
@@ -1269,15 +1264,14 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         this.sb.append(")");
         if ( listGetIndex.getElementOperation().isStatment() ) {
             this.sb.append(";");
-        }
+        }*/
         return null;
     }
 
-    //TODO: Delete.
-
+    //TODO: Delete
     @Override
     public Void visitListSetIndex(ListSetIndex<Void> listSetIndex) {
-        this.sb.append("BlocklyMethods.listsIndex(");
+        /*this.sb.append("BlocklyMethods.listsIndex(");
         listSetIndex.getParam().get(0).visit(this);
         this.sb.append(", ");
         this.sb.append(getEnumCode(listSetIndex.getElementOperation()));
@@ -1289,7 +1283,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             this.sb.append(", ");
             listSetIndex.getParam().get(2).visit(this);
         }
-        this.sb.append(");");
+        this.sb.append(");");*/
         return null;
     }
 
@@ -1488,10 +1482,6 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     //TODO: Delete
     @Override
     public Void visitTextJoinFunct(TextJoinFunct<Void> textJoinFunct) {
-        //Fix this method
-        // using java methods just receive a string. So far it is not clear how to implement it in nxc directly
-        // TBD: at leat how to deal with equations
-
         //smthToString(textJoinFunct.getParam());
         //this.sb.append(")");
         return null;
@@ -1822,6 +1812,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     }
     */
 
+    //TODO: may be add color srnsor using this check
     /* NXT can run the sensors quite fast, so this check is unnecessary. The sensors are already added above.
      private static void appendOptional(StringBuilder sb, String type, @SuppressWarnings("rawtypes") Enum port, HardwareComponent hardwareComponent) {
         if ( hardwareComponent != null ) {

@@ -41,7 +41,7 @@ inline bool BTCheck(int conn){
 }
 
 inline float bluetooth_get_number(int inbox){
-  int in = 5;
+  int in;
   ReceiveRemoteNumber(inbox,true,in);
   return in;
   //TextOut(0,LCD_LINE3,"Receiving");
@@ -58,17 +58,12 @@ inline float bluetooth_get_number(int inbox){
 //}
 
 inline string bluetooth_get_string(int inbox){
-  string in = "";
-  if (in == ""){
-    return "NULL";
-  }
-  else {
+    string in;
     ReceiveRemoteString(inbox,true,in);
     //TextOut(0,LCD_LINE3,"Receiving");
     //TextOut(0,LCD_LINE4,"  ");
     //TextOut(5,LCD_LINE4,in);
     return in;
-  }
 }
 
 //sub bluetooth_send_string(string out, int connection, int outbox){
@@ -79,7 +74,7 @@ inline string bluetooth_get_string(int inbox){
 //}
 
 inline bool bluetooth_get_boolean(int inbox){
-  bool in = NULL;
+  bool in;
   ReceiveRemoteBool(inbox,true,in);
   return in;
   //TextOut(0,LCD_LINE3,"Receiving");
