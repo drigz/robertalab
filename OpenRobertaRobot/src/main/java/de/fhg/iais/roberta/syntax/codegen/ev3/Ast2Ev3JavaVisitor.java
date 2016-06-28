@@ -741,7 +741,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     @Override
     public Void visitMotorSetPowerAction(MotorSetPowerAction<Void> motorSetPowerAction) {
 
-        final String methodName = "on_reg";
+        final String methodName = "OnReg";
 
         final boolean isRegulated = this.brickConfiguration.isMotorRegulated(motorSetPowerAction.getPort());
         this.sb.append(methodName + "(OUT_" + motorSetPowerAction.getPort() + ",");
@@ -1155,21 +1155,21 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         if ( indexOfFunct.getLocation() == IndexLocation.LAST ) {
             switch ( typeArr ) {
                 case ARRAY_NUMBER:
-                    this.sb.append("array_find_last_num(");
+                    this.sb.append("ArrayFindLastNum(");
                     indexOfFunct.getParam().get(0).visit(this);
                     this.sb.append(", ");
                     indexOfFunct.getParam().get(1).visit(this);
                     this.sb.append(")");
                     break;
                 case ARRAY_STRING:
-                    this.sb.append("array_find_last_str(");
+                    this.sb.append("ArrayFindLastStr(");
                     indexOfFunct.getParam().get(0).visit(this);
                     this.sb.append(", ");
                     indexOfFunct.getParam().get(1).visit(this);
                     this.sb.append(")");
                     break;
                 case ARRAY_BOOLEAN:
-                    this.sb.append("array_find_last_bool(");
+                    this.sb.append("ArrayFindLastBool(");
                     indexOfFunct.getParam().get(0).visit(this);
                     this.sb.append(", ");
                     indexOfFunct.getParam().get(1).visit(this);
@@ -1180,21 +1180,21 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         } else {
             switch ( typeArr ) {
                 case ARRAY_NUMBER:
-                    this.sb.append("array_find_first_num(");
+                    this.sb.append("ArrayFindFirstNum(");
                     indexOfFunct.getParam().get(0).visit(this);
                     this.sb.append(", ");
                     indexOfFunct.getParam().get(1).visit(this);
                     this.sb.append(")");
                     break;
                 case ARRAY_STRING:
-                    this.sb.append("array_find_first_str(");
+                    this.sb.append("ArrayFindFirstStr(");
                     indexOfFunct.getParam().get(0).visit(this);
                     this.sb.append(", ");
                     indexOfFunct.getParam().get(1).visit(this);
                     this.sb.append(")");
                     break;
                 case ARRAY_BOOLEAN:
-                    this.sb.append("array_find_first_bool(");
+                    this.sb.append("ArrayFindFirstBool(");
                     indexOfFunct.getParam().get(0).visit(this);
                     this.sb.append(", ");
                     indexOfFunct.getParam().get(1).visit(this);
@@ -1291,7 +1291,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitMathConstrainFunct(MathConstrainFunct<Void> mathConstrainFunct) {
-        this.sb.append("constrain(");
+        this.sb.append("Constrain(");
         mathConstrainFunct.getParam().get(0).visit(this);
         this.sb.append(", ");
         mathConstrainFunct.getParam().get(1).visit(this);
@@ -1315,14 +1315,14 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                 this.sb.append(" % 2 == 1)");
                 break;
             case PRIME:
-                this.sb.append("math_prime(");
+                this.sb.append("MathPrime(");
                 mathNumPropFunct.getParam().get(0).visit(this);
                 this.sb.append(")");
                 break;
             // % in nxc doesn't leave a a fractional residual, e.g. 5.2%1 = 0, so it is not possible to cheack the wholeness by "%1", that is why
             //an additional function is used
             case WHOLE:
-                this.sb.append("math_is_whole(");
+                this.sb.append("MathIsWhole(");
                 mathNumPropFunct.getParam().get(0).visit(this);
                 this.sb.append(")");
                 break;
@@ -1400,7 +1400,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitMathRandomIntFunct(MathRandomIntFunct<Void> mathRandomIntFunct) {
-        this.sb.append("random_integer_in_range(");
+        this.sb.append("RandomIntegerInRange(");
         mathRandomIntFunct.getParam().get(0).visit(this);
         this.sb.append(", ");
         mathRandomIntFunct.getParam().get(1).visit(this);
@@ -1420,47 +1420,47 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             //Taylor Series converge only when value is less than one. Larger values are calculated
             //using a table.
             case LN:
-                this.sb.append("math_ln(");
+                this.sb.append("MathLn(");
                 break;
             case LOG10:
-                this.sb.append("math_log(");
+                this.sb.append("MathLog(");
                 break;
             case EXP:
-                this.sb.append("math_pow(E, ");
+                this.sb.append("MathPow(E, ");
                 break;
             case POW10:
-                this.sb.append("math_pow(10, ");
+                this.sb.append("MathPow(10, ");
                 break;
             //the 3 functions below accept degrees
             case SIN:
-                this.sb.append("math_sin(");
+                this.sb.append("MathSin(");
                 break;
             case COS:
-                this.sb.append("math_cos(");
+                this.sb.append("MathCos(");
                 break;
             case TAN:
-                this.sb.append("math_tan(");
+                this.sb.append("MathTan(");
                 break;
             case ASIN:
-                this.sb.append("math_asin(");
+                this.sb.append("MathAsin(");
                 break;
             //Taylor Series converge only when value is less than one. Larger values are calculated
             //using a table.
             case ATAN:
-                this.sb.append("math_atan(");
+                this.sb.append("MathAtan(");
                 break;
             case ACOS:
-                this.sb.append("math_acos(");
+                this.sb.append("MathAcos(");
                 break;
             case ROUND:
-                this.sb.append("math_round(");
+                this.sb.append("MathRound(");
                 break;
             case ROUNDUP:
-                this.sb.append("math_round_up(");
+                this.sb.append("MathRoundUp(");
                 break;
             //check why there are double brackets
             case ROUNDDOWN:
-                this.sb.append("math_floor(");
+                this.sb.append("MathFloor(");
                 break;
             default:
                 break;
@@ -1473,7 +1473,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitMathPowerFunct(MathPowerFunct<Void> mathPowerFunct) {
-        this.sb.append("math_pow(");
+        this.sb.append("MathPow(");
         mathPowerFunct.getParam().get(0).visit(this);
         this.sb.append(", ");
         mathPowerFunct.getParam().get(1).visit(this);
@@ -1546,10 +1546,10 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     // the function is in hal.h
     @Override
     public Void visitBluetoothReceiveAction(BluetoothReceiveAction<Void> bluetoothReadAction) {
-        this.sb.append("bluetooth_get_number(");
+        this.sb.append("BluetoothGetNumber(");
         //TODO: add these block options:
-        //this.sb.append("bluetooth_get_string(");
-        //this.sb.append("bluetooth_get_boolean(");
+        //this.sb.append("BluetoothGetString(");
+        //this.sb.append("BluetoothGetBoolean(");
         // the function accepts inbox address (int)
         //bluetoothReadAction.getConnection().visit(this);
         this.sb.append(")");
