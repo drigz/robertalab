@@ -928,6 +928,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     // TODO: change getEnumCode(brickSensor.getKey()), so it would return the following:
     // BTNEXIT, BTNRIGHT, BTNLEFT, BTNCENTER
+    // Also, BTNEXIT doesn't work like a button, it always exits the program no matter which
+    // action is assigned to it. Seems that it works well only with enhanced firmware.
     @Override
     public Void visitBrickSensor(BrickSensor<Void> brickSensor) {
         switch ( brickSensor.getMode() ) {
@@ -944,15 +946,17 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
+    //TODO: add visit light sensor
+
     @Override
     public Void visitColorSensor(ColorSensor<Void> colorSensor) {
         final String Port = getEnumCode(colorSensor.getPort());
         this.sb.append("Sensor(IN_");
-        colorSensor.getPort().getPortNumber();
+        //colorSensor.getPort().getPortNumber();
         //this.brickConfiguration.getSensors().entrySet();
         this.sb.append(")");
         //TODO: move to the part where sensors are being called
-        switch ( colorSensor.getMode() ) {
+        /*switch ( colorSensor.getMode() ) {
             case AMBIENTLIGHT:
                 this.sb.append("IN_TYPE_COLORAMBIENT");
                 this.sb.append(")" + (";"));
@@ -973,7 +977,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                 break;
             default:
                 throw new DbcException("Invalide mode for Color Sensor!");
-        }
+        }*/
 
         return null;
     }
@@ -988,7 +992,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
         } else {
             final String methodName = "MotorTachoCount";
-            this.sb.append(methodName + "(OUT_" + encoderMotorPort + ");");
+            this.sb.append(methodName + "(OUT_" + encoderMotorPort + ")");
         }
         return null;
     }
@@ -1354,35 +1358,35 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     public Void visitMathOnListFunct(MathOnListFunct<Void> mathOnListFunct) {
         switch ( mathOnListFunct.getFunctName() ) {
             case SUM:
-                this.sb.append("array_sum(");
+                this.sb.append("ArraySum(");
                 mathOnListFunct.getParam().get(0).visit(this);
                 break;
             case MIN:
-                this.sb.append("array_min(");
+                this.sb.append("ArrayMin(");
                 mathOnListFunct.getParam().get(0).visit(this);
                 break;
             case MAX:
-                this.sb.append("array_max(");
+                this.sb.append("ArrayMax(");
                 mathOnListFunct.getParam().get(0).visit(this);
                 break;
             case AVERAGE:
-                this.sb.append("array_mean(");
+                this.sb.append("ArrayMean(");
                 mathOnListFunct.getParam().get(0).visit(this);
                 break;
             case MEDIAN:
-                this.sb.append("array_median(");
+                this.sb.append("ArrayMedian(");
                 mathOnListFunct.getParam().get(0).visit(this);
                 break;
             case STD_DEV:
-                this.sb.append("array_standard_deviatioin(");
+                this.sb.append("ArrayStandardDeviatioin(");
                 mathOnListFunct.getParam().get(0).visit(this);
                 break;
             case RANDOM:
-                this.sb.append("array_rand(");
+                this.sb.append("ArrayRand(");
                 mathOnListFunct.getParam().get(0).visit(this);
                 break;
             case MODE:
-                this.sb.append("array_mode(");
+                this.sb.append("ArrayMode(");
                 mathOnListFunct.getParam().get(0).visit(this);
                 break;
             default:
@@ -1394,7 +1398,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitMathRandomFloatFunct(MathRandomFloatFunct<Void> mathRandomFloatFunct) {
-        this.sb.append("random_float()");
+        this.sb.append("RandomFloat()");
         return null;
     }
 
@@ -1551,7 +1555,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         //this.sb.append("BluetoothGetString(");
         //this.sb.append("BluetoothGetBoolean(");
         // the function accepts inbox address (int)
-        //bluetoothReadAction.getConnection().visit(this);
+        bluetoothReadAction.getConnection().visit(this);
         this.sb.append(")");
         return null;
     }
@@ -1560,7 +1564,6 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     @Override
     public Void visitBluetoothConnectAction(BluetoothConnectAction<Void> bluetoothConnectAction) {
         this.sb.append("BTCheck(");
-        //
 
         /*this.sb.append("hal.establishConnectionTo(");
         if ( bluetoothConnectAction.get_address().getKind() != BlockType.STRING_CONST ) {
@@ -1759,26 +1762,27 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         this.sb.append("task main(){");
 
         //add sensors:
-
         for ( final Entry<SensorPort, EV3Sensor> entry : this.brickConfiguration.getSensors().entrySet() ) {
-            System.out.println(entry.getValue().getComponentTypeName());
+            nlIndent();
+            this.sb.append("SetSensor(IN_");
             switch ( entry.getValue().getComponentTypeName() ) {
                 case "EV3_COLOR_SENSOR":
-                    nlIndent();
-                    this.sb.append("SetSensor(IN_" + entry.getKey().getPortNumber() + ", SENSOR_LIGHT);");
+                    this.sb.append(entry.getKey().getPortNumber() + ", SENSOR_COLORFULL);");
                     //this.sb.append("SetSensor(IN_" + entry.getKey().getPortNumber() + ", SENSOR_COLORFULL);");
                     break;
+                // TODO: add the color sensor
+                //case "LIGHT":
+                //this.sb.append(entry.getKey().getPortNumber() + ", SENSOR_LIGHT);");
+                //break;
                 case "EV3_TOUCH_SENSOR":
-                    nlIndent();
-                    this.sb.append("SetSensor(IN_" + entry.getKey().getPortNumber() + ", SENSOR_TOUCH);");
+                    this.sb.append(entry.getKey().getPortNumber() + ", SENSOR_TOUCH);");
                     break;
                 case "EV3_ULTRASONIC_SENSOR":
-                    nlIndent();
-                    this.sb.append("SetSensor(IN_" + entry.getKey().getPortNumber() + ", SENSOR_LOWSPEED);");
+                    this.sb.append(entry.getKey().getPortNumber() + ", SENSOR_LOWSPEED);");
                     break;
+                //replace with sound
                 case "EV3_GYRO_SENSOR":
-                    nlIndent();
-                    this.sb.append("SetSensor(IN_" + entry.getKey().getPortNumber() + ", SENSOR_SOUND);");
+                    this.sb.append(entry.getKey().getPortNumber() + ", SENSOR_SOUND);");
                     break;
                 default:
                     break;

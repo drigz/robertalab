@@ -372,7 +372,7 @@ inline float ArrayStandardDeviatioin(float arr[]) {
             return 0;
         }
         float variance = 0;
-        float mean = array_mean(arr);
+        float mean = ArrayMean(arr);
         for ( int i = 0; i < ArrayLen(arr); i++) {
             variance += MathPow(arr[i] - mean, 2);
         }
