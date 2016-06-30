@@ -15,7 +15,6 @@ import de.fhg.iais.roberta.blockly.generated.BlockSet;
 import de.fhg.iais.roberta.components.ev3.Ev3Configuration;
 import de.fhg.iais.roberta.jaxb.JaxbHelper;
 import de.fhg.iais.roberta.syntax.codegen.ev3.Ast2Ev3JavaVisitor;
-import de.fhg.iais.roberta.syntax.codegen.ev3.Ast2Ev3PythonVisitor;
 import de.fhg.iais.roberta.transformer.BlocklyProgramAndConfigTransformer;
 import de.fhg.iais.roberta.transformer.Jaxb2BlocklyProgramTransformer;
 import de.fhg.iais.roberta.transformer.ev3.Jaxb2Ev3ConfigurationTransformer;
@@ -29,28 +28,6 @@ public class Ev3CompilerWorkflow {
     public final String pathToCrosscompilerBaseDir;
     public final String crossCompilerResourcesDir;
     public final String pathToCrossCompilerBuildXMLResource;
-
-    private enum Language {
-        JAVA( ".java" ), PYTHON( ".py" );
-
-        private String extension;
-
-        Language(String ext) {
-            this.extension = ext;
-        }
-
-        String getExtension() {
-            return this.extension;
-        }
-
-        public static Language fromCommunicationData(Ev3CommunicationData state) {
-            if ( state == null ) {
-                return JAVA;
-            }
-            String fwName = state.getFirmwareName();
-            return (fwName != null && fwName.equals("ev3dev")) ? PYTHON : JAVA;
-        }
-    }
 
     @Inject
     public Ev3CompilerWorkflow(
@@ -82,8 +59,7 @@ public class Ev3CompilerWorkflow {
      * @return a message key in case of an error; null otherwise
      */
     public Key execute(String token, String programName, BlocklyProgramAndConfigTransformer data) {
-        Language lang = Language.fromCommunicationData(this.brickCommunicator.getState(token));
-        String sourceCode = generateProgram(lang, programName, data);
+        String sourceCode = generateProgram(programName, data);
 
         //Ev3CompilerWorkflow.LOG.info("generated code:\n{}", sourceCode); // only needed for EXTREME debugging
         try {
@@ -92,21 +68,14 @@ public class Ev3CompilerWorkflow {
             Ev3CompilerWorkflow.LOG.error("Storing the generated program into directory " + token + " failed", e);
             return Key.COMPILERWORKFLOW_ERROR_PROGRAM_STORE_FAILED;
         }
-        switch ( lang ) {
-            case JAVA:
-                Key messageKey = runBuild(token, programName, "generated.main");
-                if ( messageKey == Key.COMPILERWORKFLOW_SUCCESS ) {
-                    Ev3CompilerWorkflow.LOG.info("jar for program {} generated successfully", programName);
-                } else {
-                    Ev3CompilerWorkflow.LOG.info(messageKey.toString());
-                }
-                return messageKey;
-            case PYTHON:
-                // maybe copy from /src/ to /target/
-                // python -c "import py_compile; py_compile.compile('.../src/...py','.../target/....pyc')"
-                return Key.COMPILERWORKFLOW_SUCCESS;
+
+        Key messageKey = runBuild(token, programName, "generated.main");
+        if ( messageKey == Key.COMPILERWORKFLOW_SUCCESS ) {
+            Ev3CompilerWorkflow.LOG.info("rxc for program {} generated successfully", programName);
+        } else {
+            Ev3CompilerWorkflow.LOG.info(messageKey.toString());
         }
-        return null;
+        return messageKey;
     }
 
     /**
@@ -127,8 +96,8 @@ public class Ev3CompilerWorkflow {
         if ( data.getErrorMessage() != null ) {
             return null;
         }
-        Language lang = Language.fromCommunicationData(this.brickCommunicator.getState(token));
-        return generateProgram(lang, programName, data);
+
+        return generateProgram(programName, data);
     }
 
     /**
@@ -158,17 +127,9 @@ public class Ev3CompilerWorkflow {
         return transformer.transform(project);
     }
 
-    private String generateProgram(Language lang, String programName, BlocklyProgramAndConfigTransformer data) {
-        String sourceCode = "";
-        switch ( lang ) {
-            case JAVA:
-                sourceCode = Ast2Ev3JavaVisitor.generate(programName, data.getBrickConfiguration(), data.getProgramTransformer().getTree(), true);
-                break;
-            case PYTHON:
-                sourceCode = Ast2Ev3PythonVisitor.generate(programName, data.getBrickConfiguration(), data.getProgramTransformer().getTree(), true);
-                break;
-        }
-        Ev3CompilerWorkflow.LOG.info("generating {} code", lang.toString().toLowerCase());
+    private String generateProgram(String programName, BlocklyProgramAndConfigTransformer data) {
+        String sourceCode = Ast2Ev3JavaVisitor.generate(programName, data.getBrickConfiguration(), data.getProgramTransformer().getTree(), true);
+        Ev3CompilerWorkflow.LOG.info("generating NXC code");
         return sourceCode;
     }
 
@@ -191,6 +152,7 @@ public class Ev3CompilerWorkflow {
      */
     Key runBuild(String token, String mainFile, String mainPackage) {
         final StringBuilder sb = new StringBuilder();
+        // TODO: change the compiler based on the os type
         String scriptName = "../OpenRobertaServer/src/main/resources/nbc";
 
         try {
