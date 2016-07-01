@@ -422,16 +422,6 @@ inline int array_find_last_bool(bool arr[], bool item) {
       return ArrayLen(arr) - 1 - i;
   }
 }
-inline float OnReg(int ports, float speed,int regmode)
-{
-  if (speed > 0){
-    OnRevReg(OUT_C, speed,regmode);
 
-  }
-  else{
-   OnFwdReg(OUT_B, speed,regmode) ;
-  }
-  }  
- 
   
  

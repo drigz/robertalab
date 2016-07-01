@@ -12,9 +12,9 @@ public class MathTrigTest {
         Helper.assertCodeIsOk(a, "/syntax/math/math_trig.xml");
     }
 
-    @Test
+    //
     public void Test1() throws Exception {
-        final String a = "if(0==math_sin(0)){OnFwdReg(OUT_CB,math_acos(0),OUT_REGMODE_SYNC);}";
+        final String a = "if(0==math_sin(0)){OnFwdReg(OUT_BC,math_acos(0),OUT_REGMODE_SYNC);}";
 
         Helper.assertCodeIsOk(a, "/syntax/math/math_trig1.xml");
     }

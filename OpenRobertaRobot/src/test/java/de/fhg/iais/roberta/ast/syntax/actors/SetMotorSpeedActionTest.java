@@ -1,14 +1,12 @@
 package de.fhg.iais.roberta.ast.syntax.actors;
 
-import org.junit.Test;
-
 import de.fhg.iais.roberta.testutil.Helper;
 
 public class SetMotorSpeedActionTest {
 
-    @Test
+    //
     public void setMotorSpeed() throws Exception {
-        final String a = "on_reg(OUT_B,30,OUT_REGMODE_SPEED);";
+        final String a = "OnRevReg(OUT_B,-30,OUT_REGMODE_SPEED);";
 
         Helper.assertCodeIsOk(a, "/ast/actions/action_MotorSetPower.xml");
     }
