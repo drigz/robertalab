@@ -495,6 +495,7 @@ inline int ArrayFindLastBool(bool arr[], bool item) {
   }
 }
 
+<<<<<<< HEAD
 //drive functions
 inline float OnReg(int ports, float speed,int regmode) {
   if (speed > 0){
@@ -514,3 +515,7 @@ sub TurnLeft(float s, float t){
    OnRev(OUT_B, s);
    Wait(t);
  }
+=======
+  
+ 
+>>>>>>> nxtCode
