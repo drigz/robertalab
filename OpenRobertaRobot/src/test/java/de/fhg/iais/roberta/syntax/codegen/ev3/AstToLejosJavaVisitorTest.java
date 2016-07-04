@@ -294,7 +294,6 @@ public class AstToLejosJavaVisitorTest {
             + "        test();"
 
             + "    void test() {\n"
-            + "        SENSOR_TYPE_LIGHT_ACTIVE;SetSensorLight(IN_3,IN_TYPE_COLORGREEN);\n"
             + "    }"
             + "}\n";
 
@@ -311,7 +310,6 @@ public class AstToLejosJavaVisitorTest {
 
             + "     void test(bool x) {\n"
             + "        if (x) return;"
-            + "       SENSOR_TYPE_LIGHT_ACTIVE;SetSensorLight(IN_3,IN_TYPE_COLORGREEN);\n"
             + "    }"
             + "}\n";
 
@@ -334,7 +332,6 @@ public class AstToLejosJavaVisitorTest {
             + "    }\n\n"
             + "    void test2() {\n"
             + "        if (variablenName2) return;"
-            + "        SENSOR_TYPE_LIGHT_ACTIVE;SetSensorLight(IN_3,IN_TYPE_COLORGREEN);\n"
             + "    }"
             + "}\n";
 

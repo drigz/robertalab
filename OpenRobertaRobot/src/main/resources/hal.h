@@ -22,6 +22,18 @@
 #endif
 
 //sensor functions
+
+float NumberOfRotations(int port){
+  int fullCircle = 360;
+  return MotorTachoCount(port)/fullCircle;
+}
+
+float MotorDistance(int port, float diameter){
+  float rad = diameter/2;
+  int degreePi = 180;
+  return (PI*MotorTachoCount(port)/degreePi)*rad;
+}
+
 sub SetTimerValue(long& timer1){
   timer1 = CurrentTick();
 }
@@ -139,27 +151,27 @@ inline bool MathIsWhole(float val){
   int intPart = val;
   return ((val - intPart) == 0);
 }
-inline float MathPow(float first_value, float second_value) {
+inline float MathPow(float firstValue, float secondValue) {
   float result = 1;
-  for (int i = 0; i < second_value; i++) {
-    result = result * first_value;
+  for (int i = 0; i < secondValue; i++) {
+    result = result * firstValue;
   }
   return result;
 }
-inline float MathMin(float first_value, float second_value) {
-  if (first_value < second_value){
-    return first_value;
+inline float MathMin(float firstValue, float secondValue) {
+  if (firstValue < secondValue){
+    return firstValue;
   }
   else{
-    return second_value;
+    return secondValue;
   }
 }
-inline float MathMax(float first_value, float second_value) {
-  if (first_value > second_value){
-    return first_value;
+inline float MathMax(float firstValue, float secondValue) {
+  if (firstValue > secondValue){
+    return firstValue;
   }
   else{
-    return second_value;
+    return secondValue;
   }
 }
 inline bool MathPrime(float number){

@@ -10,12 +10,9 @@ import de.fhg.iais.roberta.components.ev3.EV3Sensor;
 import de.fhg.iais.roberta.components.ev3.Ev3Configuration;
 import de.fhg.iais.roberta.shared.IndexLocation;
 import de.fhg.iais.roberta.shared.action.ev3.ActorPort;
-import de.fhg.iais.roberta.shared.action.ev3.BlinkMode;
-import de.fhg.iais.roberta.shared.action.ev3.BrickLedColor;
 import de.fhg.iais.roberta.shared.action.ev3.DriveDirection;
 import de.fhg.iais.roberta.shared.action.ev3.ShowPicture;
 import de.fhg.iais.roberta.shared.action.ev3.TurnDirection;
-import de.fhg.iais.roberta.shared.sensor.ev3.MotorTachoMode;
 import de.fhg.iais.roberta.shared.sensor.ev3.SensorPort;
 import de.fhg.iais.roberta.syntax.BlockType;
 import de.fhg.iais.roberta.syntax.Phrase;
@@ -139,7 +136,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
      * @param programName name of the program
      * @param brickConfiguration hardware configuration of the brick
      * @param usedFunctions in the current program
-     * @param indentation to start with. Will be ince/decr depending on block structure
+     * @param indentation to start with. Will be incr/decr depending on block structure
      */
     public Ast2Ev3JavaVisitor(String programName, Ev3Configuration brickConfiguration, int indentation) {
         this.programName = programName;
@@ -596,44 +593,16 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    //TODO: check
+    //no such block for nxt
     @Override
     public Void visitLightAction(LightAction<Void> lightAction) {
-        if ( lightAction.getBlinkMode() == BlinkMode.ON ) {
-            ;
-        }
-
-        {
-            this.sb.append("SENSOR_TYPE_LIGHT_ACTIVE;");
-        }
-        if ( lightAction.getColor() == BrickLedColor.RED ) {
-            this.sb.append("SetSensorLight(IN_3,IN_TYPE_COLORRED);");
-        } else if ( lightAction.getColor() == BrickLedColor.ORANGE ) {
-            this.sb.append("SetSensorLight(IN_3,IN_TYPE_COLORORANGE);");
-        }
-
-        if ( lightAction.getColor() == BrickLedColor.GREEN ) {
-            this.sb.append("SetSensorLight(IN_3,IN_TYPE_COLORGREEN);");
-            return null;
-        }
         return null;
 
     }
 
-    //TODO: fix
+    //no such block for nxt
     @Override
     public Void visitLightStatusAction(LightStatusAction<Void> lightStatusAction) {
-        switch ( lightStatusAction.getStatus() ) {
-            case OFF:
-                this.sb.append("SENSOR_TYPE_LIGHT_INACTIVE;");
-                break;
-
-            case RESET:
-                this.sb.append("ResetSensor(IN_);");
-                break;
-            default:
-                throw new DbcException("Invalid LED status mode!");
-        }
         return null;
     }
 
@@ -952,15 +921,11 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     public Void visitColorSensor(ColorSensor<Void> colorSensor) {
         final String Port = getEnumCode(colorSensor.getPort());
         this.sb.append("Sensor(IN_");
-        //colorSensor.getPort().getPortNumber();
+        colorSensor.getPort().getPortNumber();
         //this.brickConfiguration.getSensors().entrySet();
-        this.sb.append(")");
+
         //TODO: move to the part where sensors are being called
         /*switch ( colorSensor.getMode() ) {
-            case AMBIENTLIGHT:
-                this.sb.append("IN_TYPE_COLORAMBIENT");
-                this.sb.append(")" + (";"));
-                break;
             case COLOUR:
                 this.sb.append("IN_TYPE_COLORCOLOUR");
                 this.sb.append(")" + (";"));
@@ -978,7 +943,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             default:
                 throw new DbcException("Invalide mode for Color Sensor!");
         }*/
-
+        this.sb.append(")");
         return null;
     }
 
@@ -986,20 +951,26 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     public Void visitEncoderSensor(EncoderSensor<Void> encoderSensor) {
         final ActorPort encoderMotorPort = encoderSensor.getMotor();
         final boolean isRegulated = this.brickConfiguration.isMotorRegulated(encoderMotorPort);
-        if ( encoderSensor.getMode() == MotorTachoMode.RESET ) {
-            final String methodName = "ResetTachoCount";
-            this.sb.append(methodName + "(OUT_" + encoderMotorPort + ");");
-
-        } else {
-            final String methodName = "MotorTachoCount";
-            this.sb.append(methodName + "(OUT_" + encoderMotorPort + ")");
+        switch ( encoderSensor.getMode() ) {
+            case RESET:
+                this.sb.append("ResetTachoCount(OUT_" + encoderMotorPort + ");");
+                break;
+            case ROTATION:
+                this.sb.append("NumberOfRotations(OUT_" + encoderMotorPort + ")");
+                break;
+            case DEGREE:
+                this.sb.append("MotorTachoCount(OUT_" + encoderMotorPort + ")");
+                break;
+            case DISTANCE:
+                this.sb.append("MotorDistance(OUT_" + encoderMotorPort + ", WHEELDIAMETER)");
+                break;
         }
         return null;
     }
 
     @Override // no gyrosensor
     public Void visitGyroSensor(GyroSensor<Void> gyroSensor) {
-        final String Port = getEnumCode(gyroSensor.getPort());
+        /*final String Port = getEnumCode(gyroSensor.getPort());
         final String methodName = "SetSensorGyro";
         this.sb.append(methodName + "(IN_");
 
@@ -1018,17 +989,17 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                 break;
             default:
                 throw new DbcException("Invalid GyroSensorMode");
-        }
+        }*/
         return null;
     }
 
     @Override // no infrared sensor
     public Void visitInfraredSensor(InfraredSensor<Void> infraredSensor) {
-        final String Port = getEnumCode(infraredSensor.getPort());
+        /*final String Port = getEnumCode(infraredSensor.getPort());
         final String methodName = "SetSensorInfrared";
         this.sb.append(methodName + "(IN_");
         switch ( infraredSensor.getMode() ) {
-
+        
             case DISTANCE:
                 this.sb.append(Port + (",") + ("DISTANCE"));
                 this.sb.append(")" + (";"));
@@ -1039,7 +1010,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                 break;
             default:
                 throw new DbcException("Invalid Infrared Sensor Mode!");
-        }
+        }*/
         return null;
     }
 
