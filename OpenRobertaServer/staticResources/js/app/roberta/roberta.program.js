@@ -16,16 +16,17 @@ define(
                     var xml = Blockly.Xml.workspaceToDom(blocklyWorkspace);
                     var xmlText = Blockly.Xml.domToText(xml);
                     $('.modal').modal('hide'); // close all opened popups
-                    PROGRAM.saveProgramToServer(userState.program, userState.programShared?true:false, userState.programTimestamp, xmlText, function(result) {
-                        if (result.rc === 'ok') {
-                            $('#menuSaveProg').parent().addClass('disabled');
-                            blocklyWorkspace.robControls.disable('saveProgram');
-                            userState.programSaved = true;
-                            LOG.info('save program ' + userState.program + ' login: ' + userState.id);
-                            userState.programTimestamp = result.lastChanged;
-                        }
-                        MSG.displayInformation(result, "MESSAGE_EDIT_SAVE_PROGRAM", result.message, userState.program);
-                    });
+                    PROGRAM.saveProgramToServer(userState.program, userState.programShared ? true : false, userState.programTimestamp, xmlText,
+                            function(result) {
+                                if (result.rc === 'ok') {
+                                    $('#menuSaveProg').parent().addClass('disabled');
+                                    blocklyWorkspace.robControls.disable('saveProgram');
+                                    userState.programSaved = true;
+                                    LOG.info('save program ' + userState.program + ' login: ' + userState.id);
+                                    userState.programTimestamp = result.lastChanged;
+                                }
+                                MSG.displayInformation(result, "MESSAGE_EDIT_SAVE_PROGRAM", result.message, userState.program);
+                            });
                 }
             }
             exports.saveToServer = saveToServer;
@@ -285,7 +286,7 @@ define(
 
                     $('#menuSaveProg').parent().addClass('disabled');
                     blocklyWorkspace.robControls.disable('saveProgram');
-                    
+
                     LOG.info('show program ' + userState.program + ' signed in: ' + userState.id);
                 }
             }
@@ -312,39 +313,39 @@ define(
              * Show program code
              */
             function showCode() {
-                if (userState.robot === 'ev3') {
-                    LOG.info('show code ' + userState.program + ' signed in: ' + userState.id);
-                    var xmlProgram = Blockly.Xml.workspaceToDom(blocklyWorkspace);
-                    var xmlTextProgram = Blockly.Xml.domToText(xmlProgram);
-                    var xmlTextConfiguration = ROBERTA_BRICK_CONFIGURATION.getXmlOfConfiguration();
 
-                    PROGRAM.showSourceProgram(userState.program, userState.configuration, xmlTextProgram, xmlTextConfiguration, function(result) {
-                        ROBERTA_ROBOT.setState(result);
-                        if ($(window).width() < 768) {
-                            width = '0';
-                        } else {
-                            width = '30%';
+                LOG.info('show code ' + userState.program + ' signed in: ' + userState.id);
+                var xmlProgram = Blockly.Xml.workspaceToDom(blocklyWorkspace);
+                var xmlTextProgram = Blockly.Xml.domToText(xmlProgram);
+                var xmlTextConfiguration = ROBERTA_BRICK_CONFIGURATION.getXmlOfConfiguration();
+
+                PROGRAM.showSourceProgram(userState.program, userState.configuration, xmlTextProgram, xmlTextConfiguration, function(result) {
+                    ROBERTA_ROBOT.setState(result);
+                    if ($(window).width() < 768) {
+                        width = '0';
+                    } else {
+                        width = '30%';
+                    }
+                    $('#blocklyDiv').animate({
+                        width : width
+                    }, {
+                        duration : 750,
+                        step : function() {
+                            $(window).resize();
+                            Blockly.svgResize(blocklyWorkspace);
+                        },
+                        done : function() {
+                            Blockly.svgResize(blocklyWorkspace);
                         }
-                        $('#blocklyDiv').animate({
-                            width : width
-                        }, {
-                            duration : 750,
-                            step : function() {
-                                $(window).resize();
-                                Blockly.svgResize(blocklyWorkspace);
-                            },
-                            done : function() {
-                                Blockly.svgResize(blocklyWorkspace);
-                            }
-                        });
-                        $('#codeContent').addClass('codeActive');
-                        $('#codeDiv').addClass('codeActive');
-                        $('.nav > li > ul > .robotType').addClass('disabled');
-                        $(".code").removeClass('hide');
-                        $('#codeContent').html('<pre class="prettyprint linenums">' + prettyPrintOne(result.javaSource, null, true) + '</pre>');
-                        userState.programSource = result.javaSource
                     });
-                }
+                    $('#codeContent').addClass('codeActive');
+                    $('#codeDiv').addClass('codeActive');
+                    $('.nav > li > ul > .robotType').addClass('disabled');
+                    $(".code").removeClass('hide');
+                    $('#codeContent').html('<pre class="prettyprint linenums">' + prettyPrintOne(result.javaSource, null, true) + '</pre>');
+                    userState.programSource = result.javaSource
+                });
+
             }
             exports.showCode = showCode;
 
@@ -400,9 +401,9 @@ define(
                     MSG.displayMessage("POPUP_ROBOT_BUSY", "POPUP", "");
                     return;
                 } else if (ROBERTA_ROBOT.handleFirmwareConflict()) {
-                    $('#buttonCancelFirmwareUpdate').css('display', 'none');
-                    $('#buttonCancelFirmwareUpdateAndRun').css('display', 'inline');
-                    return;
+//                    $('#buttonCancelFirmwareUpdate').css('display', 'none');
+//                    $('#buttonCancelFirmwareUpdateAndRun').css('display', 'inline');
+//                    return;
                 }
                 LOG.info('run ' + userState.program + 'on brick' + ' signed in: ' + userState.id);
                 var xmlProgram = Blockly.Xml.workspaceToDom(blocklyWorkspace);
@@ -505,8 +506,9 @@ define(
                         blocklyWorkspace.clear();
                     } else {
                         $('#blocklyDiv').html('');
-                        if (blocklyWorkspace)
+                        if (blocklyWorkspace) {
                             blocklyWorkspace.dispose();
+                        }
                         blocklyWorkspace = Blockly.inject(document.getElementById('blocklyDiv'), {
                             path : '/blockly/',
                             toolbox : toolbox.data,
