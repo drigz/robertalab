@@ -498,7 +498,7 @@ inline int ArrFindLastBool(bool arr[], bool item) {
 //drive functions
 inline float OnReg(int ports, float speed,int regmode) {
   if (speed > 0){
-    OnRevReg(OUT_C, speed,regmode);
+    OnRevReg(OUT_B, speed,regmode);
   }
   else{
     OnFwdReg(OUT_B, speed,regmode) ;
