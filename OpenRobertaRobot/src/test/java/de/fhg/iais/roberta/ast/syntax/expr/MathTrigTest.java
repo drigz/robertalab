@@ -16,6 +16,7 @@ public class MathTrigTest {
     public void Test1() throws Exception {
         final String a = "if(0==MathSin(0)){OnFwdReg(OUT_BC,MathAcos(0),OUT_REGMODE_SYNC);}";
 
+
         Helper.assertCodeIsOk(a, "/syntax/math/math_trig1.xml");
     }
 

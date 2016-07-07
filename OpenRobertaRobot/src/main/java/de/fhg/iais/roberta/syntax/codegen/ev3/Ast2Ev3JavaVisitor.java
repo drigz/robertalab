@@ -129,6 +129,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     private Object FALSE;
 
+    private MotorOnAction<Void> indexOfFunct;
+
     /**
      * initialize the Java code generator visitor.
      *
@@ -647,7 +649,9 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     // TODO: fix boolean, numbers and arrays
     @Override
-    public Void visitShowTextAction(ShowTextAction<Void> showTextAction) {
+    public Void visitShowTextAction(ShowTextAction<Void> showTextAction)
+
+    {
         this.sb.append("TextOut(");
         showTextAction.getX().visit(this);
         this.sb.append(", LCD_LINE");
@@ -671,6 +675,12 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             showTextAction.getMsg().visit(this);
             this.sb.append(")");
         }
+        //   if ( showTextAction.getMsg().getKind() == BlockType.MATH_ON_LIST_FUNCT ) {
+        //       this.sb.append("NumToStr(");
+
+        //    showTextAction.getMsg().visit(this);
+        //    this.sb.append(")");
+        //  }
         this.sb.append(");");
         return null;
     }
@@ -689,50 +699,61 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     public Void visitMotorOnAction(MotorOnAction<Void> motorOnAction) {
         final boolean isDuration = motorOnAction.getParam().getDuration() != null;
         String speedSign = "";
-        String turnpct = ""; //turn ratio
         String methodName = "";
-
+        String p = ""; //proportional factor
+        String i = ""; // integral factor ,PID constants
+        String d = ""; // derivative factor
         boolean isRegulatedDrive = this.brickConfiguration.getActorOnPort(this.brickConfiguration.getLeftMotorPort()).isRegulated();
+        this.brickConfiguration.getActorOnPort(this.brickConfiguration.getRightMotorPort()).getRotationDirection();
+        if ( this.brickConfiguration.getActorOnPort(this.brickConfiguration.getRightMotorPort()).getRotationDirection() == DriveDirection.BACKWARD ) {
+            ;
 
+            {
+
+                speedSign = "-";
+            }
+
+        }
         if ( isRegulatedDrive ) {
             if ( isDuration ) {
-                methodName = "RotateMotorEx";
-                //  if ( speedSign == "-" ) {
-                speedSign = "-";
-
-            } //else {
-              //  methodName = "on_reg";
-
-            else {
-                methodName = "OnFwdReg";
-                turnpct = "100";
-                if ( speedSign == "-" ) {
-                    methodName = "OnRevReg";
-                    turnpct = "-100";
-                }
-
+                methodName = "RotateMotorPID";
+            } else {
+                methodName = "OnReg";
             }
         } else {
             if ( isDuration ) {
                 methodName = "RotateMotor";
-                if ( speedSign == "-" ) {
-                    speedSign = "-";
-                }
+
             } else { // without duration Unreg
-                methodName = "OnFwd";
-                if ( speedSign == "-" ) {
-                    methodName = "OnRevReg";
-
-                }
-
+                methodName = "OnUnReg";
             }
+
         }
 
-        this.sb.append(methodName + "(OUT_" + motorOnAction.getPort());
+        this.sb.append(methodName + "(OUT_");
+
+        if ( this.brickConfiguration.getLeftMotorPort() == ActorPort.B ) {
+            ;
+
+            {
+                // this.sb.append(this.brickConfiguration.getRightMotorPort());
+                this.sb.append(this.brickConfiguration.getLeftMotorPort());
+            }
+        } else {
+            this.sb.append(this.brickConfiguration.getLeftMotorPort());
+        }
 
         this.sb.append("," + speedSign);
         motorOnAction.getParam().getSpeed().visit(this);
-        this.sb.append("," + turnpct);
+        if ( isRegulatedDrive ) {
+            if ( isDuration ) {
+                this.sb.append("," + p + i + d);
+            }
+        } else {
+            if ( isDuration ) {
+                this.sb.append(",");
+            }
+        }
         {
             if ( isRegulatedDrive ) {
                 if ( isDuration ) {
@@ -741,22 +762,26 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
                         this.sb.append("360.0*");
                         motorOnAction.getParam().getDuration().getValue().visit(this);
+                        p = "20";
+                        i = "40";
+                        d = "100";
+                        this.sb.append("," + p + "," + i + "," + d);
 
-                        this.sb.append("," + turnpct);
-                        if ( speedSign == "-" ) {
-                            this.sb.append("-100");
-                        } else {
-                            this.sb.append("100");
-                        }
-                        this.sb.append(",true" + ",true");
                     }
+
+                    this.sb.append(");");
+                    return null;
                 }
+                this.sb.append(",OUT_REGMODE_SPEED" + ");");
+
+                return null;
             }
 
             else {
                 if ( isDuration ) {
                     this.sb.append("360.0*");
                     motorOnAction.getParam().getDuration().getValue().visit(this);
+
                 }
 
                 this.sb.append(");");
@@ -764,8 +789,6 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             }
         }
 
-        this.sb.append(");");
-        return null;
     }
 
     @Override
@@ -818,16 +841,13 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             ;
 
             {
-                this.sb.append(this.brickConfiguration.getRightMotorPort());
+                // this.sb.append(this.brickConfiguration.getRightMotorPort());
                 this.sb.append(this.brickConfiguration.getLeftMotorPort());
             }
-        }
-
-        else {
+        } else {
             this.sb.append(this.brickConfiguration.getLeftMotorPort());
-            this.sb.append(this.brickConfiguration.getRightMotorPort());
-
         }
+
         this.sb.append(");");
         return null;
     }
@@ -861,14 +881,9 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
             else {
                 methodName = "OnFwdReg";
-
-                turnpct = "100";
-
                 if ( driveAction.getDirection() == DriveDirection.BACKWARD ) {
                     methodName = "OnRevReg";
                     speedSign = "-";
-
-                    turnpct = "-100";
 
                 }
 
@@ -877,14 +892,11 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         } else {
             if ( isDuration ) {
                 methodName = "RotateMotor";
-
                 if ( driveAction.getDirection() == DriveDirection.BACKWARD ) {
                     speedSign = "-";
-
                 }
             } else {
                 methodName = "OnFwd";
-
                 if ( driveAction.getDirection() == DriveDirection.BACKWARD ) {
                     methodName = "OnRev";
 
@@ -937,20 +949,20 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
                 }
 
-                this.sb.append(");");
+                //  this.sb.append(");");
                 return null;
             }
-            this.sb.append((", OUT_REGMODE_SYNC") + ");");
+            this.sb.append(", OUT_REGMODE_SYNC" + ");");
 
             return null;
         } else {
 
             if ( isDuration ) {
                 appendCalculateDistance(driveAction);
-            } //else {
+            }
+        } //else {
 
-            //}
-        }
+        //}
 
         this.sb.append(");");
         return null;
@@ -1192,7 +1204,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         /*final String Port = getEnumCode(gyroSensor.getPort());
         final String methodName = "SetSensorGyro";
         this.sb.append(methodName + "(IN_");
-
+        
         switch ( gyroSensor.getMode() ) {
             case ANGLE:
                 this.sb.append(Port + (",") + ("ANGLE"));
@@ -1957,8 +1969,8 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
                     //this.sb.append("SetSensor(IN_" + entry.getKey().getPortNumber() + ", SENSOR_COLORFULL);");
                     break;
                 // TODO: add the color sensor
-                //case "LIGHT":
-                //this.sb.append(entry.getKey().getPortNumber() + ", SENSOR_LIGHT);");
+                // case "LIGHT":
+                // this.sb.append(entry.getKey().getPortNumber() + ", SENSOR_LIGHT);");
                 //break;
                 case "EV3_TOUCH_SENSOR":
                     this.sb.append(entry.getKey().getPortNumber() + ", SENSOR_TOUCH);");

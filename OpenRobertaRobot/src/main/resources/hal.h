@@ -495,23 +495,21 @@ inline int ArrFindLastBool(bool arr[], bool item) {
   }
 }
 
-//drive functions
+MotorOnAction
 inline float OnReg(int ports, float speed,int regmode) {
   if (speed > 0){
-    OnRevReg(OUT_C, speed,regmode);
+    OnRevReg(OUT_B, speed,regmode);
   }
   else{
     OnFwdReg(OUT_B, speed,regmode) ;
   }
 }
-sub TurnLeft(float s, float t){
-   OnFwd(OUT_A, s);
-   OnRev(OUT_B, s);
-   Wait(t);
- }
- sub TurnRight(float s, float t){
-   OnFwd(OUT_A, s);
-   OnRev(OUT_B, s);
-   Wait(t);
- }
+inline float OnUnReg(int ports, float speed,int regmode) {
+  if (speed > 0){
+    OnRevReg(OUT_B, speed,regmode);
+  }
+  else{
+    OnFwdReg(OUT_B, speed,regmode) ;
+  }
+}
 
