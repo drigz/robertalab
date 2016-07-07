@@ -118,7 +118,6 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     public static final String INDENT = "  ";
 
     private final Ev3Configuration brickConfiguration;
-    private final String programName;
     private final StringBuilder sb = new StringBuilder();
     private int indentation;
 
@@ -138,8 +137,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
      * @param usedFunctions in the current program
      * @param indentation to start with. Will be incr/decr depending on block structure
      */
-    public Ast2Ev3JavaVisitor(String programName, Ev3Configuration brickConfiguration, int indentation) {
-        this.programName = programName;
+    public Ast2Ev3JavaVisitor(Ev3Configuration brickConfiguration, int indentation) {
         this.brickConfiguration = brickConfiguration;
         this.indentation = indentation;
     }
@@ -157,7 +155,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         Assert.notNull(brickConfiguration);
         Assert.isTrue(phrasesSet.size() >= 1);
 
-        final Ast2Ev3JavaVisitor astVisitor = new Ast2Ev3JavaVisitor(programName, brickConfiguration, withWrapping ? 1 : 0);
+        final Ast2Ev3JavaVisitor astVisitor = new Ast2Ev3JavaVisitor(brickConfiguration, withWrapping ? 1 : 0);
         astVisitor.generatePrefix(withWrapping);
 
         generateCodeFromPhrases(phrasesSet, withWrapping, astVisitor);
@@ -318,7 +316,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitNullConst(NullConst<Void> nullConst) {
-        this.sb.append("null");
+        this.sb.append("NULL");
         return null;
     }
 
@@ -334,11 +332,19 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         this.sb.append(var.getName());
         if ( var.getVariableType().isArray() ) {
             this.sb.append("[]");
+            if ( var.getValue().getKind() == BlockType.LIST_CREATE ) {
+                ListCreate<Void> list = (ListCreate<Void>) var.getValue();
+                if ( list.getValue().get().size() == 0 ) {
+                    return null;
+                }
+            }
+
         }
+
         if ( var.getValue().getKind() != BlockType.EMPTY_EXPR ) {
             this.sb.append(" = ");
             if ( var.getValue().getKind() == BlockType.EXPR_LIST ) {
-                final ExprList<Void> list = (ExprList<Void>) var.getValue();
+                ExprList<Void> list = (ExprList<Void>) var.getValue();
                 if ( list.get().size() == 2 ) {
                     list.get().get(1).visit(this);
                 } else {
@@ -407,7 +413,6 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
-    // TODO: check empty expression
     @Override
     public Void visitEmptyExpr(EmptyExpr<Void> emptyExpr) {
         switch ( emptyExpr.getDefVal().getName() ) {
@@ -1213,7 +1218,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         final String methodName = "SetSensorInfrared";
         this.sb.append(methodName + "(IN_");
         switch ( infraredSensor.getMode() ) {
-        
+
             case DISTANCE:
                 this.sb.append(Port + (",") + ("DISTANCE"));
                 this.sb.append(")" + (";"));
@@ -1394,20 +1399,16 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         return null;
     }
 
+    //TODO: fix
     @Override
     public Void visitLengthOfIsEmptyFunct(LengthOfIsEmptyFunct<Void> lengthOfIsEmptyFunct) {
-
+        String methodName = "ArrayLen( ";
         if ( lengthOfIsEmptyFunct.getFunctName() == FunctionNames.LIST_IS_EMPTY ) {
-            this.sb.append("0");
-        } else {
-            this.sb.append("ArrayLen(");
-            lengthOfIsEmptyFunct.getParam().get(0).visit(this);
-            this.sb.append(")");
+            methodName = "IsEmpty(";
         }
-        //String methodName = "BlocklyMethods.length( ";
-        //if ( lengthOfIsEmptyFunct.getFunctName() == FunctionNames.LIST_IS_EMPTY ) {
-        //    methodName = "BlocklyMethods.isEmpty( ";
-        //}
+        this.sb.append(methodName);
+        lengthOfIsEmptyFunct.getParam().get(0).visit(this);
+        this.sb.append(")");
         //this.sb.append(methodName);
         //lengthOfIsEmptyFunct.getParam().get(0).visit(this);
         //this.sb.append(")");
@@ -1416,7 +1417,7 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
 
     @Override
     public Void visitEmptyList(EmptyList<Void> emptyList) {
-        this.sb.append("{}");
+        //this.sb.append("");
         return null;
     }
 

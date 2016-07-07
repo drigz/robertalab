@@ -32,7 +32,7 @@ public class LogicExprTest {
 
     @Test
     public void logicNull() throws Exception {
-        final String a = "\nnull";
+        final String a = "\nNULL";
 
         Helper.assertCodeIsOk(a, "/syntax/expr/logic_null.xml");
     }

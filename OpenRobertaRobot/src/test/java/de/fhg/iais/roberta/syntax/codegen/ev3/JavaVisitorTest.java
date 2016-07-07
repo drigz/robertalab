@@ -19,21 +19,21 @@ public class JavaVisitorTest {
 
     @Test
     public void getIndentaion() throws Exception {
-        Ast2Ev3JavaVisitor visitor = new Ast2Ev3JavaVisitor("Test", brickConfiguration, 0);
+        Ast2Ev3JavaVisitor visitor = new Ast2Ev3JavaVisitor(brickConfiguration, 0);
         Assert.assertEquals(0, visitor.getIndentation());
     }
 
     // String code = AstToLejosJavaVisitor.generate("Test", brickConfiguration, transformer.getTree(), true);
     @Test
     public void getSb() throws Exception {
-        Ast2Ev3JavaVisitor visitor = new Ast2Ev3JavaVisitor("Test", brickConfiguration, 0);
+        Ast2Ev3JavaVisitor visitor = new Ast2Ev3JavaVisitor(brickConfiguration, 0);
         Assert.assertEquals("", visitor.getSb().toString());
     }
 
     //
     public void visitMathConst() throws Exception {
         MathConst<Void> mathConst = MathConst.make(Const.E, BlocklyBlockProperties.make("1", "1", false, false, false, false, false, true, false), null);
-        Ast2Ev3JavaVisitor visitor = new Ast2Ev3JavaVisitor("Test", brickConfiguration, 0);
+        Ast2Ev3JavaVisitor visitor = new Ast2Ev3JavaVisitor(brickConfiguration, 0);
         mathConst.visit(visitor);
         Assert.assertEquals("E", visitor.getSb().toString());
     }
@@ -41,7 +41,7 @@ public class JavaVisitorTest {
     @Test
     public void visitEmptyExpr() throws Exception {
         EmptyExpr<Void> emptyExpr = EmptyExpr.make(Double.class);
-        Ast2Ev3JavaVisitor visitor = new Ast2Ev3JavaVisitor("Test", brickConfiguration, 0);
+        Ast2Ev3JavaVisitor visitor = new Ast2Ev3JavaVisitor(brickConfiguration, 0);
         emptyExpr.visit(visitor);
         Assert.assertEquals("[[EmptyExpr [defVal=class java.lang.Double]]]", visitor.getSb().toString());
     }

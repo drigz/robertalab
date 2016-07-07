@@ -7,7 +7,7 @@ import de.fhg.iais.roberta.testutil.Helper;
 public class ListsEmptyListTest {
     @Test
     public void Test() throws Exception {
-        String a = "{}" + "{}" + "{}" + "{}";
+        String a = "";
 
         Helper.assertCodeIsOk(a, "/syntax/lists/lists_empty_list.xml");
     }
