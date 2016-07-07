@@ -1344,21 +1344,21 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         if ( indexOfFunct.getLocation() == IndexLocation.LAST ) {
             switch ( typeArr ) {
                 case ARRAY_NUMBER:
-                    this.sb.append("ArrayFindLastNum(");
+                    this.sb.append("ArrFindLastNum(");
                     indexOfFunct.getParam().get(0).visit(this);
                     this.sb.append(", ");
                     indexOfFunct.getParam().get(1).visit(this);
                     this.sb.append(")");
                     break;
                 case ARRAY_STRING:
-                    this.sb.append("ArrayFindLastStr(");
+                    this.sb.append("ArrFindLastStr(");
                     indexOfFunct.getParam().get(0).visit(this);
                     this.sb.append(", ");
                     indexOfFunct.getParam().get(1).visit(this);
                     this.sb.append(")");
                     break;
                 case ARRAY_BOOLEAN:
-                    this.sb.append("ArrayFindLastBool(");
+                    this.sb.append("ArrFindLastBool(");
                     indexOfFunct.getParam().get(0).visit(this);
                     this.sb.append(", ");
                     indexOfFunct.getParam().get(1).visit(this);
@@ -1369,21 +1369,21 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
         } else {
             switch ( typeArr ) {
                 case ARRAY_NUMBER:
-                    this.sb.append("ArrayFindFirstNum(");
+                    this.sb.append("ArrFindFirstNum(");
                     indexOfFunct.getParam().get(0).visit(this);
                     this.sb.append(", ");
                     indexOfFunct.getParam().get(1).visit(this);
                     this.sb.append(")");
                     break;
                 case ARRAY_STRING:
-                    this.sb.append("ArrayFindFirstStr(");
+                    this.sb.append("ArrFindFirstStr(");
                     indexOfFunct.getParam().get(0).visit(this);
                     this.sb.append(", ");
                     indexOfFunct.getParam().get(1).visit(this);
                     this.sb.append(")");
                     break;
                 case ARRAY_BOOLEAN:
-                    this.sb.append("ArrayFindFirstBool(");
+                    this.sb.append("ArrFindFirstBool(");
                     indexOfFunct.getParam().get(0).visit(this);
                     this.sb.append(", ");
                     indexOfFunct.getParam().get(1).visit(this);
@@ -1543,35 +1543,35 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
     public Void visitMathOnListFunct(MathOnListFunct<Void> mathOnListFunct) {
         switch ( mathOnListFunct.getFunctName() ) {
             case SUM:
-                this.sb.append("ArraySum(");
+                this.sb.append("ArrSum(");
                 mathOnListFunct.getParam().get(0).visit(this);
                 break;
             case MIN:
-                this.sb.append("ArrayMin(");
+                this.sb.append("ArrMin(");
                 mathOnListFunct.getParam().get(0).visit(this);
                 break;
             case MAX:
-                this.sb.append("ArrayMax(");
+                this.sb.append("ArrMax(");
                 mathOnListFunct.getParam().get(0).visit(this);
                 break;
             case AVERAGE:
-                this.sb.append("ArrayMean(");
+                this.sb.append("ArrMean(");
                 mathOnListFunct.getParam().get(0).visit(this);
                 break;
             case MEDIAN:
-                this.sb.append("ArrayMedian(");
+                this.sb.append("ArrMedian(");
                 mathOnListFunct.getParam().get(0).visit(this);
                 break;
             case STD_DEV:
-                this.sb.append("ArrayStandardDeviatioin(");
+                this.sb.append("ArrStandardDeviatioin(");
                 mathOnListFunct.getParam().get(0).visit(this);
                 break;
             case RANDOM:
-                this.sb.append("ArrayRand(");
+                this.sb.append("ArrRand(");
                 mathOnListFunct.getParam().get(0).visit(this);
                 break;
             case MODE:
-                this.sb.append("ArrayMode(");
+                this.sb.append("ArrMode(");
                 mathOnListFunct.getParam().get(0).visit(this);
                 break;
             default:

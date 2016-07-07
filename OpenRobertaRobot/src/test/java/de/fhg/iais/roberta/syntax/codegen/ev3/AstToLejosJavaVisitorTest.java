@@ -170,9 +170,9 @@ public class AstToLejosJavaVisitorTest {
         final String a = "" //
             + MAIN_METHOD
 
-            + "          RotateMotor(OUT_B,0);"
-            + "        RotateMotor(OUT_B,30,360.0*0);"
-            + "       OnFwdSync(OUT_BA,0,100);"
+            + "          OnFwdReg(OUT_B,0,100);"
+            + "        RotateMotorEx(OUT_B,-30,360.0*0,-100,true,true);"
+            + "       OnFwdSync(OUT_AB,0,100);"
             + "        SetVolume(50);"
             + "        PlayTone(0,0);"
             + SUFFIX
@@ -202,8 +202,8 @@ public class AstToLejosJavaVisitorTest {
         final String a = "" //
             + MAIN_METHOD
 
-            + "          RotateMotor(OUT_B,30);\n"
-            + "          RotateMotor(OUT_B,30,360.0*1);\n"
+            + "          OnFwdReg(OUT_B,30,100);\n"
+            + "          RotateMotorEx(OUT_B,-30,360.0*1,-100,true,true);\n"
             + SUFFIX
 
             + "}\n";
@@ -274,7 +274,7 @@ public class AstToLejosJavaVisitorTest {
         final String a = "" //
             + MAIN_METHOD
 
-            + "       RotateMotor(OUT_B,30,360.0*1);"
+            + "       RotateMotorEx(OUT_B,-30,360.0*1,-100,true,true);"
             + "        macheEtwas(10, 10);"
 
             + "   void macheEtwas(float x, float x2) {\n"

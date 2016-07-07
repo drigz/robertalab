@@ -320,14 +320,14 @@ inline float Constrain(float val, float min, float max){
 
 //numerical array functions
 
-inline float ArraySum(float arr[]) {
+inline float ArrSum(float arr[]) {
   float sum = 0;
   for(int i = 0; i < ArrayLen(arr); i++) {
     sum += arr[i];
   }
   return sum;
 }
-inline float ArrayMin(float arr[]) {
+inline float ArrMin(float arr[]) {
   float min = arr[0];
   for(int i = 1; i < ArrayLen(arr); i++) {
     if (arr[i] < min){
@@ -336,7 +336,7 @@ inline float ArrayMin(float arr[]) {
   }
   return min;
 }
-inline float ArrayMax(float arr[]) {
+inline float ArrMax(float arr[]) {
   float max = arr[0];
   for(int i = 1; i < ArrayLen(arr); i++) {
     if (arr[i] > max){
@@ -345,14 +345,14 @@ inline float ArrayMax(float arr[]) {
   }
   return max;
 }
-float ArrayMean(float arr[]) {
+float ArrMean(float arr[]) {
   float sum = 0;
   for(int i = 0; i < ArrayLen(arr); i++) {
     sum += arr[i];
   }
   return sum/ArrayLen(arr);
 }
-inline void ArrayInsertionSort(float &arr[]) {
+inline void ArrInsertionSort(float &arr[]) {
   for (int i=1; i < ArrayLen(arr); i++) {
       int index = arr[i];
       int j = i;
@@ -363,12 +363,12 @@ inline void ArrayInsertionSort(float &arr[]) {
       arr[j] = index;
   }
 }
-inline float ArrayMedian(float arr[]) {
+inline float ArrMedian(float arr[]) {
    int n = ArrayLen(arr);
    if ( n == 0 ) {
      return 0;
    }
-   ArrayInsertionSort(arr);
+   ArrInsertionSort(arr);
    float median;
    if ( n % 2 == 0 ) {
       median = (arr[n/2] + arr[n / 2 - 1]) / 2;
@@ -378,25 +378,25 @@ inline float ArrayMedian(float arr[]) {
    }
    return median;
 }
-inline float ArrayStandardDeviatioin(float arr[]) {
+inline float ArrStandardDeviatioin(float arr[]) {
         int n = ArrayLen(arr);
         if ( n == 0 ) {
             return 0;
         }
         float variance = 0;
-        float mean = ArrayMean(arr);
+        float mean = ArrMean(arr);
         for ( int i = 0; i < ArrayLen(arr); i++) {
             variance += MathPow(arr[i] - mean, 2);
         }
         variance /= n;
         return sqrt(variance);
 }
-inline float ArrayRand(float arr[]) {
+inline float ArrRand(float arr[]) {
   int arrayInd = ArrayLen(arr) * Random(100) / 100;
   return arr[arrayInd - 1];
 }
-inline float ArrayMode(float arr[]){
-  ArrayInsertionSort(arr);
+inline float ArrMode(float arr[]){
+  ArrInsertionSort(arr);
   float element = arr[0];
   float max_seen = element;
   int count = 1;
@@ -420,7 +420,7 @@ inline float ArrayMode(float arr[]){
 
 // functions for unknown type arrays
 
-inline int ArrayFindFirstNum(float arr[], float item) {
+inline int ArrFindFirstNum(float arr[], float item) {
   int i = 0;
   if (arr[0] == item){
     return i;
@@ -432,7 +432,7 @@ inline int ArrayFindFirstNum(float arr[], float item) {
     return i;
   }
 }
-inline int ArrayFindLastNum(float arr[], float item) {
+inline int ArrFindLastNum(float arr[], float item) {
   int i = 0;
   if (arr[ArrayLen(arr) - 1] == item){
     return ArrayLen(arr) - 1 - i;
@@ -445,7 +445,7 @@ inline int ArrayFindLastNum(float arr[], float item) {
   }
 }
 
-inline int ArrayFindFirstStr(string arr[], string item) {
+inline int ArrFindFirstStr(string arr[], string item) {
   int i = 0;
   if (arr[0] == item){
     return i;
@@ -457,7 +457,7 @@ inline int ArrayFindFirstStr(string arr[], string item) {
     return i;
   }
 }
-inline int ArrayFindLastStr(string arr[], string item) {
+inline int ArrFindLastStr(string arr[], string item) {
   int i = 0;
   if (arr[ArrayLen(arr) - 1] == item){
     return ArrayLen(arr) - 1 - i;
@@ -470,7 +470,7 @@ inline int ArrayFindLastStr(string arr[], string item) {
   }
 }
 
-inline int ArrayFindFirstBool(bool arr[], bool item) {
+inline int ArrFindFirstBool(bool arr[], bool item) {
   int i = 0;
   if (arr[0] == item){
     return i;
@@ -482,7 +482,7 @@ inline int ArrayFindFirstBool(bool arr[], bool item) {
     return i;
   }
 }
-inline int ArrayFindLastBool(bool arr[], bool item) {
+inline int ArrFindLastBool(bool arr[], bool item) {
   int i = 0;
   if (arr[ArrayLen(arr) - 1] == item){
     return ArrayLen(arr) - 1 - i;
