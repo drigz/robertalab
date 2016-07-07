@@ -8,7 +8,7 @@ public class MotorOnActionTest {
 
     @Test
     public void motorOn() throws Exception {
-        String a = "on_reg(OUT_B, 30,OUT_REGMODE_SPEED);" + "on_reg(OUT_B, 50,OUT_REGMODE_SPEED);";
+        String a = "OnReg(OUT_B, 30,OUT_REGMODE_SPEED);" + "OnReg(OUT_B, 50,OUT_REGMODE_SPEED);";
 
         Helper.assertCodeIsOk(a, "/ast/actions/action_MotorOn.xml");
     }

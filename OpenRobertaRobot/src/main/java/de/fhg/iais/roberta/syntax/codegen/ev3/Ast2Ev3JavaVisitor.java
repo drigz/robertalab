@@ -713,21 +713,21 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             if ( isDuration ) {
                 methodName = "RotateMotorPID";
             } else {
-                methodName = "on_reg";
+                methodName = "OnReg";
             }
         } else {
             if ( isDuration ) {
                 methodName = "RotateMotor";
 
             } else { // without duration Unreg
-                methodName = "on_unreg";
+                methodName = "OnUnReg";
             }
 
         }
 
         this.sb.append(methodName + "(OUT_");
 
-        if ( this.brickConfiguration.getLeftMotorPort() == ActorPort.C ) {
+        if ( this.brickConfiguration.getLeftMotorPort() == ActorPort.B ) {
             ;
 
             {
@@ -836,16 +836,13 @@ public class Ast2Ev3JavaVisitor implements AstVisitor<Void> {
             ;
 
             {
-                this.sb.append(this.brickConfiguration.getRightMotorPort());
+                // this.sb.append(this.brickConfiguration.getRightMotorPort());
                 this.sb.append(this.brickConfiguration.getLeftMotorPort());
             }
-        }
-
-        else {
+        } else {
             this.sb.append(this.brickConfiguration.getLeftMotorPort());
-            this.sb.append(this.brickConfiguration.getRightMotorPort());
-
         }
+
         this.sb.append(");");
         return null;
     }
