@@ -1,5 +1,5 @@
-define([ 'exports', 'jquery', 'roberta.toolbox', 'roberta.user-state', 'roberta.program', 'roberta.user', 'roberta.brickly' ], function(exports, $,
-        ROBERTA_TOOLBOX, userState, ROBERTA_PROGRAM, ROBERTA_USER, BRICKLY) {
+define([ 'exports', 'log', 'jquery', 'roberta.toolbox', 'guiState.controller', 'program.controller', 'roberta.user', 'roberta.brickly' ], function(exports, LOG,
+        $, ROBERTA_TOOLBOX, guiStateController, programController, ROBERTA_USER, BRICKLY) {
 
     /**
      * Initialize language switching
@@ -26,15 +26,14 @@ define([ 'exports', 'jquery', 'roberta.toolbox', 'roberta.user-state', 'roberta.
             $('.EN').css('display', 'inline');
         }
         $('#language li a[lang=' + language + ']').parent().addClass('disabled');
-        userState.language = language;
         var url = 'blockly/msg/js/' + language + '.js';
         $.getScript(url, function(data) {
             translate();
-            ready.resolve();
+            ready.resolve(language);
         });
 
         initEvents();
-        return ready.promise();
+        return ready.promise(language);
     }
 
     exports.init = init;
@@ -42,19 +41,12 @@ define([ 'exports', 'jquery', 'roberta.toolbox', 'roberta.user-state', 'roberta.
     function initEvents() {
 
         $('#language').on('click', 'li a', function() {
+            LOG.info('language clicked');
             var language = $(this).attr('lang');
             switchLanguage(language);
-        });
+        }), 'switch language clicked';
     }
 
-    /**
-     * Switch to another language
-     * 
-     * @param {langCode}
-     *            Code of language to switch to
-     * @param {forceSwitch}
-     *            force the language setting
-     */
     function switchLanguage(language) {
 
         if (guiStateController.getLanguage == language) {
@@ -64,30 +56,12 @@ define([ 'exports', 'jquery', 'roberta.toolbox', 'roberta.user-state', 'roberta.
 
         var url = 'blockly/msg/js/' + language.toLowerCase() + '.js';
         var future = $.getScript(url);
-        future.then(function(newLanguageScript) {
-            switchLanguageInBlockly();
-            BRICKLY.switchLanguageInBrickly();
-            ROBERTA_USER.initValidationMessages();
+        future.then(function() {
+            programController.reloadView();
+            BRICKLY.reloadView();
+            //ROBERTA_USER.initValidationMessages();
         });
-
-    }
-    exports.switchLanguage = switchLanguage;
-
-    /**
-     * Switch blockly to another language
-     */
-    function switchLanguageInBlockly() {
-        workspace = ROBERTA_PROGRAM.getBlocklyWorkspace();
-        translate();
-        var programBlocks = null;
-        if (workspace !== null) {
-            var xmlProgram = Blockly.Xml.workspaceToDom(workspace);
-            programBlocks = Blockly.Xml.domToText(xmlProgram);
-        }
-        // translate programming tab
-        ROBERTA_TOOLBOX.loadToolbox(userState.toolbox);
-        ROBERTA_PROGRAM.updateRobControls();
-        ROBERTA_PROGRAM.initProgramEnvironment(programBlocks);
+        LOG.info('language switched to ' + language);
     }
 
     /**
